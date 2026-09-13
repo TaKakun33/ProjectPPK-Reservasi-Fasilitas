@@ -2,19 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Facility;
+use App\Services\ReservationAvailability;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-// TODO(Zhafran): isi logic asli di sini. Method & signature udah dicocokin
-// sama routes/reservasi.php, tinggal ganti isinya, jangan ganti nama method.
 class FacilityController extends Controller
 {
+    // Menampilkan daftar fasilitas dan fitur pencarian.
     public function index(Request $request)
     {
-        return response('TODO(Zhafran): daftar fasilitas + cari + status ketersediaan per slot.');
+        $query = Facility::where('is_active', true);
+
+        // Filter: Tipe, Lokasi, Kapasitas
+        if ($request->filled('type')) {
+            $query->where('type', 'like', '%' . $request->type . '%');
+        }
+
+        if ($request->filled('location')) {
+            $query->where('location', 'like', '%' . $request->location . '%');
+        }
+
+        if ($request->filled('capacity')) {
+            $query->where('capacity', '>=', (int) $request->capacity);
+        }
+
+        $facilities = $query->paginate(9)->withQueryString();
+
+        // Ambil daftar unik tipe & lokasi untuk dropdown 
+        $types = Facility::where('is_active', true)->distinct()->pluck('type');
+        $locations = Facility::where('is_active', true)->distinct()->pluck('location');
+
+        return view('facilities.index', compact('facilities', 'types', 'locations'));
     }
 
+    // Menampilkan detail fasilitas dan slot ketersediaan per 30 menit.
     public function show(Request $request, string $fasilitas)
     {
-        return response("TODO(Zhafran): detail ketersediaan fasilitas {$fasilitas}.");
+        $facility = Facility::where('is_active', true)
+            ->where('id_fasilitas', $fasilitas)
+            ->firstOrFail();
+
+        // Tanggal yang dicek, default adalah hari ini
+        $selectedDate = $request->input('date', Carbon::today()->toDateString());
+
+        // Ambil timeline slot waktu dari Service
+        $slots = ReservationAvailability::getDailySlots($facility->id_fasilitas, $selectedDate);
+
+        return view('facilities.show', compact('facility', 'selectedDate', 'slots'));
     }
 }
