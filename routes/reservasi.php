@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Route;
 // resource lain (admin.fasilitas.* punya Abhista) dan gampang dipakai
 // ulang. Kalau user login, controller ini juga yang dipakai —
 // bedanya cuma boleh-tidaknya lanjut ke tombol "Ajukan Reservasi".
-Route::get('/fasilitas', [FacilityController::class, 'index'])->name('facilities.index');
+Route::get('/home', [FacilityController::class, 'index'])->name('facilities.index');
+Route::redirect('/fasilitas', '/home');
 Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->name('facilities.show');
 
 // Wajib login — story #3, #4, #5.

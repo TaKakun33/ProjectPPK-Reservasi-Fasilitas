@@ -17,6 +17,8 @@ class LogStatusLaporan extends Model
 {
     use HasFactory, HasUuids;
 
+    protected $table = 'log_status_laporan';
+
     protected $primaryKey = 'id_log';
 
     public $incrementing = false;
