@@ -14,5 +14,5 @@ Route::middleware('auth')->prefix('laporan')->name('reports.')->group(function (
     Route::get('/', [ReportController::class, 'index'])->name('index'); // riwayat + status laporan sendiri
     Route::get('/create', [ReportController::class, 'create'])->name('create'); // form: kategori, deskripsi, foto
     Route::post('/', [ReportController::class, 'store'])->name('store');
-    Route::get('/{laporan}', [ReportController::class, 'show'])->name('show'); // detail status
+    Route::get('/{laporan:id_laporan}', [ReportController::class, 'show'])->name('show'); // detail status
 });
