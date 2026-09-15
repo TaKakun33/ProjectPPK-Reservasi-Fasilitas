@@ -17,7 +17,7 @@
                 <p class="text-gray-700 mt-2 text-sm">{{ $facility->description }}</p>
             </div>
             <div class="flex items-center">
-                @auth
+                @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna)
                     @if($facility->facility_status === 'aktif')
                         <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate]) }}"
                            class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow hover:bg-indigo-700 transition">
@@ -26,11 +26,11 @@
                     @else
                         <span class="text-sm font-semibold px-3 py-1 bg-red-100 text-red-700 rounded-md">Fasilitas Dalam Perbaikan</span>
                     @endif
-                @else
+                @elseif(!auth()->check())
                     <a href="{{ route('login') }}" class="text-sm px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">
                         Login untuk Reservasi
                     </a>
-                @endauth
+                @endif
             </div>
         </div>
 

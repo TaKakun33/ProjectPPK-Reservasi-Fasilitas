@@ -13,11 +13,12 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @auth
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
+                        @if(auth()->user()->role !== \App\Enums\UserRole::Pengguna)
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                        @endif
                     @endauth
-
                     {{-- Menu Publik Milik Anda --}}
                     <x-nav-link :href="route('facilities.index')" :active="request()->routeIs('facilities.*')">
                         {{ __('Daftar Fasilitas') }}
@@ -25,9 +26,11 @@
 
                     {{-- Menu Khusus Pengguna Login Milik Anda --}}
                     @auth
-                        <x-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
-                            {{ __('Reservasi Saya') }}
-                        </x-nav-link>
+                        @if(auth()->user()->role === \App\Enums\UserRole::Pengguna)
+                            <x-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
+                                {{ __('Reservasi Saya') }}
+                            </x-nav-link>
+                        @endif
                     @endauth
                 </div>
             </div>
@@ -87,17 +90,21 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @auth
-                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                    {{ __('Dashboard') }}
-                </x-responsive-nav-link>
+                @if(auth()->user()->role !== \App\Enums\UserRole::Pengguna)
+                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                        {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                @endif
             @endauth
             <x-responsive-nav-link :href="route('facilities.index')" :active="request()->routeIs('facilities.*')">
                 {{ __('Daftar Fasilitas') }}
             </x-responsive-nav-link>
             @auth
-                <x-responsive-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
-                    {{ __('Reservasi Saya') }}
-                </x-responsive-nav-link>
+                @if(auth()->user()->role === \App\Enums\UserRole::Pengguna)
+                    <x-responsive-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
+                        {{ __('Reservasi Saya') }}
+                    </x-responsive-nav-link>
+                @endif
             @endauth
         </div>
 

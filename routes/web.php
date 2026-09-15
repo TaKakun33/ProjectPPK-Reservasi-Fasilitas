@@ -3,10 +3,9 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FacilityController; // ← tambahkan import ini
 
-Route::get('/', function () {
-    return redirect()->route('facilities.index');
-});
+Route::get('/', [FacilityController::class, 'index'])->name('welcome');
 
 // /dashboard tetap jadi satu pintu masuk yang sama buat semua role
 // (link navbar & redirect lama masih nunjuk ke sini), tapi sekarang
