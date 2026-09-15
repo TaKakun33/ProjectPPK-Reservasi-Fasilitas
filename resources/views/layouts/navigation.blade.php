@@ -13,13 +13,31 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @auth
-                        @if(auth()->user()->role !== \App\Enums\UserRole::Pengguna)
+                        @if(auth()->user()->role === \App\Enums\UserRole::Petugas)
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
                         @endif
                     @endauth
-                    {{-- Menu Publik Milik Anda --}}
+                    {{-- Menu Admin --}}
+                    @auth
+                        @if(auth()->user()->role === \App\Enums\UserRole::Admin)
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.fasilitas.index')" :active="request()->routeIs('admin.fasilitas.*')">
+                                {{ __('Fasilitas') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                                {{ __('User') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.rekap.index')" :active="request()->routeIs('admin.rekap.*')">
+                                {{ __('Rekap') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
+
+                    {{-- Menu Publik --}}
                     <x-nav-link :href="route('facilities.index')" :active="request()->routeIs('facilities.*')">
                         {{ __('Daftar Fasilitas') }}
                     </x-nav-link>
@@ -90,9 +108,23 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             @auth
-                @if(auth()->user()->role !== \App\Enums\UserRole::Pengguna)
+                @if(auth()->user()->role === \App\Enums\UserRole::Petugas)
                     <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                @endif
+                @if(auth()->user()->role === \App\Enums\UserRole::Admin)
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                        {{ __('Dashboard Admin') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.fasilitas.index')" :active="request()->routeIs('admin.fasilitas.*')">
+                        {{ __('Fasilitas') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        {{ __('User') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.rekap.index')" :active="request()->routeIs('admin.rekap.*')">
+                        {{ __('Rekap') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth

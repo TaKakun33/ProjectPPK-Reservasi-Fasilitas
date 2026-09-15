@@ -3,40 +3,83 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Facility;
 use Illuminate\Http\Request;
 
-// TODO(Abhista): CRUD data master fasilitas. Ingat: nonaktifkan pakai
-// Facility::is_active (boolean), JANGAN pakai facility_status (itu punya
-// Ilham buat status 'dalam perbaikan').
 class FacilityController extends Controller
 {
     public function index(Request $request)
     {
-        return response('TODO(Abhista): daftar fasilitas (admin).');
+        $query = Facility::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('facility_name', 'like', "%{$search}%")
+                  ->orWhere('type', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active === 'true');
+        }
+
+        $facilities = $query->latest()->paginate(10)->withQueryString();
+
+        return view('admin.facilities.index', compact('facilities'));
     }
 
-    public function create(Request $request)
+    public function create()
     {
-        return response('TODO(Abhista): form tambah fasilitas.');
+        return view('admin.facilities.create');
     }
 
     public function store(Request $request)
     {
-        return response('TODO(Abhista): simpan fasilitas baru.');
+        $validated = $request->validate([
+            'facility_name' => 'required|string|max:100',
+            'type'          => 'required|string|max:50',
+            'location'      => 'required|string|max:150',
+            'capacity'      => 'required|integer|min:1',
+            'description'   => 'nullable|string',
+        ]);
+
+        $validated['is_active'] = true;
+        $validated['facility_status'] = 'aktif';
+
+        Facility::create($validated);
+
+        return redirect()->route('admin.fasilitas.index')
+            ->with('success', 'Fasilitas berhasil ditambahkan.');
     }
 
-    public function edit(Request $request, string $fasilitas)
+    public function edit(Facility $fasilitas)
     {
-        return response("TODO(Abhista): form edit fasilitas {$fasilitas}.");
+        return view('admin.facilities.edit', compact('fasilitas'));
     }
 
-    public function update(Request $request, string $fasilitas)
+    public function update(Request $request, Facility $fasilitas)
     {
-        return response("TODO(Abhista): update fasilitas {$fasilitas}.");
+        $validated = $request->validate([
+            'facility_name' => 'required|string|max:100',
+            'type'          => 'required|string|max:50',
+            'location'      => 'required|string|max:150',
+            'capacity'      => 'required|integer|min:1',
+            'description'   => 'nullable|string',
+        ]);
+
+        $fasilitas->update($validated);
+
+        return redirect()->route('admin.fasilitas.index')
+            ->with('success', 'Fasilitas berhasil diperbarui.');
     }
 
-    public function destroy(Request $request, string $fasilitas)
+    public function destroy(Facility $fasilitas)
     {
-        return response("TODO(Abhista): nonaktifkan fasilitas {$fasilitas} (toggle is_active, bukan hard delete).");
+        $fasilitas->update(['is_active' => false]);
+
+        return redirect()->route('admin.fasilitas.index')
+            ->with('success', 'Fasilitas berhasil dinonaktifkan.');
     }
 }
