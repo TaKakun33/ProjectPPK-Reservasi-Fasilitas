@@ -77,13 +77,13 @@
                             <a href="{{ route('facilities.show', $facility->id_fasilitas) }}" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800">
                                 Cek Jadwal Slot &rarr;
                             </a>
-                            @auth
+                            @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna)
                                 @if($facility->facility_status === 'aktif')
                                     <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas]) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-xs font-semibold text-white rounded-md hover:bg-indigo-700">
                                         Reservasi
                                     </a>
                                 @endif
-                            @endauth
+                            @endif
                         </div>
                     </div>
                 @endforeach

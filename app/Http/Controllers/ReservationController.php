@@ -8,6 +8,7 @@ use App\Services\ReservationAvailability;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB; 
 
 class ReservationController extends Controller
 {
@@ -65,35 +66,38 @@ class ReservationController extends Controller
         // 3. Validasi Kondisi Fasilitas
         $facility = Facility::findOrFail($request->id_fasilitas);
         if (!$facility->is_active || $facility->facility_status !== 'aktif') {
-            return back()
-                ->withInput()
-                ->withErrors(['id_fasilitas' => 'Fasilitas ini sedang tidak aktif atau dalam perbaikan.']);
+            return back()->withInput()->withErrors(['id_fasilitas' => 'Fasilitas ini sedang tidak aktif atau dalam perbaikan.']);
         }
 
-        // 4. Validasi Bentrok Jadwal (Overlap)
-        $hasConflict = ReservationAvailability::hasConflict(
-            $request->id_fasilitas,
-            $request->date,
-            $startTime,
-            $endTime
-        );
+        try {
+            $reservation = DB::transaction(function () use ($request, $startTime, $endTime) {
+                // Lock baris reservasi fasilitas ini+tanggal ini selama transaction
+                $hasConflict = Reservation::where('id_fasilitas', $request->id_fasilitas)
+                    ->where('date', $request->date)
+                    ->whereIn('reservation_status', ['approved', 'pending'])
+                    ->where(function ($q) use ($startTime, $endTime) {
+                        $q->where('start_time', '<', $endTime)->where('end_time', '>', $startTime);
+                    })
+                    ->lockForUpdate()
+                    ->exists();
 
-        if ($hasConflict) {
-            return back()
-                ->withInput()
-                ->withErrors(['time' => 'Jadwal yang Anda pilih sudah terisi atau bertabrakan dengan reservasi lain yang sedang menunggu konfirmasi/disetujui.']);
+                if ($hasConflict) {
+                    throw new \RuntimeException('conflict');
+                }
+
+                return Reservation::create([
+                    'id_user' => Auth::id(),
+                    'id_fasilitas' => $request->id_fasilitas,
+                    'date' => $request->date,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'purpose' => $request->purpose,
+                    'reservation_status' => 'pending',
+                ]);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->withErrors(['time' => 'Jadwal yang Anda pilih sudah terisi atau bertabrakan dengan reservasi lain yang sedang menunggu konfirmasi/disetujui.']);
         }
-
-        // 5. Simpan ke database
-        Reservation::create([
-            'id_user'            => Auth::id(),
-            'id_fasilitas'       => $request->id_fasilitas,
-            'date'               => $request->date,
-            'start_time'         => $startTime,
-            'end_time'           => $endTime,
-            'purpose'            => $request->purpose,
-            'reservation_status' => 'pending',
-        ]);
 
         return redirect()->route('reservations.index')->with('success', 'Reservasi berhasil diajukan dan sedang menunggu verifikasi petugas.');
     }

@@ -16,10 +16,14 @@ use Illuminate\Support\Facades\Route;
 // ulang. Kalau user login, controller ini juga yang dipakai —
 // bedanya cuma boleh-tidaknya lanjut ke tombol "Ajukan Reservasi".
 Route::get('/fasilitas', [FacilityController::class, 'index'])->name('facilities.index');
+Route::redirect('/home', '/fasilitas');
 Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->name('facilities.show');
 
-// Wajib login — story #3, #4, #5.
-Route::middleware('auth')->prefix('reservasi')->name('reservations.')->group(function () {
+// Wajib login DAN khusus role pengguna — story #3, #4, #5.
+// Sengaja TIDAK dibuka untuk admin/petugas: kalau mereka boleh ajukan
+// reservasi sendiri, ada risiko petugas approve reservasi miliknya
+// sendiri (self-approval / conflict of interest) di /petugas/reservasi.
+Route::middleware(['auth', 'role:pengguna'])->prefix('reservasi')->name('reservations.')->group(function () {
     Route::get('/', [ReservationController::class, 'index'])->name('index'); // riwayat + status
     Route::get('/create', [ReservationController::class, 'create'])->name('create'); // form ajukan
     Route::post('/', [ReservationController::class, 'store'])->name('store'); // validasi server: jam operasional, slot 30 menit, bentrok

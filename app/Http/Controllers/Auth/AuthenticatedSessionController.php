@@ -41,7 +41,7 @@ class AuthenticatedSessionController extends Controller
         return match ($request->user()->role) {
             UserRole::Admin => redirect()->intended('/admin/dashboard'),
             UserRole::Petugas => redirect()->intended('/petugas/dashboard'),
-            default => redirect()->intended(route('dashboard', absolute: false)),
+            default => redirect()->intended(route('facilities.index', absolute: false)),
         };
     }
 

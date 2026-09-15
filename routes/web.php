@@ -3,25 +3,19 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FacilityController; // ← tambahkan import ini
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-// Alias biar /home juga nunjuk ke halaman yang sama kayak /.
-Route::get('/home', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [FacilityController::class, 'index'])->name('welcome');
 
 // /dashboard tetap jadi satu pintu masuk yang sama buat semua role
 // (link navbar & redirect lama masih nunjuk ke sini), tapi sekarang
 // dia cuma "penerus": admin/petugas langsung dilempar ke dashboard
-// masing-masing, pengguna biasa tetap lihat dashboard seperti biasa.
+// masing-masing, pengguna biasa langsung diarahkan ke daftar fasilitas.
 Route::get('/dashboard', function () {
     return match (auth()->user()->role) {
         UserRole::Admin => redirect()->route('admin.dashboard'),
         UserRole::Petugas => redirect()->route('petugas.dashboard'),
-        default => view('dashboard'),
+        default => redirect()->route('facilities.index'),
     };
 })->middleware(['auth'])->name('dashboard');
 
