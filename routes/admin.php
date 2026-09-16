@@ -19,7 +19,18 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Story #16: kelola data fasilitas (tambah/edit/nonaktifkan).
-    Route::resource('fasilitas', FacilityController::class)->except(['show']);
+    // NOTE: parameter dipaksa "fasilitas" (bukan hasil auto-singular "fasilita")
+    // supaya cocok dengan nama variabel $fasilitas di FacilityController,
+    // karena implicit route model binding di Laravel mencocokkan berdasarkan NAMA,
+    // bukan cuma tipe. Tanpa ini, binding gagal diam-diam dan controller menerima
+    // instance Facility kosong, bukan hasil query dari DB.
+    Route::resource('fasilitas', FacilityController::class)
+        ->except(['show'])
+        ->parameters(['fasilitas' => 'fasilitas']);
+
+    // Aktifkan kembali fasilitas yang sudah dinonaktifkan (kebalikan dari destroy).
+    Route::patch('/fasilitas/{fasilitas}/activate', [FacilityController::class, 'activate'])
+        ->name('fasilitas.activate');
 
     // Story #13, #14, #15: daftarkan akun petugas/pengguna langsung + verifikasi registrasi mandiri.
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
