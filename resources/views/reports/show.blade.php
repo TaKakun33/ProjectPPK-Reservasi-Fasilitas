@@ -49,10 +49,10 @@
                     <p class="text-gray-800">{{ $laporan->description }}</p>
                 </div>
 
-                @if($laporan->photo)
+                @if($laporan->photo_data || $laporan->photo)
                     <div>
                         <p class="text-sm text-gray-500 mb-2">Foto Kerusakan</p>
-                        <img src="{{ asset('storage/' . $laporan->photo) }}" alt="Foto kerusakan"
+                        <img src="{{ $laporan->photo_data ?? asset('storage/' . $laporan->photo) }}" alt="Foto kerusakan"
                              class="w-full max-w-md rounded-lg border border-gray-200">
                     </div>
                 @endif
