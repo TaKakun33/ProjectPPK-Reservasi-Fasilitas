@@ -21,17 +21,25 @@
 
                     {{-- Kartu ringkasan: reservasi pending dan laporan baru --}}
                     <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        {{-- Kartu reservasi pending --}}
-                        <div class="rounded-lg border border-yellow-300 bg-yellow-100 p-4">
+                        {{-- Kartu reservasi pending (klik untuk buka antrian) --}}
+                        <a href="{{ route('petugas.reservations.index') }}"
+                           class="block rounded-lg border border-yellow-300 bg-yellow-100 p-4 hover:bg-yellow-200 transition">
                             <p class="text-sm text-gray-600">{{ __('Reservasi Pending') }}</p>
                             <p class="text-3xl font-bold text-yellow-700">{{ $pendingReservations }}</p>
-                        </div>
+                            <p class="mt-2 text-xs text-yellow-800 font-medium">
+                                Lihat Antrian &rarr;
+                            </p>
+                        </a>
 
-                        {{-- Kartu laporan belum diproses --}}
-                        <div class="rounded-lg border border-red-300 bg-red-100 p-4">
+                        {{-- Kartu laporan belum diproses (klik untuk buka antrian) --}}
+                        <a href="{{ route('petugas.reports.index') }}"
+                           class="block rounded-lg border border-red-300 bg-red-100 p-4 hover:bg-red-200 transition">
                             <p class="text-sm text-gray-600">{{ __('Laporan Belum Diproses') }}</p>
                             <p class="text-3xl font-bold text-red-700">{{ $newReports }}</p>
-                        </div>
+                            <p class="mt-2 text-xs text-red-800 font-medium">
+                                Lihat Antrian &rarr;
+                            </p>
+                        </a>
                     </div>
                 </div>
             </div>
