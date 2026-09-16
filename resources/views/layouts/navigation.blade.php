@@ -30,6 +30,9 @@
                             <x-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
                                 {{ __('Reservasi Saya') }}
                             </x-nav-link>
+                            <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                                {{ __('Laporan Kerusakan') }}
+                            </x-nav-link>
                         @endif
                     @endauth
                 </div>
@@ -103,6 +106,9 @@
                 @if(auth()->user()->role === \App\Enums\UserRole::Pengguna)
                     <x-responsive-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
                         {{ __('Reservasi Saya') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                        {{ __('Laporan Kerusakan') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth
