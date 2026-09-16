@@ -16,10 +16,10 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // Antrian laporan yang belum diproses (status 'baru'), diurutkan dari
-        // yang paling lama masuk.
+        // Tampilkan laporan yang masih dalam proses penanganan: 'baru' dan 'diproses'.
+        // Laporan 'diproses' tetap muncul supaya petugas bisa menandainya 'selesai'.
         $reports = Report::with(['user', 'facility', 'category'])
-            ->where('report_status', 'baru')
+            ->whereIn('report_status', ['baru', 'diproses'])
             ->orderBy('created_at', 'asc')
             ->paginate(15);
 
