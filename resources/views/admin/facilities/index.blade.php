@@ -86,6 +86,12 @@
                                                 @method('DELETE')
                                                 <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">Nonaktifkan</button>
                                             </form>
+                                        @else
+                                            <form method="POST" action="{{ route('admin.fasilitas.activate', $f->id_fasilitas) }}" class="inline" onsubmit="return confirm('Aktifkan kembali fasilitas ini?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-xs font-semibold text-green-600 hover:text-green-800 hover:underline">Aktifkan</button>
+                                            </form>
                                         @endif
                                     </td>
                                 </tr>

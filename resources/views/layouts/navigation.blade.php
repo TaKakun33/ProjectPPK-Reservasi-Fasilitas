@@ -37,14 +37,12 @@
                         @endif
                     @endauth
 
-                    {{-- Menu Publik --}}
-                    <x-nav-link :href="route('facilities.index')" :active="request()->routeIs('facilities.*')">
-                        {{ __('Daftar Fasilitas') }}
-                    </x-nav-link>
-
                     {{-- Menu Khusus Pengguna Login Milik Anda --}}
                     @auth
                         @if(auth()->user()->role === \App\Enums\UserRole::Pengguna)
+                            <x-nav-link :href="route('facilities.index')" :active="request()->routeIs('facilities.*')">
+                                {{ __('Daftar Fasilitas') }}
+                            </x-nav-link>
                             <x-nav-link :href="route('reservations.index')" :active="request()->routeIs('reservations.*')">
                                 {{ __('Reservasi Saya') }}
                             </x-nav-link>

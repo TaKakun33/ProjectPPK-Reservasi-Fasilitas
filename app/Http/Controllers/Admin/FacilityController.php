@@ -82,4 +82,12 @@ class FacilityController extends Controller
         return redirect()->route('admin.fasilitas.index')
             ->with('success', 'Fasilitas berhasil dinonaktifkan.');
     }
+
+    public function activate(Facility $fasilitas)
+    {
+        $fasilitas->update(['is_active' => true]);
+
+        return redirect()->route('admin.fasilitas.index')
+            ->with('success', 'Fasilitas berhasil diaktifkan kembali.');
+    }
 }

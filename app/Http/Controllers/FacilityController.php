@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\Facility;
 use App\Services\ReservationAvailability;
 use Carbon\Carbon;
@@ -12,6 +13,12 @@ class FacilityController extends Controller
     // Menampilkan daftar fasilitas dan fitur pencarian.
     public function index(Request $request)
     {
+        // Admin gak perlu lihat halaman publik ini — langsung lempar
+        // ke halaman kelola fasilitas miliknya di /admin/fasilitas.
+        if ($request->user()?->role === UserRole::Admin) {
+            return redirect()->route('admin.fasilitas.index');
+        }
+
         $query = Facility::where('is_active', true);
 
         // Filter: Tipe, Lokasi, Kapasitas
