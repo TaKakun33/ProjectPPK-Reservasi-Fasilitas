@@ -13,6 +13,38 @@
 
         {{-- Scripts --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        @auth
+            <script>
+                (function() {
+                    @if(session('just_logged_in'))
+                        sessionStorage.setItem('tab_session_active', '1');
+                    @endif
+
+                    if (!sessionStorage.getItem('tab_session_active')) {
+                        // Jika tab baru dibuka terpisah (setelah tab sebelumnya diclose),
+                        // otomatis logout dan arahkan kembali ke home daftar fasilitas.
+                        fetch("{{ route('logout') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            }
+                        }).finally(function() {
+                            window.location.replace("{{ route('welcome') }}");
+                        });
+                    } else {
+                        sessionStorage.setItem('tab_session_active', '1');
+                    }
+                })();
+            </script>
+        @endauth
+        @guest
+            <script>
+                sessionStorage.removeItem('tab_session_active');
+            </script>
+        @endguest
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

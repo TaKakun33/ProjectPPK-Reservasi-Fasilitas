@@ -19,10 +19,10 @@ class FacilityController extends Controller
             return redirect()->route('admin.fasilitas.index');
         }
 
-        // Petugas juga gak boleh akses halaman publik ini — dia bukan
-        // pemohon reservasi, jadi gak ada urusan liat daftar fasilitas
-        // dari sisi pengguna. Tolak langsung (403), bukan redirect.
-        abort_if($request->user()?->role === UserRole::Petugas, 403, 'Halaman fasilitas ini khusus untuk pengguna.');
+        // Jika yang login adalah Petugas, arahkan langsung ke dashboard miliknya
+        if ($request->user()?->role === UserRole::Petugas) {
+            return redirect()->route('petugas.dashboard');
+        }
 
         $query = Facility::visible();
 
