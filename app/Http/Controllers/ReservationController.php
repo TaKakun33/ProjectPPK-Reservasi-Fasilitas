@@ -102,6 +102,25 @@ class ReservationController extends Controller
         return redirect()->route('reservations.index')->with('success', 'Reservasi berhasil diajukan dan sedang menunggu verifikasi petugas.');
     }
      
+    // Detail 1 reservasi milik user yang login — termasuk alasan penolakan/
+    // pembatalan dan riwayat perubahan status, biar user paham kenapa
+    // status reservasinya seperti itu (bukan cuma badge status doang).
+    public function show(Request $request, string $reservasi)
+    {
+        $reservation = Reservation::with([
+                'facility',
+                'processedBy',
+                'logs' => fn ($query) => $query->orderBy('created_at')->with('changedBy'),
+            ])
+            ->findOrFail($reservasi);
+
+        if ($reservation->id_user !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat reservasi ini.');
+        }
+
+        return view('reservations.show', compact('reservation'));
+    }
+
     // Batalkan reservasi milik sendiri.
     public function destroy(Request $request, string $reservasi)
     {

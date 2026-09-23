@@ -72,8 +72,10 @@ class ReservationController extends Controller
             return back()->with('error', 'Reservasi ini sudah diproses sebelumnya.');
         }
 
+        // Wajib isi alasan penolakan (US #9) biar pengguna tahu kenapa
+        // reservasinya ditolak, bukan cuma status berubah jadi "ditolak".
         $validated = $request->validate([
-            'notes' => ['nullable', 'string', 'max:500'],
+            'alasan_ditolak' => ['required', 'string', 'max:500'],
         ]);
 
         DB::transaction(function () use ($reservation, $request, $validated) {
@@ -81,6 +83,7 @@ class ReservationController extends Controller
 
             $reservation->update([
                 'reservation_status' => 'rejected',
+                'alasan_ditolak' => $validated['alasan_ditolak'],
                 'processed_by' => $request->user()->id_user,
             ]);
 
@@ -89,7 +92,7 @@ class ReservationController extends Controller
                 'status_before' => $statusBefore,
                 'status_after' => 'rejected',
                 'changed_by' => $request->user()->id_user,
-                'notes' => $validated['notes'] ?? null,
+                'notes' => $validated['alasan_ditolak'],
             ]);
         });
 

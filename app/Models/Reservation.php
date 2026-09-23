@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * slot 30 menit, cek bentrok) ditulis di Service/FormRequest terpisah
  * (mis. app/Services/ReservationAvailability.php), bukan di sini.
  */
-#[Fillable(['id_user', 'id_fasilitas', 'date', 'start_time', 'end_time', 'purpose', 'reservation_status', 'cancellation_reason', 'processed_by'])]
+#[Fillable(['id_user', 'id_fasilitas', 'date', 'start_time', 'end_time', 'purpose', 'reservation_status', 'cancellation_reason', 'alasan_ditolak', 'processed_by'])]
 class Reservation extends Model
 {
     use HasFactory, HasUuids;

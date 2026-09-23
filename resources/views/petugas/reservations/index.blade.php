@@ -18,6 +18,12 @@
             </div>
         @endif
 
+        @error('alasan_ditolak')
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
+                {{ $message }}
+            </div>
+        @enderror
+
         <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
             @if($reservations->isEmpty())
                 <div class="p-12 text-center text-gray-500">
@@ -68,16 +74,11 @@
                                                 </button>
                                             </form>
 
-                                            <form method="POST"
-                                                  action="{{ route('petugas.reservations.reject', $res->id_reservasi) }}"
-                                                  onsubmit="return confirm('Tolak reservasi ini?')">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit"
-                                                        class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
-                                                    Tolak
-                                                </button>
-                                            </form>
+                                            <button type="button"
+                                                    onclick="openRejectModal('{{ route('petugas.reservations.reject', $res->id_reservasi) }}')"
+                                                    class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
+                                                Tolak
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -92,4 +93,54 @@
             @endif
         </div>
     </div>
+
+    {{-- Modal alasan penolakan (US #9): wajib diisi sebelum reservasi ditolak --}}
+    <div id="reject-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900">Tolak Reservasi</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Jelaskan alasan penolakan supaya pengguna tahu kenapa reservasinya ditolak.
+            </p>
+
+            <form id="reject-form" method="POST" class="mt-4">
+                @csrf
+                @method('PATCH')
+
+                <label for="alasan_ditolak" class="block text-sm font-medium text-gray-700">
+                    Alasan Penolakan <span class="text-red-600">*</span>
+                </label>
+                <textarea id="alasan_ditolak" name="alasan_ditolak" rows="4" required maxlength="500"
+                          class="mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-red-500 focus:ring-red-500"
+                          placeholder="Contoh: Fasilitas sedang dalam perbaikan pada tanggal tersebut."></textarea>
+
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" onclick="closeRejectModal()"
+                            class="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
+                        Tolak Reservasi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openRejectModal(actionUrl) {
+            const modal = document.getElementById('reject-modal');
+            const form = document.getElementById('reject-form');
+            form.setAttribute('action', actionUrl);
+            document.getElementById('alasan_ditolak').value = '';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeRejectModal() {
+            const modal = document.getElementById('reject-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
 </x-app-layout>

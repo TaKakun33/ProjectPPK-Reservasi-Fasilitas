@@ -27,5 +27,6 @@ Route::middleware(['auth', 'role:pengguna'])->prefix('reservasi')->name('reserva
     Route::get('/', [ReservationController::class, 'index'])->name('index'); // riwayat + status
     Route::get('/create', [ReservationController::class, 'create'])->name('create'); // form ajukan
     Route::post('/', [ReservationController::class, 'store'])->name('store'); // validasi server: jam operasional, slot 30 menit, bentrok
+    Route::get('/{reservasi}', [ReservationController::class, 'show'])->name('show'); // detail 1 reservasi milik sendiri
     Route::delete('/{reservasi}', [ReservationController::class, 'destroy'])->name('destroy'); // batalkan punya sendiri
 });
