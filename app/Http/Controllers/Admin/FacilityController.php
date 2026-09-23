@@ -84,9 +84,24 @@ class FacilityController extends Controller
 
     public function activate(Facility $fasilitas)
     {
-        $fasilitas->update(['facility_status' => 'aktif']);
+        // Sebelum diaktifkan, cek dulu: apakah fasilitas ini masih punya
+        // laporan kerusakan yang sedang ditangani petugas ('diproses')?
+        // Kalau iya, jangan langsung dibuat 'aktif' — kembalikan ke
+        // 'dalam perbaikan' supaya statusnya tetap konsisten dengan
+        // laporan yang belum selesai (bukan hasil keputusan admin lagi).
+        $masihDiperbaiki = $fasilitas->reports()
+            ->where('report_status', 'diproses')
+            ->exists();
+
+        $fasilitas->update([
+            'facility_status' => $masihDiperbaiki ? 'dalam perbaikan' : 'aktif',
+        ]);
+
+        $message = $masihDiperbaiki
+            ? 'Fasilitas diaktifkan, namun statusnya dikembalikan ke "dalam perbaikan" karena masih ada laporan kerusakan yang sedang diproses petugas.'
+            : 'Fasilitas berhasil diaktifkan kembali.';
 
         return redirect()->route('admin.fasilitas.index')
-            ->with('success', 'Fasilitas berhasil diaktifkan kembali.');
+            ->with('success', $message);
     }
 }
