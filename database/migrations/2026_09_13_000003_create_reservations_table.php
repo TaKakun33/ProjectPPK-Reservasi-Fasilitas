@@ -19,6 +19,11 @@ return new class extends Migration
             $table->string('purpose', 255);
             $table->string('reservation_status', 50)->default('pending');
             $table->text('cancellation_reason')->nullable();
+            // US #9: saat petugas menolak reservasi, wajib isi alasan biar
+            // pengguna tahu kenapa reservasinya ditolak (bukan cuma status
+            // "ditolak" tanpa keterangan). Diisi bareng reservation_status
+            // di ReservationController@reject.
+            $table->text('alasan_ditolak')->nullable();
             $table->uuid('processed_by')->nullable();
             $table->timestamps();
 
@@ -40,6 +45,10 @@ return new class extends Migration
         DB::statement("ALTER TABLE reservations ADD CONSTRAINT chk_reservations_operating_hours CHECK (start_time >= '07:00:00' AND end_time <= '20:00:00')");
         DB::statement('ALTER TABLE reservations ADD CONSTRAINT chk_reservations_start_slot CHECK (SECOND(start_time) = 0 AND MINUTE(start_time) MOD 30 = 0)');
         DB::statement('ALTER TABLE reservations ADD CONSTRAINT chk_reservations_end_slot CHECK (SECOND(end_time) = 0 AND MINUTE(end_time) MOD 30 = 0)');
+
+        // Kunci nilai reservation_status ke daftar yang benar-benar dipakai
+        // aplikasi, biar tidak ada "magic string" nyasar dari luar Eloquent.
+        DB::statement("ALTER TABLE reservations ADD CONSTRAINT chk_reservations_reservation_status CHECK (reservation_status IN ('pending', 'approved', 'rejected', 'cancelled'))");
     }
 
     public function down(): void

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,6 +23,11 @@ return new class extends Migration
 
             $table->index('id_laporan', 'idx_log_status_laporan_id_laporan');
         });
+
+        // Sama seperti log_status_reservasi: kunci nilainya ke daftar
+        // status yang sama dengan reports.report_status.
+        DB::statement("ALTER TABLE log_status_laporan ADD CONSTRAINT chk_log_status_laporan_before CHECK (status_before IS NULL OR status_before IN ('baru', 'diproses', 'selesai', 'ditolak'))");
+        DB::statement("ALTER TABLE log_status_laporan ADD CONSTRAINT chk_log_status_laporan_after CHECK (status_after IN ('baru', 'diproses', 'selesai', 'ditolak'))");
     }
 
     public function down(): void
