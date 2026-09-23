@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $stats = [
             'total_fasilitas' => Facility::count(),
-            'fasilitas_aktif' => Facility::where('is_active', true)->count(),
+            'fasilitas_aktif' => Facility::where('facility_status', 'aktif')->count(),
             'reservasi_pending' => Reservation::where('reservation_status', 'pending')->count(),
             'laporan_baru' => Report::where('report_status', 'baru')->count(),
             'user_pending' => User::where('account_status', 'pending')->count(),

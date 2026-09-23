@@ -21,8 +21,8 @@ class FacilityController extends Controller
             });
         }
 
-        if ($request->filled('is_active')) {
-            $query->where('is_active', $request->is_active === 'true');
+        if ($request->filled('status')) {
+            $query->where('facility_status', $request->status);
         }
 
         $facilities = $query->latest()->paginate(10)->withQueryString();
@@ -45,7 +45,6 @@ class FacilityController extends Controller
             'description'   => 'nullable|string',
         ]);
 
-        $validated['is_active'] = true;
         $validated['facility_status'] = 'aktif';
 
         Facility::create($validated);
@@ -77,7 +76,7 @@ class FacilityController extends Controller
 
     public function destroy(Facility $fasilitas)
     {
-        $fasilitas->update(['is_active' => false]);
+        $fasilitas->update(['facility_status' => 'nonaktif']);
 
         return redirect()->route('admin.fasilitas.index')
             ->with('success', 'Fasilitas berhasil dinonaktifkan.');
@@ -85,7 +84,7 @@ class FacilityController extends Controller
 
     public function activate(Facility $fasilitas)
     {
-        $fasilitas->update(['is_active' => true]);
+        $fasilitas->update(['facility_status' => 'aktif']);
 
         return redirect()->route('admin.fasilitas.index')
             ->with('success', 'Fasilitas berhasil diaktifkan kembali.');

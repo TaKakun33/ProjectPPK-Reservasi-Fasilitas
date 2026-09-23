@@ -27,9 +27,7 @@ class ReservationController extends Controller
     // Form pengajuan reservasi.
     public function create(Request $request)
     {
-        $facilities = Facility::where('is_active', true)
-            ->where('facility_status', 'aktif')
-            ->get();
+        $facilities = Facility::where('facility_status', 'aktif')->get();
 
         $selectedFacilityId = $request->input('facility_id');
         $selectedDate = $request->input('date', Carbon::today()->toDateString());
@@ -65,7 +63,7 @@ class ReservationController extends Controller
 
         // 3. Validasi Kondisi Fasilitas
         $facility = Facility::findOrFail($request->id_fasilitas);
-        if (!$facility->is_active || $facility->facility_status !== 'aktif') {
+        if (!$facility->isReservable()) {
             return back()->withInput()->withErrors(['id_fasilitas' => 'Fasilitas ini sedang tidak aktif atau dalam perbaikan.']);
         }
 
@@ -96,6 +94,15 @@ class ReservationController extends Controller
                 ]);
             });
         } catch (\RuntimeException $e) {
+            return back()->withInput()->withErrors(['time' => 'Jadwal yang Anda pilih sudah terisi atau bertabrakan dengan reservasi lain yang sedang menunggu konfirmasi/disetujui.']);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Pengaman terakhir: trigger trg_reservations_no_conflict_ins di
+            // level DB menolak insert yang bentrok (lihat migration
+            // 2026_09_20_000001). Harusnya jarang kena karena lockForUpdate
+            // di atas sudah menangkap duluan, tapi kalau tetap kena, jangan
+            // sampai user lihat error 500 mentah.
+            report($e);
+
             return back()->withInput()->withErrors(['time' => 'Jadwal yang Anda pilih sudah terisi atau bertabrakan dengan reservasi lain yang sedang menunggu konfirmasi/disetujui.']);
         }
 

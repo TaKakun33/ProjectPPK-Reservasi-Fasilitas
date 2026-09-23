@@ -52,7 +52,7 @@ class ReportController extends Controller
             return $redirect;
         }
 
-        $facilities = Facility::where('is_active', true)
+        $facilities = Facility::visible()
             ->orderBy('facility_name')
             ->get();
 
@@ -87,12 +87,16 @@ class ReportController extends Controller
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photoFile) {
-                $photoPath = $photoFile->store('reports', 'public');
-                $photoData = 'data:'.$photoFile->getMimeType().';base64,'.base64_encode($photoFile->get());
+                // Disk 'local' (storage/app/private) — TIDAK di-symlink ke
+                // public/storage, jadi foto laporan kerusakan (yang bisa
+                // memuat info lokasi/identitas pelapor) tidak bisa diakses
+                // langsung lewat URL publik. Satu-satunya jalan masuk yang
+                // sah adalah lewat ReportController@photo yang mengecek
+                // otorisasi (lihat method photo() di bawah).
+                $photoPath = $photoFile->store('reports/'.$laporan->id_laporan, 'local');
 
                 $laporan->photos()->create([
                     'photo_path' => $photoPath,
-                    'photo_data' => $photoData,
                     'urutan'     => $index,
                 ]);
             }
@@ -114,5 +118,27 @@ class ReportController extends Controller
         $laporan->load('photos');
 
         return view('reports.show', compact('laporan'));
+    }
+
+    /**
+     * Serve satu foto laporan dari disk privat. Hanya pemilik laporan,
+     * petugas, atau admin yang boleh melihatnya — beda dengan disk
+     * 'public' lama yang bisa diakses siapa saja yang tahu/menebak URL-nya.
+     */
+    public function photo(Request $request, \App\Models\ReportPhoto $foto)
+    {
+        $laporan = $foto->report;
+        $user = auth()->user();
+
+        abort_unless(
+            $laporan->id_user === $user->id_user
+                || $user->role === UserRole::Petugas
+                || $user->role === UserRole::Admin,
+            403
+        );
+
+        abort_unless(Storage::disk('local')->exists($foto->photo_path), 404);
+
+        return Storage::disk('local')->response($foto->photo_path);
     }
 }

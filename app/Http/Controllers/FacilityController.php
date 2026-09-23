@@ -19,7 +19,7 @@ class FacilityController extends Controller
             return redirect()->route('admin.fasilitas.index');
         }
 
-        $query = Facility::where('is_active', true);
+        $query = Facility::visible();
 
         // Filter: Tipe, Lokasi, Kapasitas
         if ($request->filled('type')) {
@@ -37,8 +37,8 @@ class FacilityController extends Controller
         $facilities = $query->paginate(9)->withQueryString();
 
         // Ambil daftar unik tipe & lokasi untuk dropdown 
-        $types = Facility::where('is_active', true)->distinct()->pluck('type');
-        $locations = Facility::where('is_active', true)->distinct()->pluck('location');
+        $types = Facility::visible()->distinct()->pluck('type');
+        $locations = Facility::visible()->distinct()->pluck('location');
 
         return view('facilities.index', compact('facilities', 'types', 'locations'));
     }
@@ -46,7 +46,7 @@ class FacilityController extends Controller
     // Menampilkan detail fasilitas dan slot ketersediaan per 30 menit.
     public function show(Request $request, string $fasilitas)
     {
-        $facility = Facility::where('is_active', true)
+        $facility = Facility::visible()
             ->where('id_fasilitas', $fasilitas)
             ->firstOrFail();
 

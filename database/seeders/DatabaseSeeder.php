@@ -58,7 +58,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 40,
                 'description' => 'Laboratorium komputer lengkap dengan 40 PC spesifikasi tinggi, proyektor, dan AC.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Laboratorium Jaringan & IoT',
@@ -67,7 +66,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 35,
                 'description' => 'Lab khusus praktikum jaringan komputer, mikrokontroler, switch Cisco, dan perangkat IoT.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Ruang Seminar Utama',
@@ -76,7 +74,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 100,
                 'description' => 'Ruang seminar berkapasitas besar dengan sound system profesional dan mic wireless.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Auditorium Kampus Utama',
@@ -85,7 +82,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 500,
                 'description' => 'Auditorium megah berstandar internasional untuk wisuda, kuliah akbar, dan konser musik kampus.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Aula Serbaguna Mahasiswa',
@@ -94,7 +90,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 250,
                 'description' => 'Aula serbaguna untuk kegiatan ormawa, seminar umum, dan pameran karya.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Lapangan Futsal Indoor',
@@ -103,7 +98,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 20,
                 'description' => 'Lapangan futsal rumput sintetis dengan penerangan standar turnamen.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Lapangan Basket Outdoor',
@@ -112,7 +106,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 25,
                 'description' => 'Lapangan basket luar ruangan dengan lantai aspal halus dan ring standar perbasi.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Lapangan Badminton Indoor A',
@@ -121,7 +114,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 12,
                 'description' => 'Lapangan bulu tangkis lantai karpet vinil standar PBSI dengan jaring dan pencahayaan optimal.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Ruang Rapat Senat Akademik',
@@ -130,7 +122,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 30,
                 'description' => 'Ruang rapat VIP meja bundar dilengkapi smart TV 75 inch, video conference, dan mikrofon meja.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Studio Podcast & Multimedia',
@@ -139,7 +130,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 10,
                 'description' => 'Studio kedap suara dengan set mikrofon Shure, mixer audio, pencahayaan studio, dan kamera 4K.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Coworking Space Perpustakaan',
@@ -148,7 +138,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 50,
                 'description' => 'Ruang kolaborasi modern mahasiswa dengan colokan di setiap meja, Wi-Fi super cepat, dan whiteboard.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
             [
                 'facility_name' => 'Smart Classroom 301',
@@ -157,7 +146,6 @@ class DatabaseSeeder extends Seeder
                 'capacity' => 45,
                 'description' => 'Ruang kelas interaktif dengan smart board touchscreen, proyektor laser, dan kursi kuliah ergonomis.',
                 'facility_status' => 'aktif',
-                'is_active' => true,
             ],
         ];
 

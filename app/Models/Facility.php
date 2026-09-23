@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * di controller masing-masing modul, bukan di sini, biar file ini
  * gak jadi rebutan edit banyak orang.
  */
-#[Fillable(['facility_name', 'type', 'location', 'capacity', 'description', 'facility_status', 'is_active'])]
+#[Fillable(['facility_name', 'type', 'location', 'capacity', 'description', 'facility_status'])]
 class Facility extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
@@ -32,9 +32,24 @@ class Facility extends Model
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
             'capacity' => 'integer',
         ];
+    }
+
+    /**
+     * Fasilitas dianggap bisa dilihat/dipakai pengguna selama belum
+     * dinonaktifkan admin. 'dalam perbaikan' tetap muncul di listing
+     * (biar pengguna tahu fasilitas itu ada tapi sementara tidak bisa
+     * direservasi) — hanya 'nonaktif' yang disembunyikan.
+     */
+    public function scopeVisible($query)
+    {
+        return $query->where('facility_status', '!=', 'nonaktif');
+    }
+
+    public function isReservable(): bool
+    {
+        return $this->facility_status === 'aktif';
     }
 
     public function reservations(): HasMany

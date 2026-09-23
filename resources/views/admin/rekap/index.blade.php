@@ -37,14 +37,16 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($rekap as $r)
-                                <tr class="hover:bg-gray-50 {{ $r['is_active'] ? '' : 'bg-red-50' }}">
+                                <tr class="hover:bg-gray-50 {{ $r['status'] === 'nonaktif' ? 'bg-red-50' : '' }}">
                                     <td class="p-4">
                                         <p class="font-medium text-gray-900">{{ $r['nama'] }}</p>
                                         <p class="text-xs text-gray-500">{{ $r['tipe'] }} &bull; {{ $r['lokasi'] }}</p>
                                     </td>
                                     <td class="p-4 text-center">
-                                        @if($r['is_active'])
+                                        @if($r['status'] === 'aktif')
                                             <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700">Aktif</span>
+                                        @elseif($r['status'] === 'dalam perbaikan')
+                                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Dalam Perbaikan</span>
                                         @else
                                             <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700">Nonaktif</span>
                                         @endif

@@ -62,11 +62,18 @@ class ReportController extends Controller
             // - laporan 'diproses' -> fasilitas jadi 'dalam perbaikan'
             // - laporan 'selesai'  -> fasilitas kembali 'aktif'
             // - laporan 'ditolak'  -> fasilitas tidak diubah
+            // Pengecualian: kalau admin sudah menonaktifkan fasilitas
+            // ('nonaktif', lewat /admin/fasilitas), toggle otomatis ini
+            // TIDAK boleh menimpanya balik ke 'aktif' — keputusan admin
+            // menang. Fasilitas nonaktif tetap tidak reservable meskipun
+            // laporan kerusakannya sudah selesai ditangani.
             if ($validated['report_status'] === 'diproses') {
                 Facility::where('id_fasilitas', $report->id_fasilitas)
+                    ->where('facility_status', '!=', 'nonaktif')
                     ->update(['facility_status' => 'dalam perbaikan']);
             } elseif ($validated['report_status'] === 'selesai') {
                 Facility::where('id_fasilitas', $report->id_fasilitas)
+                    ->where('facility_status', '!=', 'nonaktif')
                     ->update(['facility_status' => 'aktif']);
             }
 

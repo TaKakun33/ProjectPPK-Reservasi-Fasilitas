@@ -27,10 +27,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select name="is_active" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                    <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
                         <option value="">Semua</option>
-                        <option value="true" {{ request('is_active') === 'true' ? 'selected' : '' }}>Aktif</option>
-                        <option value="false" {{ request('is_active') === 'false' ? 'selected' : '' }}>Nonaktif</option>
+                        <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="dalam perbaikan" {{ request('status') === 'dalam perbaikan' ? 'selected' : '' }}>Dalam Perbaikan</option>
+                        <option value="nonaktif" {{ request('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
                 </div>
                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">Filter</button>
@@ -51,14 +52,13 @@
                                 <th class="p-4">Tipe</th>
                                 <th class="p-4">Lokasi</th>
                                 <th class="p-4 text-center">Kapasitas</th>
-                                <th class="p-4 text-center">Status DB</th>
-                                <th class="p-4 text-center">Aktif</th>
+                                <th class="p-4 text-center">Status</th>
                                 <th class="p-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($facilities as $f)
-                                <tr class="hover:bg-gray-50 {{ $f->is_active ? '' : 'bg-red-50' }}">
+                                <tr class="hover:bg-gray-50 {{ $f->facility_status === 'nonaktif' ? 'bg-red-50' : '' }}">
                                     <td class="p-4 font-medium text-gray-900">{{ $f->facility_name }}</td>
                                     <td class="p-4">
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700">{{ $f->type }}</span>
@@ -67,20 +67,17 @@
                                     <td class="p-4 text-center">{{ $f->capacity }}</td>
                                     <td class="p-4 text-center">
                                         @php
-                                            $statusBadge = $f->facility_status === 'aktif' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+                                            $statusBadge = match($f->facility_status) {
+                                                'aktif' => 'bg-green-100 text-green-700',
+                                                'dalam perbaikan' => 'bg-yellow-100 text-yellow-800',
+                                                default => 'bg-red-100 text-red-700',
+                                            };
                                         @endphp
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded {{ $statusBadge }}">{{ ucfirst($f->facility_status) }}</span>
                                     </td>
-                                    <td class="p-4 text-center">
-                                        @if($f->is_active)
-                                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700">Ya</span>
-                                        @else
-                                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700">Tidak</span>
-                                        @endif
-                                    </td>
                                     <td class="p-4 text-center space-x-2">
                                         <a href="{{ route('admin.fasilitas.edit', $f->id_fasilitas) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">Edit</a>
-                                        @if($f->is_active)
+                                        @if($f->facility_status !== 'nonaktif')
                                             <form method="POST" action="{{ route('admin.fasilitas.destroy', $f->id_fasilitas) }}" class="inline" onsubmit="return confirm('Nonaktifkan fasilitas ini?')">
                                                 @csrf
                                                 @method('DELETE')
