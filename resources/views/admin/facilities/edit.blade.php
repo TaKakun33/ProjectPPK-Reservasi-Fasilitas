@@ -56,12 +56,10 @@
 
                 <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                     <div>
-                        <span class="text-sm font-medium text-gray-700">Status Aktif:</span>
-                        @if($fasilitas->is_active)
-                            <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700">Aktif</span>
-                        @else
-                            <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700">Nonaktif</span>
-                        @endif
+                        <span class="text-sm font-medium text-gray-700">Status:</span>
+                        <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full {{ $fasilitas->facility_status === 'aktif' ? 'bg-green-100 text-green-700' : ($fasilitas->facility_status === 'dalam perbaikan' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-700') }}">
+                            {{ ucfirst($fasilitas->facility_status) }}
+                        </span>
                     </div>
                 </div>
 

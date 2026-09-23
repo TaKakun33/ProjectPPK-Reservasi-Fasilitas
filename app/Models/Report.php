@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Skeleton model — struktur dasar saja. Logic upload/preview foto,
  * dsb. ditulis di controller (Akbar) / Petugas\ReportController (Ilham).
  */
-#[Fillable(['id_user', 'id_fasilitas', 'id_kategori', 'description', 'photo', 'report_status', 'resolution_notes', 'handled_by'])]
+#[Fillable(['id_user', 'id_fasilitas', 'id_kategori', 'description', 'report_status', 'resolution_notes', 'handled_by'])]
 class Report extends Model
 {
     use HasFactory, HasUuids;
@@ -47,5 +47,10 @@ class Report extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(LogStatusLaporan::class, 'id_laporan');
+    }
+    
+    public function photos(): HasMany
+    {
+        return $this->hasMany(ReportPhoto::class, 'id_laporan')->orderBy('urutan');
     }
 }

@@ -143,9 +143,10 @@
                                     <td class="p-4 text-center">
                                         @php
                                             $statusBadges = [
-                                                'pending'  => 'bg-yellow-100 text-yellow-800',
-                                                'verified' => 'bg-green-100 text-green-800',
-                                                'rejected' => 'bg-red-100 text-red-800',
+                                                'pending'   => 'bg-yellow-100 text-yellow-800',
+                                                'verified'  => 'bg-green-100 text-green-800',
+                                                'rejected'  => 'bg-red-100 text-red-800',
+                                                'suspended' => 'bg-gray-200 text-gray-700',
                                             ];
                                         @endphp
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $statusBadges[$u->account_status] ?? 'bg-gray-100' }}">
@@ -163,6 +164,18 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">Tolak</button>
+                                            </form>
+                                        @elseif($u->account_status === 'verified')
+                                            <form method="POST" action="{{ route('admin.users.suspend', $u->id_user) }}" class="inline" onsubmit="return confirm('Bekukan akun ini? User tidak akan bisa login.')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-xs font-semibold text-gray-600 hover:text-gray-800 hover:underline">Bekukan</button>
+                                            </form>
+                                        @elseif($u->account_status === 'suspended')
+                                            <form method="POST" action="{{ route('admin.users.reactivate', $u->id_user) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-xs font-semibold text-green-600 hover:text-green-800 hover:underline">Aktifkan</button>
                                             </form>
                                         @else
                                             <span class="text-xs text-gray-400">-</span>

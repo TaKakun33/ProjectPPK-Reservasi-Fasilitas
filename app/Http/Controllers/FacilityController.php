@@ -19,7 +19,12 @@ class FacilityController extends Controller
             return redirect()->route('admin.fasilitas.index');
         }
 
-        $query = Facility::where('is_active', true);
+        // Petugas juga gak boleh akses halaman publik ini — dia bukan
+        // pemohon reservasi, jadi gak ada urusan liat daftar fasilitas
+        // dari sisi pengguna. Tolak langsung (403), bukan redirect.
+        abort_if($request->user()?->role === UserRole::Petugas, 403, 'Halaman fasilitas ini khusus untuk pengguna.');
+
+        $query = Facility::visible();
 
         // Filter: Tipe, Lokasi, Kapasitas
         if ($request->filled('type')) {
@@ -37,8 +42,8 @@ class FacilityController extends Controller
         $facilities = $query->paginate(9)->withQueryString();
 
         // Ambil daftar unik tipe & lokasi untuk dropdown 
-        $types = Facility::where('is_active', true)->distinct()->pluck('type');
-        $locations = Facility::where('is_active', true)->distinct()->pluck('location');
+        $types = Facility::visible()->distinct()->pluck('type');
+        $locations = Facility::visible()->distinct()->pluck('location');
 
         return view('facilities.index', compact('facilities', 'types', 'locations'));
     }
@@ -46,7 +51,11 @@ class FacilityController extends Controller
     // Menampilkan detail fasilitas dan slot ketersediaan per 30 menit.
     public function show(Request $request, string $fasilitas)
     {
-        $facility = Facility::where('is_active', true)
+        // Sama seperti index(): halaman detail fasilitas publik ini juga
+        // bukan buat petugas.
+        abort_if($request->user()?->role === UserRole::Petugas, 403, 'Halaman fasilitas ini khusus untuk pengguna.');
+
+        $facility = Facility::visible()
             ->where('id_fasilitas', $fasilitas)
             ->firstOrFail();
 

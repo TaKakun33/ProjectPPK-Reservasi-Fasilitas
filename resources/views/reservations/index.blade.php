@@ -62,18 +62,10 @@
                                         </span>
                                     </td>
                                     <td class="p-4 text-center">
-                                        @if(in_array($res->reservation_status, ['pending', 'approved']))
-                                            <form method="POST" action="{{ route('reservations.destroy', $res->id_reservasi) }}"
-                                                  onsubmit="return confirm('Apakah Anda yakin ingin membatalkan reservasi ini?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline">
-                                                    Batalkan
-                                                </button>
-                                            </form>
-                                        @else
-                                            <span class="text-xs text-gray-400">-</span>
-                                        @endif
+                                        <a href="{{ route('reservations.show', $res->id_reservasi) }}"
+                                           class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                            Lihat Detail
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach

@@ -52,7 +52,7 @@ class ReportController extends Controller
             return $redirect;
         }
 
-        $facilities = Facility::where('is_active', true)
+        $facilities = Facility::visible()
             ->orderBy('facility_name')
             ->get();
 
@@ -73,29 +73,34 @@ class ReportController extends Controller
             'id_fasilitas' => ['required', 'exists:facilities,id_fasilitas'],
             'id_kategori'  => ['required', 'exists:report_categories,id_kategori'],
             'description'  => ['required', 'string'],
-            'photo'        => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'photos'       => ['nullable', 'array', 'max:5'],
+            'photos.*'     => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ]);
-
-        $photoPath = null;
-        $photoData = null;
-        if ($request->hasFile('photo')) {
-            $photoFile = $request->file('photo');
-            $photoPath = $photoFile->store('reports', 'public');
-
-            // Simpan juga base64-nya langsung di DB biar foto tetap bisa
-            // ditampilkan walaupun symlink `storage` belum dibuat di server.
-            $photoData = 'data:'.$photoFile->getMimeType().';base64,'.base64_encode($photoFile->get());
-        }
 
         $laporan = Report::create([
-            'id_user'           => auth()->id(),
-            'id_fasilitas'      => $validated['id_fasilitas'],
-            'id_kategori'       => $validated['id_kategori'],
-            'description'       => $validated['description'],
-            'photo'             => $photoPath,
-            'photo_data'        => $photoData,
-            'report_status'     => 'baru',
+            'id_user'       => auth()->id(),
+            'id_fasilitas'  => $validated['id_fasilitas'],
+            'id_kategori'   => $validated['id_kategori'],
+            'description'   => $validated['description'],
+            'report_status' => 'baru',
         ]);
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $index => $photoFile) {
+                // Disk 'local' (storage/app/private) — TIDAK di-symlink ke
+                // public/storage, jadi foto laporan kerusakan (yang bisa
+                // memuat info lokasi/identitas pelapor) tidak bisa diakses
+                // langsung lewat URL publik. Satu-satunya jalan masuk yang
+                // sah adalah lewat ReportController@photo yang mengecek
+                // otorisasi (lihat method photo() di bawah).
+                $photoPath = $photoFile->store('reports/'.$laporan->id_laporan, 'local');
+
+                $laporan->photos()->create([
+                    'photo_path' => $photoPath,
+                    'urutan'     => $index,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('reports.show', $laporan)
@@ -110,6 +115,30 @@ class ReportController extends Controller
 
         abort_unless($laporan->id_user === auth()->id(), 403);
 
+        $laporan->load('photos');
+
         return view('reports.show', compact('laporan'));
+    }
+
+    /**
+     * Serve satu foto laporan dari disk privat. Hanya pemilik laporan,
+     * petugas, atau admin yang boleh melihatnya — beda dengan disk
+     * 'public' lama yang bisa diakses siapa saja yang tahu/menebak URL-nya.
+     */
+    public function photo(Request $request, \App\Models\ReportPhoto $foto)
+    {
+        $laporan = $foto->report;
+        $user = auth()->user();
+
+        abort_unless(
+            $laporan->id_user === $user->id_user
+                || $user->role === UserRole::Petugas
+                || $user->role === UserRole::Admin,
+            403
+        );
+
+        abort_unless(Storage::disk('local')->exists($foto->photo_path), 404);
+
+        return Storage::disk('local')->response($foto->photo_path);
     }
 }

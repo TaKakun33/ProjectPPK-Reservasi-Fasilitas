@@ -5,9 +5,11 @@
 //   DashboardController.php, FacilityController.php, UserController.php, RekapController.php
 //
 // Penting soal field di tabel facilities (koordinasi sama Ilham):
-// - is_active (boolean)      -> punya kamu, buat nonaktifkan/aktifkan fasilitas dari CRUD.
-// - facility_status (string) -> punya Ilham, 'aktif'/'dalam perbaikan' dari modul petugas.
-// Dua field beda tujuan, jangan saling timpa nilainya.
+// - facility_status (string) -> SATU kolom untuk semua state fasilitas:
+//   'aktif' / 'dalam perbaikan' (dari modul petugas) / 'nonaktif' (admin
+//   nonaktifkan lewat CRUD di sini). is_active sudah dihapus karena dulu
+//   dua kolom ini saling tumpang tindih (harus dicek bareng di
+//   ReservationController) — sekarang tinggal satu sumber kebenaran.
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FacilityController;
@@ -37,6 +39,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::patch('/users/{user}/verify', [UserController::class, 'verify'])->name('users.verify');
     Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
+    Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
+    Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
 
     // Story #17: rekap okupansi & frekuensi kerusakan, export CSV/Excel/PDF.
     Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');

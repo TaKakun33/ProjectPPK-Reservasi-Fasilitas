@@ -49,14 +49,20 @@
                     <p class="text-gray-800">{{ $laporan->description }}</p>
                 </div>
 
-                @if($laporan->photo_data || $laporan->photo)
+                @if($laporan->photos->isNotEmpty())
                     <div>
-                        <p class="text-sm text-gray-500 mb-2">Foto Kerusakan</p>
-                        <img src="{{ $laporan->photo_data ?? asset('storage/' . $laporan->photo) }}" alt="Foto kerusakan"
-                             class="w-full max-w-md rounded-lg border border-gray-200">
+                        <p class="text-sm text-gray-500 mb-2">Foto Kerusakan ({{ $laporan->photos->count() }})</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            @foreach($laporan->photos as $foto)
+                                <a href="{{ route('reports.photo', $foto->id_foto) }}" target="_blank">
+                                    <img src="{{ route('reports.photo', $foto->id_foto) }}" alt="Foto kerusakan"
+                                        class="w-full h-32 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition">
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
-
+                
                 @if($laporan->resolution_notes)
                     <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
                         <p class="text-sm font-semibold text-blue-800">Catatan Resolusi Petugas</p>
