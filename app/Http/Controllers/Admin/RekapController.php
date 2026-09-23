@@ -15,6 +15,27 @@ use Maatwebsite\Excel\Facades\Excel;
 // Controller rekap fasilitas (statistik okupansi dan frekuensi kerusakan)
 class RekapController extends Controller
 {
+    /**
+     * Cegah CSV/Excel formula injection: kalau nilai string diawali
+     * karakter yang ditafsirkan Excel/Sheets/LibreOffice sebagai awal
+     * formula ('=', '+', '-', '@', atau tab/CR yang bisa dipakai buat
+     * "menyamarkan" awalan itu), tambahkan apostrof di depan supaya
+     * dibaca sebagai teks biasa, bukan dieksekusi sebagai formula.
+     * Aman dipanggil untuk nilai non-string (int, null, dst) — dikembalikan apa adanya.
+     */
+    private function sanitizeForSpreadsheet($value)
+    {
+        if (! is_string($value) || $value === '') {
+            return $value;
+        }
+
+        if (preg_match('/^[=+\-@\t\r]/', $value)) {
+            return "'" . $value;
+        }
+
+        return $value;
+    }
+
     // Menampilkan halaman tabel rekapitulasi okupansi reservasi dan kerusakan fasilitas
     public function index(Request $request)
     {
@@ -99,20 +120,27 @@ class RekapController extends Controller
 
         // CSV
         if ($format === 'csv') {
+            // Sanitasi khusus dipakai di sini, BUKAN untuk $data yang dipakai PDF:
+            // PDF cuma teks tercetak (bukan file yang dibuka spreadsheet app),
+            // jadi tidak berisiko formula injection dan tidak perlu apostrof kosmetik.
+            $csvData = $data->map(function ($row) {
+                return array_map(fn ($value) => $this->sanitizeForSpreadsheet($value), $row);
+            });
+
             $headers = [
                 'Content-Type'        => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="rekap_fasilitas.csv"',
             ];
 
-            $callback = function () use ($data, $timestampWib) {
+            $callback = function () use ($csvData, $timestampWib) {
                 $file = fopen('php://output', 'w');
                 fputcsv($file, ['Rekap Okupansi & Kerusakan Fasilitas']);
                 fputcsv($file, ['Didownload pada: ' . $timestampWib]);
                 fputcsv($file, []); // baris kosong pemisah
-                if ($data->isNotEmpty()) {
-                    fputcsv($file, array_keys($data->first()));
+                if ($csvData->isNotEmpty()) {
+                    fputcsv($file, array_keys($csvData->first()));
                 }
-                foreach ($data as $row) {
+                foreach ($csvData as $row) {
                     fputcsv($file, $row);
                 }
                 fclose($file);

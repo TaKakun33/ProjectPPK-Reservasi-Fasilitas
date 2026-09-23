@@ -59,6 +59,11 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
+            // Samakan timezone sesi MySQL dengan app.timezone (Asia/Jakarta,
+            // UTC+7) supaya kolom yang pakai default DB seperti
+            // CURRENT_TIMESTAMP/useCurrent() juga tersimpan dalam waktu
+            // Jakarta, bukan waktu server MySQL yang belum tentu WIB.
+            'timezone' => env('DB_TIMEZONE', '+07:00'),
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
@@ -79,6 +84,7 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
+            'timezone' => env('DB_TIMEZONE', '+07:00'),
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],

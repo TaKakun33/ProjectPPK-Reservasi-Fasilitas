@@ -13,6 +13,25 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 // Export data ke excel
 class RekapFasilitasExport implements FromArray, WithStyles, WithColumnWidths
 {
+    /**
+     * Cegah Excel formula injection: kalau nilai string diawali karakter
+     * yang ditafsirkan Excel/Sheets/LibreOffice sebagai awal formula
+     * ('=', '+', '-', '@', atau tab/CR buat menyamarkan awalan itu),
+     * tambahkan apostrof di depan supaya dibaca sebagai teks biasa.
+     */
+    private function sanitizeForSpreadsheet($value)
+    {
+        if (! is_string($value) || $value === '') {
+            return $value;
+        }
+
+        if (preg_match('/^[=+\-@\t\r]/', $value)) {
+            return "'" . $value;
+        }
+
+        return $value;
+    }
+
     public function array(): array
     {
         $timestampWib = now('Asia/Jakarta')->format('d-m-Y H:i') . ' WIB';
@@ -51,11 +70,11 @@ class RekapFasilitasExport implements FromArray, WithStyles, WithColumnWidths
         // Data 
         foreach ($facilities as $f) {
             $rows[] = [
-                $f->facility_name,
-                $f->type,
-                $f->location,
+                $this->sanitizeForSpreadsheet($f->facility_name),
+                $this->sanitizeForSpreadsheet($f->type),
+                $this->sanitizeForSpreadsheet($f->location),
                 $f->capacity,
-                ucfirst($f->facility_status),
+                $this->sanitizeForSpreadsheet(ucfirst($f->facility_status)),
                 $f->total_reservasi,
                 $f->reservasi_approved,
                 $f->total_laporan,

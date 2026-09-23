@@ -73,6 +73,9 @@ class ReservationController extends Controller
                     'status_after' => 'approved',
                     'changed_by' => $request->user()->id_user,
                     'notes' => $request->input('notes'),
+                    // Diisi manual karena model ini $timestamps = false —
+                    // now() sudah mengikuti app.timezone (Asia/Jakarta).
+                    'created_at' => now(),
                 ]);
             });
         } catch (\RuntimeException $e) {
@@ -119,6 +122,7 @@ class ReservationController extends Controller
                 'status_after' => 'rejected',
                 'changed_by' => $request->user()->id_user,
                 'notes' => $validated['alasan_ditolak'],
+                'created_at' => now(),
             ]);
         });
 
@@ -154,6 +158,7 @@ class ReservationController extends Controller
                 'status_after' => 'cancelled',
                 'changed_by' => $request->user()->id_user,
                 'notes' => $validated['cancellation_reason'],
+                'created_at' => now(),
             ]);
         });
 
