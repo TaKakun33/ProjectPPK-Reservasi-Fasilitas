@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Skeleton model — struktur dasar saja.
- */
+// Model kategori kerusakan fasilitas 
 #[Fillable(['category_name', 'is_active'])]
 class ReportCategory extends Model
 {

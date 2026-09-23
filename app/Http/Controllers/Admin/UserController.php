@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
+// Controller untuk manajemen pengguna dan verifikasi akun oleh Admin
 class UserController extends Controller
 {
+    // Menampilkan daftar pengguna dengan filter status akun, role, dan pencarian
     public function index(Request $request)
     {
         $query = User::query();
@@ -38,6 +40,7 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'pendingCount'));
     }
 
+    // Mendaftarkan akun petugas atau pengguna baru secara langsung oleh admin
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -62,6 +65,7 @@ class UserController extends Controller
             ->with('success', "Akun {$validated['role']} berhasil dibuat dan langsung verified.");
     }
 
+    // Menyetujui/verifikasi akun pengguna yang mendaftar mandiri
     public function verify(User $user)
     {
         $user->update(['account_status' => 'verified']);
@@ -70,6 +74,7 @@ class UserController extends Controller
             ->with('success', "Akun {$user->name} berhasil diverifikasi.");
     }
 
+    // Menolak pendaftaran akun pengguna
     public function reject(User $user)
     {
         $user->update(['account_status' => 'rejected']);
@@ -78,13 +83,7 @@ class UserController extends Controller
             ->with('success', "Akun {$user->name} telah ditolak.");
     }
 
-    /**
-     * Bekukan akun yang sebelumnya sudah verified — dulu ini yang
-     * seharusnya jadi fungsi is_active=false, tapi is_active tidak pernah
-     * dicek di alur login (AuthenticatedSessionController hanya mengecek
-     * account_status). Sekarang 'suspended' otomatis ikut tercek di sana,
-     * jadi akun yang di-suspend memang benar-benar tidak bisa login.
-     */
+    // Membekukan akun yang sebelumnya sudah verified agar tidak bisa login
     public function suspend(User $user)
     {
         $user->update(['account_status' => 'suspended']);
@@ -93,6 +92,7 @@ class UserController extends Controller
             ->with('success', "Akun {$user->name} berhasil dibekukan.");
     }
 
+    // Mengaktifkan kembali akun pengguna yang dibekukan
     public function reactivate(User $user)
     {
         $user->update(['account_status' => 'verified']);

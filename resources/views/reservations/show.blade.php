@@ -110,14 +110,23 @@
                     </a>
 
                     @if(in_array($reservation->reservation_status, ['pending', 'approved']))
-                        <form method="POST" action="{{ route('reservations.destroy', $reservation->id_reservasi) }}"
-                              onsubmit="return confirm('Apakah Anda yakin ingin membatalkan reservasi ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-md hover:bg-red-50">
-                                Batalkan Reservasi
-                            </button>
-                        </form>
+                        @php
+                            $canCancel = \Carbon\Carbon::today()->lt(\Carbon\Carbon::parse($reservation->date)->startOfDay());
+                        @endphp
+                        @if($canCancel)
+                            <form method="POST" action="{{ route('reservations.destroy', $reservation->id_reservasi) }}"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin membatalkan reservasi ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-md hover:bg-red-50">
+                                    Batalkan Reservasi
+                                </button>
+                            </form>
+                        @else
+                            <span class="inline-block px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-md">
+                                Batas pembatalan mandiri berakhir (Maks. H-1 23:59 WIB)
+                            </span>
+                        @endif
                     @endif
                 </div>
             </div>

@@ -9,10 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * Skeleton model — struktur dasar saja. Logic upload/preview foto,
- * dsb. ditulis di controller (Akbar) / Petugas\ReportController (Ilham).
- */
+// Skeleton model — struktur dasar saja. Logic upload/preview foto,
+// dsb. ditulis di controller /Petugas/ReportController.
+
 #[Fillable(['id_user', 'id_fasilitas', 'id_kategori', 'description', 'report_status', 'resolution_notes', 'handled_by'])]
 class Report extends Model
 {

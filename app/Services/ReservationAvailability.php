@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Reservation;
 use Carbon\Carbon;
 
+// Service untuk validasi jam operasional, deteksi bentrok jadwal, dan pembuatan slot waktu 30 menit
 class ReservationAvailability
 {
     // Jam operasional sistem: 07:00:00 - 20:00:00

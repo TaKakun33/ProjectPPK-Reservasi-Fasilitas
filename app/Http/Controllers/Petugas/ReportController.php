@@ -9,8 +9,10 @@ use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controller penanganan laporan kerusakan fasilitas oleh Petugas
 class ReportController extends Controller
 {
+    // Menampilkan daftar antrian laporan kerusakan yang perlu ditangani ('baru' dan 'diproses')
     public function index(Request $request)
     {
         // Tampilkan laporan yang masih dalam proses penanganan: 'baru' dan 'diproses'.
@@ -23,11 +25,7 @@ class ReportController extends Controller
         return view('petugas.reports.index', compact('reports'));
     }
 
-    /**
-     * Halaman detail 1 laporan (mirip /laporan/{id} milik pengguna): info
-     * lengkap + galeri foto, plus form aksi (proses/tolak/selesai) di
-     * bawahnya beserta catatan wajib untuk pelapor.
-     */
+    // Menampilkan halaman detail satu laporan kerusakan dan form aksi penanganannya
     public function show(Request $request, string $laporan)
     {
         $report = Report::with(['user', 'facility', 'category', 'photos'])->findOrFail($laporan);
@@ -35,6 +33,7 @@ class ReportController extends Controller
         return view('petugas.reports.show', ['laporan' => $report]);
     }
 
+    // Memperbarui status penanganan laporan (diproses/selesai/ditolak) dan sinkronisasi status fasilitas
     public function updateStatus(Request $request, string $laporan)
     {
         $report = Report::findOrFail($laporan);

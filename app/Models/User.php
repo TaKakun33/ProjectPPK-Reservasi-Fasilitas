@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// Model pengguna sistem (Admin, Petugas, Pengguna) dengan UUID dan soft delete
 #[Fillable(['name', 'email', 'password', 'role', 'account_status', 'registered_by'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable

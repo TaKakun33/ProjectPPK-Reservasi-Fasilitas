@@ -2,7 +2,7 @@
 
 // ================= MODUL PETUGAS (Ilham) =================
 // Bikin controller-nya di app/Http/Controllers/Petugas/:
-//   DashboardController.php, ReservationController.php, ReportController.php
+// DashboardController.php, ReservationController.php, ReportController.php
 // Tiap kali ganti status reservasi/laporan, insert 1 baris log ke
 // App\Models\LogStatusReservasi / LogStatusLaporan (kolom status_before,
 // status_after, changed_by, notes) — belum ada modul lain yang nyentuh ini.

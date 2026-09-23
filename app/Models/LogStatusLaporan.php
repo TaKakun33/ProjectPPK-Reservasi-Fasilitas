@@ -8,10 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Dipakai Ilham (Modul Petugas) tiap kali status laporan berubah
- * (baru/diproses/selesai/ditolak) — insert 1 baris log di sini.
- */
+// (Modul Petugas) tiap kali status laporan berubah
+// (baru/diproses/selesai/ditolak)
+
 #[Fillable(['id_laporan', 'status_before', 'status_after', 'changed_by', 'notes'])]
 class LogStatusLaporan extends Model
 {

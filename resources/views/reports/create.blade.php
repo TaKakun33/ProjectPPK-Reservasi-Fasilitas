@@ -22,7 +22,7 @@
             <form method="POST" action="{{ route('reports.store') }}" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
-                <!-- Pilihan Fasilitas -->
+                {{-- Pilihan Fasilitas --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Fasilitas</label>
                     <select name="id_fasilitas" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -35,7 +35,7 @@
                     </select>
                 </div>
 
-                <!-- Kategori Kerusakan -->
+                {{-- Kategori Kerusakan --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Kategori Kerusakan</label>
                     <select name="id_kategori" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -48,14 +48,14 @@
                     </select>
                 </div>
 
-                <!-- Deskripsi Kerusakan -->
+                {{-- Deskripsi Kerusakan --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Kerusakan</label>
                     <textarea name="description" rows="4" required placeholder="Jelaskan kerusakan yang terjadi pada fasilitas..."
                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description') }}</textarea>
                 </div>
 
-                <!-- Foto Kerusakan -->
+                {{-- Foto Kerusakan --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Foto Kerusakan (opsional, bisa lebih dari 1)</label>
                     <input type="file" name="photos[]" accept="image/*" multiple

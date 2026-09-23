@@ -23,7 +23,7 @@
             </div>
         @endif
 
-        <!-- Info laporan (sama gayanya dengan halaman detail milik pengguna) -->
+        {{-- Info laporan (sama gayanya dengan halaman detail milik pengguna) --}}
         <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
             <div class="p-6 space-y-5">
                 <div class="flex justify-between items-start gap-4">

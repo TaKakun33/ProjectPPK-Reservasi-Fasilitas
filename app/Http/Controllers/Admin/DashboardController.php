@@ -8,6 +8,7 @@ use App\Models\Report;
 use App\Models\Reservation;
 use App\Models\User;
 
+// Dashboard admin
 class DashboardController extends Controller
 {
     public function index()

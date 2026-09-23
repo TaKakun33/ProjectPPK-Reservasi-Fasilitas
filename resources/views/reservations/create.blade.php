@@ -22,7 +22,7 @@
             <form method="POST" action="{{ route('reservations.store') }}" class="space-y-6">
                 @csrf
 
-                <!-- Pilihan Fasilitas -->
+                {{-- Pilihan Fasilitas --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Fasilitas</label>
                     <select name="id_fasilitas" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -35,14 +35,14 @@
                     </select>
                 </div>
 
-                <!-- Tanggal -->
+                {{-- Tanggal --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kegiatan</label>
                     <input type="date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" required
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
 
-                <!-- Jam Mulai & Selesai (Slot Kelipatan 30 Menit) -->
+                {{-- Jam Mulai & Selesai (Slot Kelipatan 30 Menit) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jam Mulai (07:00 - 19:30)</label>
@@ -71,7 +71,7 @@
                     </div>
                 </div>
 
-                <!-- Tujuan Reservasi -->
+                {{-- Tujuan Reservasi --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tujuan Penggunaan</label>
                     <textarea name="purpose" rows="3" required placeholder="Contoh: Rapat Kerja Anggota..."
