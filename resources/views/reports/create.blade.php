@@ -57,10 +57,10 @@
 
                 <!-- Foto Kerusakan -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Foto Kerusakan (opsional)</label>
-                    <input type="file" name="photo" accept="image/*"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <p class="mt-1 text-xs text-gray-500">Format: JPG/PNG/GIF/WebP, maksimal 2 MB.</p>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Foto Kerusakan (opsional, bisa lebih dari 1)</label>
+                    <input type="file" name="photos[]" accept="image/*" multiple
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <p class="mt-1 text-xs text-gray-500">Format: JPG/PNG/GIF/WebP, maksimal 2 MB per foto, maksimal 5 foto.</p>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">

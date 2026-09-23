@@ -48,4 +48,9 @@ class Report extends Model
     {
         return $this->hasMany(LogStatusLaporan::class, 'id_laporan');
     }
+    
+    public function photos(): HasMany
+    {
+        return $this->hasMany(ReportPhoto::class, 'id_laporan')->orderBy('urutan');
+    }
 }

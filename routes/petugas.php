@@ -24,6 +24,7 @@ Route::prefix('petugas')->middleware(['auth', 'role:petugas'])->name('petugas.')
 
     Route::prefix('laporan')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/{laporan}', [ReportController::class, 'show'])->name('show');
         Route::patch('/{laporan}/status', [ReportController::class, 'updateStatus'])->name('update-status'); // + catatan resolusi, toggle facility_status
     });
 });

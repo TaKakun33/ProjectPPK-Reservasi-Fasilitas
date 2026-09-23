@@ -73,29 +73,30 @@ class ReportController extends Controller
             'id_fasilitas' => ['required', 'exists:facilities,id_fasilitas'],
             'id_kategori'  => ['required', 'exists:report_categories,id_kategori'],
             'description'  => ['required', 'string'],
-            'photo'        => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'photos'       => ['nullable', 'array', 'max:5'],
+            'photos.*'     => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ]);
-
-        $photoPath = null;
-        $photoData = null;
-        if ($request->hasFile('photo')) {
-            $photoFile = $request->file('photo');
-            $photoPath = $photoFile->store('reports', 'public');
-
-            // Simpan juga base64-nya langsung di DB biar foto tetap bisa
-            // ditampilkan walaupun symlink `storage` belum dibuat di server.
-            $photoData = 'data:'.$photoFile->getMimeType().';base64,'.base64_encode($photoFile->get());
-        }
 
         $laporan = Report::create([
-            'id_user'           => auth()->id(),
-            'id_fasilitas'      => $validated['id_fasilitas'],
-            'id_kategori'       => $validated['id_kategori'],
-            'description'       => $validated['description'],
-            'photo'             => $photoPath,
-            'photo_data'        => $photoData,
-            'report_status'     => 'baru',
+            'id_user'       => auth()->id(),
+            'id_fasilitas'  => $validated['id_fasilitas'],
+            'id_kategori'   => $validated['id_kategori'],
+            'description'   => $validated['description'],
+            'report_status' => 'baru',
         ]);
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $index => $photoFile) {
+                $photoPath = $photoFile->store('reports', 'public');
+                $photoData = 'data:'.$photoFile->getMimeType().';base64,'.base64_encode($photoFile->get());
+
+                $laporan->photos()->create([
+                    'photo_path' => $photoPath,
+                    'photo_data' => $photoData,
+                    'urutan'     => $index,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('reports.show', $laporan)
@@ -109,6 +110,8 @@ class ReportController extends Controller
         }
 
         abort_unless($laporan->id_user === auth()->id(), 403);
+
+        $laporan->load('photos');
 
         return view('reports.show', compact('laporan'));
     }
