@@ -60,12 +60,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | will be used by the PHP date and date-time functions. Diset ke
+    | "Asia/Jakarta" (WIB, UTC+7) supaya semua timestamp yang disimpan
+    | Eloquent (created_at/updated_at, now(), dsb.) otomatis pakai waktu
+    | Jakarta, bukan UTC.
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jakarta'),
 
     /*
     |--------------------------------------------------------------------------
