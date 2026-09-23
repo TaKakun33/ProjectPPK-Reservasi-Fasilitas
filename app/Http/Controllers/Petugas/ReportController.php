@@ -83,6 +83,9 @@ class ReportController extends Controller
                 'status_after'  => $validated['report_status'],
                 'changed_by'    => $request->user()->id_user,
                 'notes'         => $validated['resolution_notes'],
+                // Diisi manual karena model ini $timestamps = false —
+                // now() sudah mengikuti app.timezone (Asia/Jakarta).
+                'created_at'    => now(),
             ]);
         });
 
