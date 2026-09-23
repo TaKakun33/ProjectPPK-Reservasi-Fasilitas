@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -19,9 +20,15 @@ return new class extends Migration
         $table->string('password');
         $table->rememberToken();
         $table->string('role', 50);
+        // Satu sumber kebenaran untuk state akun. Sebelumnya ada is_active
+        // terpisah yang diset true saat akun dibuat/diverifikasi tapi TIDAK
+        // PERNAH dicek di AuthenticatedSessionController@store — jadi kalau
+        // admin "menonaktifkan" akun lewat is_active, user itu tetap bisa
+        // login selama account_status masih 'verified'. 'suspended' di sini
+        // menggantikan is_active=false dan otomatis ikut tercek di alur
+        // login yang sudah ada (hanya 'verified' yang boleh masuk).
         $table->string('account_status', 50)->default('pending');
         $table->uuid('registered_by')->nullable();
-        $table->boolean('is_active')->default(true);
         $table->softDeletes();
         $table->timestamps();
 
@@ -41,7 +48,15 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
+
+            $table->foreign('user_id')->references('id_user')->on('users')->nullOnDelete();
         });
+
+        // Kunci nilai role & account_status ke daftar yang benar-benar
+        // dipakai aplikasi (enum UserRole, alur verifikasi akun), biar
+        // tidak ada "magic string" nyasar dari luar Eloquent.
+        DB::statement("ALTER TABLE users ADD CONSTRAINT chk_users_role CHECK (role IN ('pengguna', 'petugas', 'admin'))");
+        DB::statement("ALTER TABLE users ADD CONSTRAINT chk_users_account_status CHECK (account_status IN ('pending', 'verified', 'rejected', 'suspended'))");
     }
 
     /**

@@ -56,7 +56,6 @@ class UserController extends Controller
             'role'           => $validated['role'],
             'account_status' => 'verified',
             'registered_by'  => $admin->id_user,
-            'is_active'      => true,
         ]);
 
         return redirect()->route('admin.users.index')
@@ -77,5 +76,28 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', "Akun {$user->name} telah ditolak.");
+    }
+
+    /**
+     * Bekukan akun yang sebelumnya sudah verified — dulu ini yang
+     * seharusnya jadi fungsi is_active=false, tapi is_active tidak pernah
+     * dicek di alur login (AuthenticatedSessionController hanya mengecek
+     * account_status). Sekarang 'suspended' otomatis ikut tercek di sana,
+     * jadi akun yang di-suspend memang benar-benar tidak bisa login.
+     */
+    public function suspend(User $user)
+    {
+        $user->update(['account_status' => 'suspended']);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Akun {$user->name} berhasil dibekukan.");
+    }
+
+    public function reactivate(User $user)
+    {
+        $user->update(['account_status' => 'verified']);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Akun {$user->name} berhasil diaktifkan kembali.");
     }
 }
