@@ -11,8 +11,12 @@ return new class extends Migration
         Schema::create('report_photos', function (Blueprint $table) {
             $table->uuid('id_foto')->primary();
             $table->uuid('id_laporan');
-            $table->string('photo_path')->nullable();
-            $table->longText('photo_data')->nullable();
+            // Satu sumber kebenaran untuk lokasi foto: file fisik di disk
+            // 'local' (private, lihat ReportController@photo untuk cara
+            // servenya). Tidak lagi menyimpan salinan base64 di kolom
+            // terpisah (photo_data) karena itu cuma duplikasi data yang
+            // membengkakkan tabel dan bisa desync dari file aslinya.
+            $table->string('photo_path');
             $table->unsignedInteger('urutan')->default(0);
             $table->timestamps();
 

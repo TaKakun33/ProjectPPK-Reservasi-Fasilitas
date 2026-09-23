@@ -54,8 +54,8 @@
                         <p class="text-sm text-gray-500 mb-2">Foto Kerusakan ({{ $laporan->photos->count() }})</p>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             @foreach($laporan->photos as $foto)
-                                <a href="{{ $foto->photo_path ? asset('storage/' . $foto->photo_path) : $foto->photo_data }}" target="_blank">
-                                    <img src="{{ $foto->photo_data ?? asset('storage/' . $foto->photo_path) }}" alt="Foto kerusakan"
+                                <a href="{{ route('reports.photo', $foto->id_foto) }}" target="_blank">
+                                    <img src="{{ route('reports.photo', $foto->id_foto) }}" alt="Foto kerusakan"
                                         class="w-full h-32 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition">
                                 </a>
                             @endforeach

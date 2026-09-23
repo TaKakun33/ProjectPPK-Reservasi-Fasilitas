@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['id_laporan', 'photo_path', 'photo_data', 'urutan'])]
+#[Fillable(['id_laporan', 'photo_path', 'urutan'])]
 class ReportPhoto extends Model
 {
     use HasFactory, HasUuids;
