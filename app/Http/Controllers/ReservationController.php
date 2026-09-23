@@ -2,19 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\Facility;
 use App\Models\Reservation;
 use App\Services\ReservationAvailability;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; 
 
 class ReservationController extends Controller
 {
+    /**
+     * Route /reservasi ini cuma buat role "pengguna". Kalau yang login
+     * petugas, langsung lempar ke halaman reservasi miliknya sendiri di
+     * /petugas/reservasi (bukan ditolak) — petugas memang gak boleh
+     * ajukan reservasi sendiri (lihat catatan self-approval di
+     * routes/reservasi.php), tapi dia tetap punya halaman reservasi
+     * versi petugas sendiri. Admin tetap ditolak, gak ada urusan di sini.
+     */
+    protected function ensurePengguna(): ?RedirectResponse
+    {
+        $role = auth()->user()->role;
+
+        if ($role === UserRole::Petugas) {
+            return redirect()->route('petugas.reservations.index');
+        }
+
+        abort_if($role === UserRole::Admin, 403, 'Halaman reservasi ini khusus untuk pengguna.');
+
+        return null;
+    }
+
     // Riwayat & status reservasi milik user yang login.
     public function index(Request $request)
     {
+        if ($redirect = $this->ensurePengguna()) {
+            return $redirect;
+        }
+
         $reservations = Reservation::with('facility')
             ->where('id_user', Auth::id())
             ->orderBy('date', 'desc')
@@ -27,6 +54,10 @@ class ReservationController extends Controller
     // Form pengajuan reservasi.
     public function create(Request $request)
     {
+        if ($redirect = $this->ensurePengguna()) {
+            return $redirect;
+        }
+
         $facilities = Facility::where('facility_status', 'aktif')->get();
 
         $selectedFacilityId = $request->input('facility_id');
@@ -38,6 +69,10 @@ class ReservationController extends Controller
     // Simpan reservasi baru dengan validasi server.
     public function store(Request $request)
     {
+        if ($redirect = $this->ensurePengguna()) {
+            return $redirect;
+        }
+
         // 1. Validasi dasar form
         $request->validate([
             'id_fasilitas' => 'required|exists:facilities,id_fasilitas',
@@ -114,6 +149,10 @@ class ReservationController extends Controller
     // status reservasinya seperti itu (bukan cuma badge status doang).
     public function show(Request $request, string $reservasi)
     {
+        if ($redirect = $this->ensurePengguna()) {
+            return $redirect;
+        }
+
         $reservation = Reservation::with([
                 'facility',
                 'processedBy',
@@ -131,6 +170,10 @@ class ReservationController extends Controller
     // Batalkan reservasi milik sendiri.
     public function destroy(Request $request, string $reservasi)
     {
+        if ($redirect = $this->ensurePengguna()) {
+            return $redirect;
+        }
+
         $reservation = Reservation::findOrFail($reservasi);
         // 1. Cek kepemilikan (Authorization)
         if ($reservation->id_user !== Auth::id()) {

@@ -19,6 +19,11 @@ class FacilityController extends Controller
             return redirect()->route('admin.fasilitas.index');
         }
 
+        // Petugas juga gak boleh akses halaman publik ini — dia bukan
+        // pemohon reservasi, jadi gak ada urusan liat daftar fasilitas
+        // dari sisi pengguna. Tolak langsung (403), bukan redirect.
+        abort_if($request->user()?->role === UserRole::Petugas, 403, 'Halaman fasilitas ini khusus untuk pengguna.');
+
         $query = Facility::visible();
 
         // Filter: Tipe, Lokasi, Kapasitas
@@ -46,6 +51,10 @@ class FacilityController extends Controller
     // Menampilkan detail fasilitas dan slot ketersediaan per 30 menit.
     public function show(Request $request, string $fasilitas)
     {
+        // Sama seperti index(): halaman detail fasilitas publik ini juga
+        // bukan buat petugas.
+        abort_if($request->user()?->role === UserRole::Petugas, 403, 'Halaman fasilitas ini khusus untuk pengguna.');
+
         $facility = Facility::visible()
             ->where('id_fasilitas', $fasilitas)
             ->firstOrFail();

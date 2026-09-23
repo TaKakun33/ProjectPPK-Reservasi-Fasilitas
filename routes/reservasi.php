@@ -19,11 +19,17 @@ Route::get('/fasilitas', [FacilityController::class, 'index'])->name('facilities
 Route::redirect('/home', '/fasilitas');
 Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->name('facilities.show');
 
-// Wajib login DAN khusus role pengguna — story #3, #4, #5.
-// Sengaja TIDAK dibuka untuk admin/petugas: kalau mereka boleh ajukan
-// reservasi sendiri, ada risiko petugas approve reservasi miliknya
-// sendiri (self-approval / conflict of interest) di /petugas/reservasi.
-Route::middleware(['auth', 'role:pengguna'])->prefix('reservasi')->name('reservations.')->group(function () {
+// Wajib login — khusus buat role pengguna, tapi pengecekan role + redirect
+// per-role-nya dilakukan di ReservationController@ensurePengguna(), BUKAN
+// lewat middleware 'role:pengguna' lagi. Alasannya: petugas yang nyasar ke
+// sini harus dilempar balik ke /petugas/reservasi (bukan cuma ditolak
+// 403), sementara admin tetap ditolak. Middleware 'role:...' cuma bisa
+// blokir/abort, gak bisa redirect beda tujuan per role, jadi logic-nya
+// dipindah ke controller (pola yang sama dipakai Akbar di ReportController
+// buat /laporan). Sengaja TIDAK dibuka untuk petugas ajukan reservasi
+// sendiri: ada risiko petugas approve reservasi miliknya sendiri
+// (self-approval / conflict of interest) di /petugas/reservasi.
+Route::middleware(['auth'])->prefix('reservasi')->name('reservations.')->group(function () {
     Route::get('/', [ReservationController::class, 'index'])->name('index'); // riwayat + status
     Route::get('/create', [ReservationController::class, 'create'])->name('create'); // form ajukan
     Route::post('/', [ReservationController::class, 'store'])->name('store'); // validasi server: jam operasional, slot 30 menit, bentrok
