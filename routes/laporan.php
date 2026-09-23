@@ -2,7 +2,7 @@
 
 // ================= MODUL LAPORAN KERUSAKAN (Akbar) =================
 // Bikin controller-nya sendiri:
-//   app/Http/Controllers/ReportController.php
+// app/Http/Controllers/ReportController.php
 // Foto laporan disimpan di disk 'local' (private, storage/app/private) —
 // BUKAN disk 'public'. Jangan pakai storage:link / asset('storage/...')
 // buat foto laporan; foto hanya boleh diakses lewat route

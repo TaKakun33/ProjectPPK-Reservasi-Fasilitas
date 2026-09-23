@@ -9,12 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * Skeleton model — struktur dasar saja (fillable, casts, relasi).
- * Business logic (search/filter, cek ketersediaan slot, dst.) ditulis
- * di controller masing-masing modul, bukan di sini, biar file ini
- * gak jadi rebutan edit banyak orang.
- */
+// Model fasilitas kampus dengan dukungan UUID dan soft deletes
 #[Fillable(['facility_name', 'type', 'location', 'capacity', 'description', 'facility_status'])]
 class Facility extends Model
 {
@@ -26,7 +21,7 @@ class Facility extends Model
 
     protected $keyType = 'string';
 
-    // Laravel default expects updated_at too; migration hanya punya created_at.
+    // Tabel fasilitas hanya menggunakan created_at (tanpa updated_at)
     const UPDATED_AT = null;
 
     protected function casts(): array
@@ -36,17 +31,13 @@ class Facility extends Model
         ];
     }
 
-    /**
-     * Fasilitas dianggap bisa dilihat/dipakai pengguna selama belum
-     * dinonaktifkan admin. 'dalam perbaikan' tetap muncul di listing
-     * (biar pengguna tahu fasilitas itu ada tapi sementara tidak bisa
-     * direservasi) — hanya 'nonaktif' yang disembunyikan.
-     */
+    // Scope untuk menampilkan fasilitas yang belum dinonaktifkan (aktif atau dalam perbaikan)
     public function scopeVisible($query)
     {
         return $query->where('facility_status', '!=', 'nonaktif');
     }
 
+    // Cek apakah fasilitas siap digunakan untuk reservasi (berstatus 'aktif')
     public function isReservable(): bool
     {
         return $this->facility_status === 'aktif';

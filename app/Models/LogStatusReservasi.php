@@ -8,10 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * Dipakai Ilham (Modul Petugas) tiap kali status reservasi berubah
- * (approve/reject/cancel) — insert 1 baris log di sini.
- */
+// (Modul Petugas) tiap kali status reservasi berubah
+// (approve/reject/cancel)
 #[Fillable(['id_reservasi', 'status_before', 'status_after', 'changed_by', 'notes'])]
 class LogStatusReservasi extends Model
 {

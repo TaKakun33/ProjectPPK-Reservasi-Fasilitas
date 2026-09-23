@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 
+// Controller pengelolaan antrian dan verifikasi reservasi oleh Petugas
 class ReservationController extends Controller
 {
+    // Menampilkan antrian reservasi yang berstatus pending (menunggu konfirmasi)
     public function index(Request $request)
     {
         // Antrian reservasi pending, diurutkan dari yang paling lama menunggu.
@@ -22,6 +24,7 @@ class ReservationController extends Controller
         return view('petugas.reservations.index', compact('reservations'));
     }
 
+    // Menyetujui permohonan reservasi (dengan pengecekan bentrok jadwal & lock database)
     public function approve(Request $request, string $reservasi)
     {
         // Cek bentrok + approve dilakukan dalam SATU transaksi dengan
@@ -78,8 +81,7 @@ class ReservationController extends Controller
                 : 'Reservasi ini sudah diproses sebelumnya.');
         } catch (\Illuminate\Database\QueryException $e) {
             // Pengaman terakhir dari trigger trg_reservations_no_conflict_upd
-            // (migration 2026_09_20_000001) — lihat catatan yang sama di
-            // ReservationController@store.
+            // (migration 2026_09_20_000001) — lihat catatan yang sama di ReservationController@store.
             report($e);
 
             return back()->with('error', 'Jadwal bentrok dengan reservasi lain.');
@@ -88,6 +90,7 @@ class ReservationController extends Controller
         return back()->with('success', 'Reservasi berhasil disetujui.');
     }
 
+    // Menolak permohonan reservasi dengan alasan penolakan
     public function reject(Request $request, string $reservasi)
     {
         $reservation = Reservation::findOrFail($reservasi);
@@ -96,8 +99,7 @@ class ReservationController extends Controller
             return back()->with('error', 'Reservasi ini sudah diproses sebelumnya.');
         }
 
-        // Wajib isi alasan penolakan (US #9) biar pengguna tahu kenapa
-        // reservasinya ditolak, bukan cuma status berubah jadi "ditolak".
+        // Wajib isi alasan penolakan agar pengguna tahu kenapa reservasinya ditolak
         $validated = $request->validate([
             'alasan_ditolak' => ['required', 'string', 'max:500'],
         ]);
@@ -123,6 +125,7 @@ class ReservationController extends Controller
         return back()->with('success', 'Reservasi berhasil ditolak.');
     }
 
+    // Membatalkan reservasi yang sudah disetujui (wajib mencantumkan alasan)
     public function cancel(Request $request, string $reservasi)
     {
         $reservation = Reservation::findOrFail($reservasi);

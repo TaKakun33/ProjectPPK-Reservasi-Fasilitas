@@ -9,7 +9,7 @@
     </x-slot>
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <!-- Info Fasilitas -->
+        {{-- Info Fasilitas --}}
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between gap-4">
             <div>
                 <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{{ $facility->type }}</span>
@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <!-- Pilih Tanggal & Timeline Slot 30 Menit -->
+        {{-- Pilih Tanggal & Timeline Slot 30 Menit --}}
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                 <h3 class="text-lg font-bold text-gray-900">Ketersediaan Slot Waktu (07:00 - 20:00)</h3>
@@ -45,7 +45,7 @@
                 </form>
             </div>
 
-            <!-- Grid Slot Waktu 30 Menit -->
+            {{-- Grid Slot Waktu 30 Menit --}}
             <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                 @foreach($slots as $slot)
                     <div class="p-3 rounded-lg border text-center text-xs flex flex-col justify-between

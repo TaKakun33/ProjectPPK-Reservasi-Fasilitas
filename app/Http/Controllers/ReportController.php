@@ -12,12 +12,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
-    /**
-     * Halaman /laporan ini cuma buat role "pengguna". Kalau yang login
-     * petugas, lempar ke halaman laporan miliknya sendiri di
-     * /petugas/laporan. Kalau admin, langsung ditolak (403) — admin
-     * memang nggak punya urusan di route ini.
-     */
+    // Halaman /laporan ini cuma buat role "pengguna". Kalau yang login petugas, 
+    // lempar ke halaman laporan miliknya sendiri di /petugas/laporan. Kalau admin, langsung ditolak (403) — admin
     protected function ensurePengguna(): ?RedirectResponse
     {
         $role = auth()->user()->role;
@@ -120,11 +116,8 @@ class ReportController extends Controller
         return view('reports.show', compact('laporan'));
     }
 
-    /**
-     * Serve satu foto laporan dari disk privat. Hanya pemilik laporan,
-     * petugas, atau admin yang boleh melihatnya — beda dengan disk
-     * 'public' lama yang bisa diakses siapa saja yang tahu/menebak URL-nya.
-     */
+    // Serve satu foto laporan dari disk privat. Hanya pemilik laporan,
+    // petugas, atau admin yang boleh melihatnya — beda dengan disk 'public' lama yang bisa diakses siapa saja yang tahu/menebak URL-nya.
     public function photo(Request $request, \App\Models\ReportPhoto $foto)
     {
         $laporan = $foto->report;

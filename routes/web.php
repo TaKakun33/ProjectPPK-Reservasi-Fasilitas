@@ -3,7 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FacilityController; // ← tambahkan import ini
+use App\Http\Controllers\FacilityController; 
 
 Route::get('/', [FacilityController::class, 'index'])->name('welcome');
 

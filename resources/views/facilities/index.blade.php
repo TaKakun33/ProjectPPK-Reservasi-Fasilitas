@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Form Filter & Pencarian -->
+        {{-- Form Filter & Pencarian --}}
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
             <form method="GET" action="{{ route('facilities.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
@@ -46,7 +46,7 @@
             </form>
         </div>
 
-        <!-- Daftar Fasilitas -->
+        {{-- Daftar Fasilitas --}}
         @if($facilities->isEmpty())
             <div class="bg-white p-12 text-center rounded-xl border border-gray-100 text-gray-500">
                 Tidak ada fasilitas yang sesuai dengan pencarian Anda.

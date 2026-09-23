@@ -14,14 +14,10 @@ use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
-    /**
-     * Route /reservasi ini cuma buat role "pengguna". Kalau yang login
-     * petugas, langsung lempar ke halaman reservasi miliknya sendiri di
-     * /petugas/reservasi (bukan ditolak) — petugas memang gak boleh
-     * ajukan reservasi sendiri (lihat catatan self-approval di
-     * routes/reservasi.php), tapi dia tetap punya halaman reservasi
-     * versi petugas sendiri. Admin tetap ditolak, gak ada urusan di sini.
-     */
+    // Route /reservasi ini cuma buat role "pengguna". Kalau yang login petugas, 
+    // langsung lempar ke halaman reservasi miliknya sendiri di /petugas/reservasi (bukan ditolak) 
+    // petugas memang gak boleh ajukan reservasi sendiri (lihat catatan self-approval di routes/reservasi.php),
+    // tapi dia tetap punya halaman reservasi versi petugas sendiri. Admin tetap ditolak, gak ada urusan di sini.
     protected function ensurePengguna(): ?RedirectResponse
     {
         $role = auth()->user()->role;
@@ -131,11 +127,9 @@ class ReservationController extends Controller
         } catch (\RuntimeException $e) {
             return back()->withInput()->withErrors(['time' => 'Jadwal yang Anda pilih sudah terisi atau bertabrakan dengan reservasi lain yang sedang menunggu konfirmasi/disetujui.']);
         } catch (\Illuminate\Database\QueryException $e) {
-            // Pengaman terakhir: trigger trg_reservations_no_conflict_ins di
-            // level DB menolak insert yang bentrok (lihat migration
-            // 2026_09_20_000001). Harusnya jarang kena karena lockForUpdate
-            // di atas sudah menangkap duluan, tapi kalau tetap kena, jangan
-            // sampai user lihat error 500 mentah.
+            // Pengaman terakhir: trigger trg_reservations_no_conflict_ins di level DB menolak insert yang bentrok. 
+            // Harusnya jarang kena karena lockForUpdate sudah menangkap duluan, 
+            // tapi kalau tetap kena, jangan sampai user lihat error 500 mentah.
             report($e);
 
             return back()->withInput()->withErrors(['time' => 'Jadwal yang Anda pilih sudah terisi atau bertabrakan dengan reservasi lain yang sedang menunggu konfirmasi/disetujui.']);
@@ -187,7 +181,7 @@ class ReservationController extends Controller
         // Jika hari ini sudah sama dengan hari-H atau lewat, tolak pembatalan
         $reservationDate = Carbon::parse($reservation->date->format('Y-m-d'))->startOfDay();
         if (Carbon::today()->gte($reservationDate)) {
-            return back()->with('error', 'Pembatalan gagal. Reservasi hanya dapat dibatalkan maksimal H-1 sebelum hari kegiatan.');
+            return back()->with('error', 'Pembatalan gagal. Reservasi hanya dapat dibatalkan maksimal H-1 sebelum jadwal kegiatan (maksimal pukul 23:59 WIB).');
         }
         // 4. Update status menjadi cancelled
         $reservation->update([

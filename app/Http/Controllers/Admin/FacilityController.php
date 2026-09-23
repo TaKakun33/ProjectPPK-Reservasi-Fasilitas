@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Facility;
 use Illuminate\Http\Request;
 
+// Controller untuk manajemen fasilitas oleh Admin (CRUD & aktivasi)
 class FacilityController extends Controller
 {
+    // Menampilkan daftar fasilitas dengan filter status dan fitur pencarian
     public function index(Request $request)
     {
         $query = Facility::query();
@@ -30,11 +32,13 @@ class FacilityController extends Controller
         return view('admin.facilities.index', compact('facilities'));
     }
 
+    // Menampilkan form tambah fasilitas baru
     public function create()
     {
         return view('admin.facilities.create');
     }
 
+    // Menyimpan data fasilitas baru ke database (default status 'aktif')
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -53,11 +57,13 @@ class FacilityController extends Controller
             ->with('success', 'Fasilitas berhasil ditambahkan.');
     }
 
+    // Menampilkan form edit fasilitas
     public function edit(Facility $fasilitas)
     {
         return view('admin.facilities.edit', compact('fasilitas'));
     }
 
+    // Memperbarui data fasilitas
     public function update(Request $request, Facility $fasilitas)
     {
         $validated = $request->validate([
@@ -74,6 +80,7 @@ class FacilityController extends Controller
             ->with('success', 'Fasilitas berhasil diperbarui.');
     }
 
+    // Menonaktifkan fasilitas (mengubah status menjadi 'nonaktif')
     public function destroy(Facility $fasilitas)
     {
         $fasilitas->update(['facility_status' => 'nonaktif']);
@@ -82,6 +89,7 @@ class FacilityController extends Controller
             ->with('success', 'Fasilitas berhasil dinonaktifkan.');
     }
 
+    // Mengaktifkan kembali fasilitas yang dinonaktifkan
     public function activate(Facility $fasilitas)
     {
         // Sebelum diaktifkan, cek dulu: apakah fasilitas ini masih punya

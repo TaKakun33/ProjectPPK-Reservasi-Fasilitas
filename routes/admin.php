@@ -34,7 +34,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::patch('/fasilitas/{fasilitas}/activate', [FacilityController::class, 'activate'])
         ->name('fasilitas.activate');
 
-    // Story #13, #14, #15: daftarkan akun petugas/pengguna langsung + verifikasi registrasi mandiri.
+    // Kelola akun pengguna (petugas & pengguna): pendaftaran langsung, verifikasi, tolak, bekukan, dan aktifkan kembali
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::patch('/users/{user}/verify', [UserController::class, 'verify'])->name('users.verify');
@@ -42,7 +42,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
     Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
 
-    // Story #17: rekap okupansi & frekuensi kerusakan, export CSV/Excel/PDF.
+    // Rekap okupansi & frekuensi kerusakan fasilitas, serta export laporan (CSV/Excel/PDF)
     Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
     Route::get('/rekap/export', [RekapController::class, 'export'])->name('rekap.export');
 });

@@ -3,24 +3,37 @@
 namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Reservation;
+use App\Models\Facility;
 use App\Models\Report;
+use App\Models\Reservation;
+use Illuminate\Http\Request;
 
-// TODO(Ilham): isi resources/views/petugas/dashboard.blade.php dengan antrian
-// reservasi & laporan yang menunggu diproses. View-nya udah pakai
-// <x-app-layout> yang sama dengan dashboard pengguna biasa (navbar + logout
-// otomatis ikut).
+// Dashboard untuk petugas
 class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-       // Jumlah reservasi yang statusnya masih 'pending' (menunggu diproses).
-        $pendingReservations = Reservation::where('reservation_status', 'pending')->count();
+        $stats = [
+            'reservasi_pending'   => Reservation::where('reservation_status', 'pending')->count(),
+            'reservasi_approved'  => Reservation::where('reservation_status', 'approved')->count(),
+            'laporan_baru'        => Report::where('report_status', 'baru')->count(),
+            'laporan_diproses'    => Report::where('report_status', 'diproses')->count(),
+            'fasilitas_perbaikan' => Facility::where('facility_status', 'dalam perbaikan')->count(),
+            'fasilitas_aktif'     => Facility::where('facility_status', 'aktif')->count(),
+        ];
 
-        // Jumlah laporan yang statusnya masih 'baru' (belum diproses).
-        $newReports = Report::where('report_status', 'baru')->count();
+        // Reservasi terbaru yang relevan untuk dipantau petugas
+        $recentReservations = Reservation::with(['user', 'facility'])
+            ->latest('created_at')
+            ->limit(5)
+            ->get();
 
-        return view('petugas.dashboard', compact('pendingReservations', 'newReports'));
+        // Laporan kerusakan terbaru yang relevan untuk ditangani petugas
+        $recentReports = Report::with(['user', 'facility', 'category'])
+            ->latest('created_at')
+            ->limit(5)
+            ->get();
+
+        return view('petugas.dashboard', compact('stats', 'recentReservations', 'recentReports'));
     }
 }
