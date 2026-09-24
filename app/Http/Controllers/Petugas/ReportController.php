@@ -12,17 +12,22 @@ use Illuminate\Support\Facades\DB;
 // Controller penanganan laporan kerusakan fasilitas oleh Petugas
 class ReportController extends Controller
 {
-    // Menampilkan daftar antrian laporan kerusakan yang perlu ditangani ('baru' dan 'diproses')
+    // Menampilkan daftar antrian & riwayat laporan kerusakan
     public function index(Request $request)
     {
-        // Tampilkan laporan yang masih dalam proses penanganan: 'baru' dan 'diproses'.
-        // Laporan 'diproses' tetap muncul supaya petugas bisa menandainya 'selesai'.
-        $reports = Report::with(['user', 'facility', 'category', 'photos'])
-            ->whereIn('report_status', ['baru', 'diproses'])
-            ->orderBy('created_at', 'asc')
-            ->paginate(15);
+        $query = Report::with(['user', 'facility', 'category', 'photos']);
 
-        return view('petugas.reports.index', compact('reports'));
+        if ($request->filled('status') && in_array($request->status, ['baru', 'diproses', 'selesai', 'ditolak'])) {
+            $query->where('report_status', $request->status);
+        }
+
+        $reports = $query->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $selectedStatus = $request->input('status', 'all');
+
+        return view('petugas.reports.index', compact('reports', 'selectedStatus'));
     }
 
     // Menampilkan halaman detail satu laporan kerusakan dan form aksi penanganannya
