@@ -63,8 +63,11 @@ class ReservationAvailability
             ->get();
 
         $slots = [];
-        $current = Carbon::parse($date . ' ' . self::OPERATIONAL_START);
-        $end = Carbon::parse($date . ' ' . self::OPERATIONAL_END);
+        $timezone = config('app.timezone', 'Asia/Jakarta');
+        $now = Carbon::now($timezone);
+
+        $current = Carbon::parse($date . ' ' . self::OPERATIONAL_START, $timezone);
+        $end = Carbon::parse($date . ' ' . self::OPERATIONAL_END, $timezone);
 
         while ($current->lt($end)) {
             $slotStart = $current->format('H:i:s');
@@ -76,12 +79,16 @@ class ReservationAvailability
                 return $res->start_time < $slotEnd && $res->end_time > $slotStart;
             });
 
+            // Slot dianggap sudah berlalu jika waktu mulainya ($current) kurang dari atau sama dengan waktu sekarang
+            $isPast = $current->lte($now);
+
             $slots[] = [
-                'start' => $current->format('H:i'),
-                'end' => $next->format('H:i'),
-                'is_available' => is_null($booking),
-                'status' => $booking ? $booking->reservation_status : 'tersedia',
-                'booking' => $booking, 
+                'start'        => $current->format('H:i'),
+                'end'          => $next->format('H:i'),
+                'is_available' => is_null($booking) && !$isPast,
+                'status'       => $booking ? $booking->reservation_status : ($isPast ? 'berlalu' : 'tersedia'),
+                'booking'      => $booking,
+                'is_past'      => $isPast,
             ];
 
             $current = $next;

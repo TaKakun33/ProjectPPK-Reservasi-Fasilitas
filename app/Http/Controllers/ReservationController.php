@@ -85,6 +85,17 @@ class ReservationController extends Controller
         $startTime = $request->start_time . ':00';
         $endTime = $request->end_time . ':00';
 
+        // 1.5. Validasi Waktu Masa Mendatang (Tidak boleh jam berlalu / sedang berlangsung)
+        $timezone = config('app.timezone', 'Asia/Jakarta');
+        $now = Carbon::now($timezone);
+        $startDateTime = Carbon::parse($request->date . ' ' . $startTime, $timezone);
+
+        if ($startDateTime->lte($now)) {
+            return back()
+                ->withInput()
+                ->withErrors(['time' => 'Jam reservasi tidak boleh untuk waktu yang sudah berlalu atau sedang berlangsung. Silakan pilih waktu di masa mendatang.']);
+        }
+
         // 2. Validasi Jam Operasional & Kelipatan 30 Menit
         if (!ReservationAvailability::isValidSlotTime($startTime) || !ReservationAvailability::isValidSlotTime($endTime)) {
             return back()

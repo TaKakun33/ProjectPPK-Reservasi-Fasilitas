@@ -49,12 +49,14 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                 @foreach($slots as $slot)
                     <div class="p-3 rounded-lg border text-center text-xs flex flex-col justify-between
-                        {{ $slot['is_available'] ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800' }}">
+                        {{ $slot['is_available'] ? 'bg-green-50 border-green-200 text-green-800' : ($slot['status'] === 'berlalu' ? 'bg-gray-100 border-gray-200 text-gray-500' : 'bg-red-50 border-red-200 text-red-800') }}">
                         <div class="font-bold text-sm">{{ $slot['start'] }} - {{ $slot['end'] }}</div>
 
                         <div class="mt-2">
                             @if($slot['is_available'])
                                 <span class="px-2 py-0.5 rounded bg-green-200 text-green-900 font-semibold">Tersedia</span>
+                            @elseif($slot['status'] === 'berlalu')
+                                <span class="px-2 py-0.5 rounded bg-gray-200 text-gray-700 font-semibold">Berlalu</span>
                             @else
                                 <span class="px-2 py-0.5 rounded bg-red-200 text-red-900 font-semibold">
                                     {{ ucfirst($slot['status']) }}
@@ -72,9 +74,10 @@
                 @endforeach
             </div>
 
-            <div class="mt-4 text-xs text-gray-500 flex items-center gap-4">
+            <div class="mt-4 text-xs text-gray-500 flex items-center gap-4 flex-wrap">
                 <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-200 rounded-full inline-block"></span> Hijau = Slot Tersedia</span>
                 <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-200 rounded-full inline-block"></span> Merah = Sudah Terisi</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 bg-gray-200 rounded-full inline-block"></span> Abu-abu = Waktu Berlalu</span>
             </div>
         </div>
     </div>

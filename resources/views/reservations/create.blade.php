@@ -38,7 +38,7 @@
                 {{-- Tanggal --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kegiatan</label>
-                    <input type="date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" required
+                    <input type="date" id="reservation_date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" required
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
 
@@ -46,7 +46,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jam Mulai (07:00 - 19:30)</label>
-                        <select name="start_time" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="start_time" id="start_time" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             @for($h = 7; $h <= 19; $h++)
                                 @foreach(['00', '30'] as $m)
                                     @php $time = sprintf('%02d:%s', $h, $m); @endphp
@@ -58,7 +58,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jam Selesai (07:30 - 20:00)</label>
-                        <select name="end_time" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="end_time" id="end_time" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             @for($h = 7; $h <= 20; $h++)
                                 @foreach(['00', '30'] as $m)
                                     @if($h == 7 && $m == '00') @continue @endif
@@ -87,4 +87,81 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('reservation_date');
+            const startTimeSelect = document.getElementById('start_time');
+            const endTimeSelect = document.getElementById('end_time');
+
+            function getTodayStr() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function getCurrentTimeStr() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            }
+
+            function filterTimeSlots() {
+                const selectedDate = dateInput.value;
+                const todayStr = getTodayStr();
+                const currentTimeStr = getCurrentTimeStr();
+                const isToday = selectedDate === todayStr;
+
+                let firstValidStart = null;
+
+                Array.from(startTimeSelect.options).forEach(option => {
+                    const timeVal = option.value;
+                    if (isToday && timeVal <= currentTimeStr) {
+                        option.disabled = true;
+                        if (!option.dataset.originalText) {
+                            option.dataset.originalText = timeVal;
+                        }
+                        option.innerText = timeVal + ' (Telah Berlalu)';
+                    } else {
+                        option.disabled = false;
+                        option.innerText = option.dataset.originalText || timeVal;
+                        if (!firstValidStart) firstValidStart = timeVal;
+                    }
+                });
+
+                if (startTimeSelect.selectedOptions[0] && startTimeSelect.selectedOptions[0].disabled) {
+                    if (firstValidStart) {
+                        startTimeSelect.value = firstValidStart;
+                    }
+                }
+
+                const currentStart = startTimeSelect.value;
+                let firstValidEnd = null;
+
+                Array.from(endTimeSelect.options).forEach(option => {
+                    const timeVal = option.value;
+                    if (timeVal <= currentStart || (isToday && timeVal <= currentTimeStr)) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                        if (!firstValidEnd) firstValidEnd = timeVal;
+                    }
+                });
+
+                if (endTimeSelect.selectedOptions[0] && endTimeSelect.selectedOptions[0].disabled) {
+                    if (firstValidEnd) {
+                        endTimeSelect.value = firstValidEnd;
+                    }
+                }
+            }
+
+            dateInput.addEventListener('change', filterTimeSlots);
+            startTimeSelect.addEventListener('change', filterTimeSlots);
+
+            filterTimeSlots();
+        });
+    </script>
 </x-app-layout>
