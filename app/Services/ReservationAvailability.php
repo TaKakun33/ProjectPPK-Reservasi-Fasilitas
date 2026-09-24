@@ -79,16 +79,17 @@ class ReservationAvailability
                 return $res->start_time < $slotEnd && $res->end_time > $slotStart;
             });
 
-            // Slot dianggap sudah berlalu jika waktu mulainya ($current) kurang dari atau sama dengan waktu sekarang
-            $isPast = $current->lte($now);
+            // Slot dianggap tidak dapat dipesan jika waktu mulainya ($current) kurang dari 1 jam dari sekarang
+            $minStart = $now->copy()->addHour();
+            $isPastOrTooSoon = $current->lt($minStart);
 
             $slots[] = [
                 'start'        => $current->format('H:i'),
                 'end'          => $next->format('H:i'),
-                'is_available' => is_null($booking) && !$isPast,
-                'status'       => $booking ? $booking->reservation_status : ($isPast ? 'berlalu' : 'tersedia'),
+                'is_available' => is_null($booking) && !$isPastOrTooSoon,
+                'status'       => $booking ? $booking->reservation_status : ($isPastOrTooSoon ? 'berlalu' : 'tersedia'),
                 'booking'      => $booking,
-                'is_past'      => $isPast,
+                'is_past'      => $isPastOrTooSoon,
             ];
 
             $current = $next;

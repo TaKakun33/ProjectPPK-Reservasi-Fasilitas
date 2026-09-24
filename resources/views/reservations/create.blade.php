@@ -102,29 +102,30 @@
                 return `${year}-${month}-${day}`;
             }
 
-            function getCurrentTimeStr() {
-                const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
+            // Menghitung waktu minimal pemesanan (Waktu Sekarang + 1 Jam Buffer)
+            function getMinStartTimeStr() {
+                const minTime = new Date(Date.now() + 60 * 60 * 1000);
+                const hours = String(minTime.getHours()).padStart(2, '0');
+                const minutes = String(minTime.getMinutes()).padStart(2, '0');
                 return `${hours}:${minutes}`;
             }
 
             function filterTimeSlots() {
                 const selectedDate = dateInput.value;
                 const todayStr = getTodayStr();
-                const currentTimeStr = getCurrentTimeStr();
+                const minStartTimeStr = getMinStartTimeStr();
                 const isToday = selectedDate === todayStr;
 
                 let firstValidStart = null;
 
                 Array.from(startTimeSelect.options).forEach(option => {
                     const timeVal = option.value;
-                    if (isToday && timeVal <= currentTimeStr) {
+                    if (isToday && timeVal < minStartTimeStr) {
                         option.disabled = true;
                         if (!option.dataset.originalText) {
                             option.dataset.originalText = timeVal;
                         }
-                        option.innerText = timeVal + ' (Telah Berlalu)';
+                        option.innerText = timeVal + ' (< 1 Jam / Berlalu)';
                     } else {
                         option.disabled = false;
                         option.innerText = option.dataset.originalText || timeVal;
@@ -143,7 +144,7 @@
 
                 Array.from(endTimeSelect.options).forEach(option => {
                     const timeVal = option.value;
-                    if (timeVal <= currentStart || (isToday && timeVal <= currentTimeStr)) {
+                    if (timeVal <= currentStart || (isToday && timeVal < minStartTimeStr)) {
                         option.disabled = true;
                     } else {
                         option.disabled = false;

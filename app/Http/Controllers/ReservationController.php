@@ -85,15 +85,16 @@ class ReservationController extends Controller
         $startTime = $request->start_time . ':00';
         $endTime = $request->end_time . ':00';
 
-        // 1.5. Validasi Waktu Masa Mendatang (Tidak boleh jam berlalu / sedang berlangsung)
+        // 1.5. Validasi Buffer Waktu (Minimal 1 Jam Sebelum Kegiatan Dimulai)
         $timezone = config('app.timezone', 'Asia/Jakarta');
         $now = Carbon::now($timezone);
+        $minStartDateTime = $now->copy()->addHour();
         $startDateTime = Carbon::parse($request->date . ' ' . $startTime, $timezone);
 
-        if ($startDateTime->lte($now)) {
+        if ($startDateTime->lt($minStartDateTime)) {
             return back()
                 ->withInput()
-                ->withErrors(['time' => 'Jam reservasi tidak boleh untuk waktu yang sudah berlalu atau sedang berlangsung. Silakan pilih waktu di masa mendatang.']);
+                ->withErrors(['time' => 'Reservasi harus diajukan minimal 1 jam sebelum waktu kegiatan dimulai (terdapat buffer waktu 1 jam).']);
         }
 
         // 2. Validasi Jam Operasional & Kelipatan 30 Menit
