@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-extrabold text-xl text-navy-800 leading-tight">
                 {{ __('Kelola Fasilitas') }}
             </h2>
-            <a href="{{ route('admin.fasilitas.create') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+            <a href="{{ route('admin.fasilitas.create') }}" class="px-4 py-2 bg-gold-400 text-navy-900 text-sm font-bold rounded-md hover:bg-gold-500 shadow-sm">
                 + Tambah Fasilitas
             </a>
         </div>
@@ -47,7 +47,8 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 font-semibold border-b">
+                            <tr class="bg-navy-700 text-white font-semibold border-b border-navy-800">
+                                <th class="p-4">Foto</th>
                                 <th class="p-4">Nama</th>
                                 <th class="p-4">Tipe</th>
                                 <th class="p-4">Lokasi</th>
@@ -58,7 +59,8 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($facilities as $f)
-                                <tr class="hover:bg-gray-50 {{ $f->facility_status === 'nonaktif' ? 'bg-red-50' : '' }}">
+                                <tr class="hover:bg-cream {{ $f->facility_status === 'nonaktif' ? 'bg-red-50' : '' }}">
+                                    <td class="p-4"><img src="{{ $f->photo_url }}" alt="" loading="lazy" class="w-20 h-14 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='https://picsum.photos/seed/{{ $f->id_fasilitas }}/200/140'"></td>
                                     <td class="p-4 font-medium text-gray-900">{{ $f->facility_name }}</td>
                                     <td class="p-4">
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700">{{ $f->type }}</span>

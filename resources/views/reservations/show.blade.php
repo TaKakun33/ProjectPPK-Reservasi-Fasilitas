@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-extrabold text-xl text-navy-800 leading-tight">
             {{ __('Detail Reservasi') }}
         </h2>
     </x-slot>
@@ -18,7 +18,7 @@
             </div>
         @endif
 
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200/70 border-t-4 border-t-gold-400">
             <div class="p-6 space-y-5">
                 <div class="flex justify-between items-start gap-4">
                     <div>
@@ -105,7 +105,7 @@
                 @endif
 
                 <div class="flex justify-between items-center pt-2 border-t">
-                    <a href="{{ route('reservations.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">
+                    <a href="{{ route('reservations.index') }}" class="px-4 py-2 border border-navy-700/30 rounded-md text-navy-700 font-semibold hover:bg-navy-700/5">
                         Kembali ke Riwayat
                     </a>
 

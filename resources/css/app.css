@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-cream text-slate-900 antialiased;
+    }
+}
+
+@layer components {
+    /* Kartu akademik generik: 60% putih/cream, border netral bersih */
+    .card-academic {
+        @apply bg-white rounded-xl shadow-sm border border-slate-200/70;
+    }
+
+    /* Tombol aksi utama: emas #EAB308 + teks navy tua (kontras tinggi, bukan putih) */
+    .btn-gold {
+        @apply inline-flex items-center justify-center px-5 py-2.5 bg-gold-400 border border-transparent rounded-md font-semibold text-sm text-navy-900 hover:bg-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 transition ease-in-out duration-150;
+    }
+
+    /* Tombol sekunder: putih + outline navy */
+    .btn-navy-outline {
+        @apply inline-flex items-center justify-center px-4 py-2 bg-white border border-navy-700/30 rounded-md font-semibold text-sm text-navy-700 hover:bg-navy-700/5 transition;
+    }
+
+    /* Badge status universal reservasi kampus */
+    .badge-available {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200;
+    }
+    .badge-pending {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200;
+    }
+    .badge-booked {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200;
+    }
+}

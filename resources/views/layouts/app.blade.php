@@ -47,13 +47,13 @@
         @endguest
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-cream">
             @include('layouts.navigation')
 
-            {{-- Page Heading --}}
+            {{-- Page Heading : putih + aksen emas, judul navy --}}
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-white shadow-sm border-b-4 border-gold-400">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-navy-800">
                         {{ $header }}
                     </div>
                 </header>

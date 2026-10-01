@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-extrabold text-xl text-navy-800 leading-tight">
             {{ __('Dashboard Petugas') }}
         </h2>
     </x-slot>
@@ -9,7 +9,7 @@
         {{-- Stat Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {{-- Reservasi Pending --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-yellow-50 text-yellow-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,7 +30,7 @@
             </div>
 
             {{-- Laporan Baru --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-red-50 text-red-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
             </div>
 
             {{-- Laporan Sedang Diproses --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-blue-50 text-blue-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +72,7 @@
             </div>
 
             {{-- Reservasi Approved --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-green-50 text-green-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,13 +90,13 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Antrian & Reservasi Terbaru --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <div>
                         <h3 class="font-semibold text-gray-900">Antrian & Reservasi Terbaru</h3>
                         <p class="text-xs text-gray-500 mt-0.5">Pantau status permohonan reservasi</p>
                     </div>
-                    <a href="{{ route('petugas.reservations.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                    <a href="{{ route('petugas.reservations.index') }}" class="text-sm text-navy-700 hover:text-navy-900 font-bold font-medium">
                         Buka Antrian &rarr;
                     </a>
                 </div>
@@ -105,7 +105,7 @@
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach($recentReservations as $res)
-                            <div class="px-6 py-4 flex justify-between items-center hover:bg-gray-50/60 transition">
+                            <div class="px-6 py-4 flex justify-between items-center hover:bg-cream transition">
                                 <div class="pr-4">
                                     <p class="text-sm font-medium text-gray-900">{{ $res->facility->facility_name ?? '-' }}</p>
                                     <p class="text-xs text-gray-500 mt-0.5">
@@ -126,7 +126,7 @@
                                         {{ ucfirst($res->reservation_status) }}
                                     </span>
                                     @if($res->reservation_status === 'pending')
-                                        <a href="{{ route('petugas.reservations.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                        <a href="{{ route('petugas.reservations.index') }}" class="text-xs font-semibold text-navy-700 hover:text-navy-900 font-bold">
                                             Proses &rarr;
                                         </a>
                                     @endif
@@ -138,13 +138,13 @@
             </div>
 
             {{-- Laporan Kerusakan Terbaru --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <div>
                         <h3 class="font-semibold text-gray-900">Laporan Kerusakan Terbaru</h3>
                         <p class="text-xs text-gray-500 mt-0.5">Pantau laporan fasilitas yang rusak</p>
                     </div>
-                    <a href="{{ route('petugas.reports.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                    <a href="{{ route('petugas.reports.index') }}" class="text-sm text-navy-700 hover:text-navy-900 font-bold font-medium">
                         Buka Antrian &rarr;
                     </a>
                 </div>
@@ -153,7 +153,7 @@
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach($recentReports as $report)
-                            <div class="px-6 py-4 flex justify-between items-center hover:bg-gray-50/60 transition">
+                            <div class="px-6 py-4 flex justify-between items-center hover:bg-cream transition">
                                 <div class="pr-4">
                                     <p class="text-sm font-medium text-gray-900">{{ $report->facility->facility_name ?? '-' }}</p>
                                     <p class="text-xs text-gray-500 mt-0.5">
@@ -172,7 +172,7 @@
                                     <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $reportBadges[$report->report_status] ?? 'bg-gray-100' }}">
                                         {{ ucfirst($report->report_status) }}
                                     </span>
-                                    <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                    <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-navy-700 hover:text-navy-900 font-bold">
                                         Detail &rarr;
                                     </a>
                                 </div>

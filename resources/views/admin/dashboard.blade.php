@@ -1,16 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard Admin') }}
-        </h2>
+        <div>
+            <h2 class="font-extrabold text-xl text-navy-800 leading-tight">
+                {{ __('Dashboard Admin') }}
+            </h2>
+            <p class="text-sm text-slate-500 mt-0.5">Kelola fasilitas, pengguna, dan rekap akademik.</p>
+        </div>
     </x-slot>
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Stat Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-indigo-50 text-indigo-600">
+                    <div class="p-3 rounded-full bg-navy-700/10 text-navy-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
@@ -23,7 +26,7 @@
                 <p class="mt-2 text-xs text-gray-500">{{ $stats['fasilitas_aktif'] }} aktif</p>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-yellow-50 text-yellow-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +40,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-red-50 text-red-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +54,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400 p-6">
                 <div class="flex items-center">
                     <div class="p-3 rounded-full bg-orange-50 text-orange-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,10 +75,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Reservasi Terbaru --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-semibold text-gray-900">Reservasi Terbaru</h3>
-                    <a href="{{ route('admin.rekap.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800">Lihat Rekap &rarr;</a>
+                    <a href="{{ route('admin.rekap.index') }}" class="text-sm text-navy-700 hover:text-navy-900 font-bold">Lihat Rekap &rarr;</a>
                 </div>
                 @if($recentReservations->isEmpty())
                     <div class="p-6 text-center text-gray-500 text-sm">Belum ada reservasi.</div>
@@ -105,10 +108,10 @@
             </div>
 
             {{-- Laporan Terbaru --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-gold-400">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-semibold text-gray-900">Laporan Kerusakan Terbaru</h3>
-                    <a href="{{ route('admin.rekap.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800">Lihat Rekap &rarr;</a>
+                    <a href="{{ route('admin.rekap.index') }}" class="text-sm text-navy-700 hover:text-navy-900 font-bold">Lihat Rekap &rarr;</a>
                 </div>
                 @if($recentReports->isEmpty())
                     <div class="p-6 text-center text-gray-500 text-sm">Belum ada laporan.</div>
