@@ -47,13 +47,13 @@
         @endguest
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-cream-100">
             @include('layouts.navigation')
 
-            {{-- Page Heading --}}
+            {{-- Page Heading : cream + border maroon --}}
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-white shadow-sm border-b-4 border-maroon-800">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-maroon-800">
                         {{ $header }}
                     </div>
                 </header>
@@ -66,3 +66,4 @@
         </div>
     </body>
 </html>
+

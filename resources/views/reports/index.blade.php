@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Riwayat Laporan Kerusakan Saya') }}
             </h2>
-            <a href="{{ route('reports.create') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+            <a href="{{ route('reports.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-maroon-800 rounded-xl font-extrabold text-cream-100 hover:bg-maroon-900 transition text-sm shadow-sm">
                 + Laporkan Kerusakan
             </a>
         </div>
@@ -62,7 +62,7 @@
                                     </td>
                                     <td class="p-4">{{ $laporan->created_at->format('d M Y H:i') }}</td>
                                     <td class="p-4 text-center">
-                                        <a href="{{ route('reports.show', $laporan) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                        <a href="{{ route('reports.show', $laporan) }}" class="text-xs font-bold text-maroon-700 hover:text-maroon-900 hover:underline">
                                             Lihat Detail
                                         </a>
                                     </td>

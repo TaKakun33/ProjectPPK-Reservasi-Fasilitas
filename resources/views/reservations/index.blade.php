@@ -1,10 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Riwayat Reservasi Saya') }}
             </h2>
-            <a href="{{ route('reservations.create') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+            <a href="{{ route('reservations.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-maroon-800 rounded-xl font-extrabold text-cream-100 hover:bg-maroon-900 transition text-sm shadow-sm">
                 + Ajukan Reservasi Baru
             </a>
         </div>
@@ -23,7 +23,7 @@
             </div>
         @endif
 
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200/70 border-t-4 border-t-maroon-800">
             @if($reservations->isEmpty())
                 <div class="p-12 text-center text-gray-500">
                     Anda belum memiliki riwayat reservasi fasilitas.
@@ -32,7 +32,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 font-semibold border-b">
+                            <tr class="bg-maroon-800 text-white font-semibold border-b border-maroon-900">
                                 <th class="p-4">Fasilitas</th>
                                 <th class="p-4">Tanggal</th>
                                 <th class="p-4">Waktu</th>
@@ -43,7 +43,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($reservations as $res)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-cream-100">
                                     <td class="p-4 font-medium text-gray-900">{{ $res->facility->facility_name ?? '-' }}</td>
                                     <td class="p-4">{{ $res->date->format('d M Y') }}</td>
                                     <td class="p-4">{{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }}</td>
@@ -63,7 +63,7 @@
                                     </td>
                                     <td class="p-4 text-center">
                                         <a href="{{ route('reservations.show', $res->id_reservasi) }}"
-                                           class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                           class="text-xs font-bold text-maroon-700 hover:text-maroon-900 hover:underline">
                                             Lihat Detail
                                         </a>
                                     </td>
@@ -80,3 +80,4 @@
         </div>
     </div>
 </x-app-layout>
+

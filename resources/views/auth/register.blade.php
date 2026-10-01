@@ -1,4 +1,9 @@
-<x-guest-layout>
+﻿<x-guest-layout>
+    <div class="mb-6 text-center">
+        <h1 class="text-xl font-extrabold text-maroon-800">Buat Akun Baru</h1>
+        <p class="mt-1 text-sm text-slate-500">Daftar untuk mulai meminjam ruang, lab, dan auditorium.</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
@@ -39,8 +44,8 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+        <div class="flex items-center justify-between mt-6">
+            <a class="underline text-sm text-maroon-700 hover:text-maroon-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-maroon-700" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
 
@@ -50,3 +55,4 @@
         </div>
     </form>
 </x-guest-layout>
+

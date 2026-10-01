@@ -1,6 +1,6 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
             {{ __('Detail Reservasi') }}
         </h2>
     </x-slot>
@@ -18,7 +18,7 @@
             </div>
         @endif
 
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200/70 border-t-4 border-t-maroon-800">
             <div class="p-6 space-y-5">
                 <div class="flex justify-between items-start gap-4">
                     <div>
@@ -89,7 +89,7 @@
                                 <li class="relative">
                                     <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
                                     <p class="text-sm font-medium text-gray-800">
-                                        {{ $log->status_before ? ucfirst($log->status_before) . ' → ' : '' }}{{ ucfirst($log->status_after) }}
+                                        {{ $log->status_before ? ucfirst($log->status_before) . ' -> ' : '' }}{{ ucfirst($log->status_after) }}
                                     </p>
                                     <p class="text-xs text-gray-500">
                                         {{ \Carbon\Carbon::parse($log->created_at)->format('d M Y H:i') }}
@@ -105,7 +105,7 @@
                 @endif
 
                 <div class="flex justify-between items-center pt-2 border-t">
-                    <a href="{{ route('reservations.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">
+                    <a href="{{ route('reservations.index') }}" class="px-4 py-2 border border-maroon-700/30 rounded-md text-maroon-700 font-semibold hover:bg-maroon-800/5">
                         Kembali ke Riwayat
                     </a>
 
@@ -133,3 +133,4 @@
         </div>
     </div>
 </x-app-layout>
+

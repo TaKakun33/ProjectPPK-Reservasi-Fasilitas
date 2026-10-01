@@ -107,7 +107,7 @@
                                 <span class="text-xs font-normal text-gray-400">(wajib diisi hanya saat menolak, opsional untuk aksi lainnya)</span>
                             </label>
                             <textarea name="resolution_notes" id="resolutionNotes" rows="3"
-                                      placeholder="Opsional untuk Proses/Selesai — wajib diisi jika menolak laporan..."
+                                      placeholder="Opsional untuk Proses/Selesai - wajib diisi jika menolak laporan..."
                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('resolution_notes') }}</textarea>
                         </div>
 
