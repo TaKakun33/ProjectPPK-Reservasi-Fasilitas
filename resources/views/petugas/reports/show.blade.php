@@ -34,7 +34,7 @@
                     </div>
                     @php
                         $badges = [
-                            'baru'     => 'bg-blue-100 text-blue-800',
+                            'baru'     => 'bg-maroon-100 text-maroon-800',
                             'diproses' => 'bg-yellow-100 text-yellow-800',
                             'selesai'  => 'bg-green-100 text-green-800',
                             'ditolak'  => 'bg-red-100 text-red-800',
@@ -83,9 +83,9 @@
                 @endif
 
                 @if($laporan->resolution_notes)
-                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                        <p class="text-sm font-semibold text-blue-800">Catatan untuk Pelapor (terakhir)</p>
-                        <p class="mt-1 text-sm text-blue-900">{{ $laporan->resolution_notes }}</p>
+                    <div class="p-4 bg-maroon-50 border-l-4 border-maroon-600 rounded">
+                        <p class="text-sm font-semibold text-maroon-800">Catatan untuk Pelapor (terakhir)</p>
+                        <p class="mt-1 text-sm text-maroon-900">{{ $laporan->resolution_notes }}</p>
                     </div>
                 @endif
             </div>
@@ -108,7 +108,7 @@
                             </label>
                             <textarea name="resolution_notes" id="resolutionNotes" rows="3"
                                       placeholder="Opsional untuk Proses/Selesai - wajib diisi jika menolak laporan..."
-                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('resolution_notes') }}</textarea>
+                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">{{ old('resolution_notes') }}</textarea>
                         </div>
 
                         {{-- Aksi langsung berupa tombol; setiap tombol sekaligus jadi tombol simpan (tidak ada tombol "Simpan" terpisah) --}}
@@ -119,7 +119,7 @@
                                     Tolak
                                 </button>
                                 <button type="submit" name="report_status" value="diproses"
-                                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700 transition">
+                                        class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900 transition">
                                     Proses
                                 </button>
                             @elseif($laporan->report_status === 'diproses')

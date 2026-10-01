@@ -47,7 +47,7 @@
                                     <td class="p-4">
                                         @php
                                             $badges = [
-                                                'baru'     => 'bg-blue-100 text-blue-800',
+                                                'baru'     => 'bg-maroon-100 text-maroon-800',
                                                 'diproses' => 'bg-yellow-100 text-yellow-800',
                                                 'selesai'  => 'bg-green-100 text-green-800',
                                                 'ditolak'  => 'bg-red-100 text-red-800',
@@ -59,7 +59,7 @@
                                     </td>
                                     <td class="p-4">{{ $report->created_at->format('d M Y H:i') }}</td>
                                     <td class="p-4 text-center">
-                                        <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                        <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-maroon-700 hover:text-maroon-900 hover:underline">
                                             Lihat Detail
                                         </a>
                                     </td>

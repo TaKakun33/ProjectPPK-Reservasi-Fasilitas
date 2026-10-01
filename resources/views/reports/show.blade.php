@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Detail Laporan Kerusakan') }}
@@ -22,7 +22,7 @@
                     </div>
                     @php
                         $badges = [
-                            'baru'     => 'bg-blue-100 text-blue-800',
+                            'baru'     => 'bg-maroon-100 text-maroon-800',
                             'diproses' => 'bg-yellow-100 text-yellow-800',
                             'selesai'  => 'bg-green-100 text-green-800',
                             'ditolak'  => 'bg-red-100 text-red-800',
@@ -64,9 +64,9 @@
                 @endif
                 
                 @if($laporan->resolution_notes)
-                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                        <p class="text-sm font-semibold text-blue-800">Catatan Resolusi Petugas</p>
-                        <p class="mt-1 text-sm text-blue-900">{{ $laporan->resolution_notes }}</p>
+                    <div class="p-4 bg-maroon-50 border-l-4 border-maroon-600 rounded">
+                        <p class="text-sm font-semibold text-maroon-800">Catatan Resolusi Petugas</p>
+                        <p class="mt-1 text-sm text-maroon-900">{{ $laporan->resolution_notes }}</p>
                     </div>
                 @endif
 

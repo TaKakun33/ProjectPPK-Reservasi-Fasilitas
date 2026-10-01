@@ -8,7 +8,7 @@
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24">
             <p class="text-xs font-bold tracking-[0.2em] uppercase text-cream-300">Reservasi Fasilitas Kampus</p>
             <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-white leading-tight">Reservasi Ruang &amp; Fasilitas</h1>
-            <p class="mt-1 text-sm text-blue-100/90">Reservasi ruang dan fasilitas yang tersedia di kampus. Cek jadwal, lalu ajukan peminjaman.</p>
+            <p class="mt-1 text-sm text-cream-200/90">Reservasi ruang dan fasilitas yang tersedia di kampus. Cek jadwal, lalu ajukan peminjaman.</p>
         </div>
     </div>
 

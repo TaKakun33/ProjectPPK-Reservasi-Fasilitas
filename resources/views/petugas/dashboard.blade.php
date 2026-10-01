@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
             {{ __('Dashboard Petugas') }}
@@ -53,7 +53,7 @@
             {{-- Laporan Sedang Diproses --}}
             <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-50 text-blue-600">
+                    <div class="p-3 rounded-full bg-maroon-100 text-maroon-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
@@ -65,7 +65,7 @@
                 </div>
                 <p class="mt-2 text-xs text-gray-500">{{ $stats['fasilitas_perbaikan'] }} fasilitas perbaikan</p>
                 @if($stats['laporan_diproses'] > 0)
-                    <a href="{{ route('petugas.reports.index') }}" class="mt-2 inline-block text-xs font-semibold text-blue-700 hover:text-blue-900">
+                    <a href="{{ route('petugas.reports.index') }}" class="mt-2 inline-block text-xs font-semibold text-maroon-700 hover:text-maroon-900">
                         Lihat progress &rarr;
                     </a>
                 @endif
@@ -145,7 +145,7 @@
                         <p class="text-xs text-gray-500 mt-0.5">Pantau laporan fasilitas yang rusak</p>
                     </div>
                     <a href="{{ route('petugas.reports.index') }}" class="text-sm text-maroon-700 hover:text-maroon-900 font-bold font-medium">
-                        Buka Antrian &rarr;
+                        Buka Laporan &rarr;
                     </a>
                 </div>
                 @if($recentReports->isEmpty())
@@ -163,7 +163,7 @@
                                 <div class="flex items-center space-x-2 shrink-0">
                                     @php
                                         $reportBadges = [
-                                            'baru'            => 'bg-blue-100 text-blue-800',
+                                            'baru'            => 'bg-maroon-100 text-maroon-800',
                                             'diproses'        => 'bg-yellow-100 text-yellow-800',
                                             'selesai'         => 'bg-green-100 text-green-800',
                                             'ditolak'         => 'bg-red-100 text-red-800',

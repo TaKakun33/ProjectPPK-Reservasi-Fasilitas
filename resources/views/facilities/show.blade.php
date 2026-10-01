@@ -168,7 +168,7 @@
 
                 <div class="bg-maroon-800 rounded-2xl p-5 text-white">
                     <p class="text-sm font-extrabold">Butuh bantuan?</p>
-                    <p class="mt-1 text-xs text-blue-100/80">Petugas siap membantu izin, perubahan jadwal, dan laporan kerusakan fasilitas.</p>
+                    <p class="mt-1 text-xs text-cream-200/80">Petugas siap membantu izin, perubahan jadwal, dan laporan kerusakan fasilitas.</p>
                     <p class="mt-3 text-xs font-bold text-cream-300">Tel. Helpdesk Kampus &bull; 08.00&ndash;16.00 WIB</p>
                 </div>
             </aside>

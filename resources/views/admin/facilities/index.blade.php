@@ -1,10 +1,10 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Kelola Fasilitas') }}
             </h2>
-            <a href="{{ route('admin.fasilitas.create') }}" class="px-4 py-2 bg-maroon-800 text-maroon-900 text-sm font-bold rounded-md hover:bg-maroon-900 shadow-sm">
+            <a href="{{ route('admin.fasilitas.create') }}" class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-bold rounded-md hover:bg-maroon-900 shadow-sm">
                 + Tambah Fasilitas
             </a>
         </div>
@@ -23,18 +23,18 @@
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama, tipe, atau lokasi..."
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                    <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         <option value="">Semua</option>
                         <option value="aktif" {{ request('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="dalam perbaikan" {{ request('status') === 'dalam perbaikan' ? 'selected' : '' }}>Dalam Perbaikan</option>
                         <option value="nonaktif" {{ request('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">Filter</button>
+                <button type="submit" class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900">Filter</button>
                 <a href="{{ route('admin.fasilitas.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm rounded-md hover:bg-gray-200">Reset</a>
             </form>
         </div>
@@ -63,7 +63,7 @@
                                     <td class="p-4"><img src="{{ $f->photo_url }}" alt="" loading="lazy" class="w-20 h-14 rounded-lg object-cover bg-slate-100 border border-slate-200" onerror="this.src='https://picsum.photos/seed/{{ $f->id_fasilitas }}/200/140'"></td>
                                     <td class="p-4 font-medium text-gray-900">{{ $f->facility_name }}</td>
                                     <td class="p-4">
-                                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700">{{ $f->type }}</span>
+                                        <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-maroon-50 text-maroon-700">{{ $f->type }}</span>
                                     </td>
                                     <td class="p-4 text-gray-600">{{ $f->location }}</td>
                                     <td class="p-4 text-center">{{ $f->capacity }}</td>
@@ -78,7 +78,7 @@
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded {{ $statusBadge }}">{{ ucfirst($f->facility_status) }}</span>
                                     </td>
                                     <td class="p-4 text-center space-x-2">
-                                        <a href="{{ route('admin.fasilitas.edit', $f->id_fasilitas) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">Edit</a>
+                                        <a href="{{ route('admin.fasilitas.edit', $f->id_fasilitas) }}" class="text-xs font-semibold text-maroon-700 hover:text-maroon-900 hover:underline">Edit</a>
                                         @if($f->facility_status !== 'nonaktif')
                                             <form method="POST" action="{{ route('admin.fasilitas.destroy', $f->id_fasilitas) }}" class="inline" onsubmit="return confirm('Nonaktifkan fasilitas ini?')">
                                                 @csrf

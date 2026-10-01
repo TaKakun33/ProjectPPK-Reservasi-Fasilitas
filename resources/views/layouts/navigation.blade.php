@@ -69,7 +69,7 @@
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-cream-300/30 text-sm leading-4 font-medium rounded-md text-cream-100 bg-cream-100-200/10 hover:bg-cream-100-200/20 hover:text-white focus:outline-none transition ease-in-out duration-150">
+                            <button class="inline-flex items-center px-3 py-2 border border-cream-300/30 text-sm leading-4 font-medium rounded-md text-cream-100 bg-white/10 hover:bg-white/20 hover:text-white focus:outline-none transition ease-in-out duration-150">
                                 <div>{{ Auth::user()->name }}</div>
 
                                 <div class="ms-1">

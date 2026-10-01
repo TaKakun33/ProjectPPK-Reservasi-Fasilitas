@@ -7,7 +7,7 @@
                     <span class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-orange-100 text-orange-700">{{ $pendingCount }} pending</span>
                 @endif
             </h2>
-            <a href="{{ route('admin.users.index') }}?create=1" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+            <a href="{{ route('admin.users.index') }}?create=1" class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900 shadow-sm">
                 + Tambah Akun
             </a>
         </div>
@@ -41,26 +41,26 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
                             <input type="text" name="name" value="{{ old('name') }}" required
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                             <input type="email" name="email" value="{{ old('email') }}" required
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                             <input type="password" name="password" required
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
                             <input type="password" name="password_confirmation" required
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                            <select name="role" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                            <select name="role" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                                 <option value="pengguna">Pengguna</option>
                                 <option value="petugas">Petugas</option>
                             </select>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="flex justify-end space-x-3 pt-2">
                         <a href="{{ route('admin.users.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50 text-sm">Batal</a>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 text-sm">
+                        <button type="submit" class="px-4 py-2 bg-maroon-800 text-cream-100 font-semibold rounded-md hover:bg-maroon-900 text-sm shadow-sm">
                             Simpan (Langsung Verified)
                         </button>
                     </div>
@@ -82,11 +82,11 @@
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama atau email..."
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                    <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         <option value="">Semua</option>
                         <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="verified" {{ request('status') === 'verified' ? 'selected' : '' }}>Verified</option>
@@ -95,14 +95,14 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <select name="role" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                    <select name="role" class="rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700 text-sm">
                         <option value="">Semua</option>
                         <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="petugas" {{ request('role') === 'petugas' ? 'selected' : '' }}>Petugas</option>
                         <option value="pengguna" {{ request('role') === 'pengguna' ? 'selected' : '' }}>Pengguna</option>
                     </select>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">Filter</button>
+                <button type="submit" class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900 shadow-sm">Filter</button>
                 <a href="{{ route('admin.users.index') }}" class="px-4 py-2 bg-gray-100 text-gray-600 text-sm rounded-md hover:bg-gray-200">Reset</a>
             </form>
         </div>
@@ -132,7 +132,7 @@
                                         @php
                                             $roleBadges = [
                                                 'admin'   => 'bg-purple-100 text-purple-700',
-                                                'petugas' => 'bg-blue-100 text-blue-700',
+                                                'petugas' => 'bg-maroon-100 text-maroon-800',
                                                 'pengguna'=> 'bg-gray-100 text-gray-700',
                                             ];
                                         @endphp

@@ -67,7 +67,7 @@
                                     <td class="p-4 text-center text-green-700">{{ $r['reservasi_approved'] }}</td>
                                     <td class="p-4 text-center text-yellow-700">{{ $r['reservasi_pending'] }}</td>
                                     <td class="p-4 text-center font-semibold text-gray-900">{{ $r['total_laporan'] }}</td>
-                                    <td class="p-4 text-center text-blue-700">{{ $r['laporan_baru'] }}</td>
+                                    <td class="p-4 text-center text-maroon-700">{{ $r['laporan_baru'] }}</td>
                                     <td class="p-4 text-center text-green-700">{{ $r['laporan_selesai'] }}</td>
                                 </tr>
                             @endforeach

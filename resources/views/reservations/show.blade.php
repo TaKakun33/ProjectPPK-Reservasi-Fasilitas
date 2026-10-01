@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
             {{ __('Detail Reservasi') }}
@@ -87,7 +87,7 @@
                         <ol class="space-y-3 border-l-2 border-gray-200 pl-4">
                             @foreach($reservation->logs as $log)
                                 <li class="relative">
-                                    <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                                    <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-maroon-700"></span>
                                     <p class="text-sm font-medium text-gray-800">
                                         {{ $log->status_before ? ucfirst($log->status_before) . ' -> ' : '' }}{{ ucfirst($log->status_after) }}
                                     </p>

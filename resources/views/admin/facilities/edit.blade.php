@@ -26,32 +26,32 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Fasilitas</label>
                     <input type="text" name="facility_name" value="{{ old('facility_name', $fasilitas->facility_name) }}" required
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
                         <input type="text" name="type" value="{{ old('type', $fasilitas->type) }}" required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Kapasitas (Orang)</label>
                         <input type="number" name="capacity" value="{{ old('capacity', $fasilitas->capacity) }}" required min="1"
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
                     <input type="text" name="location" value="{{ old('location', $fasilitas->location) }}" required
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
                     <textarea name="description" rows="3"
-                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $fasilitas->description) }}</textarea>
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">{{ old('description', $fasilitas->description) }}</textarea>
                 </div>
 
                 <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
@@ -65,7 +65,7 @@
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <a href="{{ route('admin.fasilitas.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">Batal</a>
-                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition">
+                    <button type="submit" class="px-5 py-2 bg-maroon-800 text-cream-100 font-semibold rounded-md hover:bg-maroon-900 transition">
                         Perbarui Fasilitas
                     </button>
                 </div>
