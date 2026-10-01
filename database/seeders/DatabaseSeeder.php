@@ -157,6 +157,9 @@ class DatabaseSeeder extends Seeder
         }
 
         // Data contoh kategori laporan kerusakan (modul Laporan - Akbar)
-        $this->call(ReportCategorySeeder::class);
+        $this->call([
+            ReportCategorySeeder::class,
+            UndipFacilitiesSeeder::class,
+        ]);
     }
 }

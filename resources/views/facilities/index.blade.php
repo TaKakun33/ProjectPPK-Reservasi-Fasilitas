@@ -7,8 +7,8 @@
         <div class="absolute inset-0 bg-gradient-to-b from-maroon-900/70 via-maroon-800/80 to-maroon-900/90"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-24">
             <p class="text-xs font-bold tracking-[0.2em] uppercase text-cream-300">Reservasi Fasilitas Kampus</p>
-            <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-white leading-tight">Sewa Ruang &amp; Fasilitas Kampus</h1>
-            <p class="mt-1 text-sm text-blue-100/90">Reservasi ruang, auditorium, laboratorium, dan lapangan. Cek jadwal secara waktu nyata, lalu ajukan izin.</p>
+            <h1 class="mt-2 text-2xl sm:text-3xl font-extrabold text-white leading-tight">Reservasi Ruang &amp; Fasilitas</h1>
+            <p class="mt-1 text-sm text-blue-100/90">Reservasi ruang dan fasilitas yang tersedia di kampus. Cek jadwal, lalu ajukan peminjaman.</p>
         </div>
     </div>
 
@@ -55,7 +55,6 @@
                     <h2 class="text-lg font-extrabold text-maroon-800">Rekomendasi untukmu</h2>
                     <p class="text-sm text-slate-500">{{ $facilities->total() }} fasilitas ditemukan</p>
                 </div>
-                {{-- Legenda status slot: di sini menjelaskan badge di kartu, bukan di hero --}}
                 <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-slate-200 shadow-sm"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#22C55E"></span> Tersedia</span>
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-slate-200 shadow-sm"><span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#EAB308"></span> Menunggu</span>
@@ -98,27 +97,34 @@
                                 <h3 class="font-extrabold text-maroon-800 leading-snug line-clamp-1">{{ $facility->facility_name }}</h3>
                                 <p class="mt-1 text-xs text-slate-500 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="line-clamp-1">{{ $facility->location }}</span></p>
 
-                                {{-- Amenitas ala tiket.com --}}
-                                <div class="mt-3 flex flex-wrap gap-1.5">
-                                    @foreach(array_slice($facility->amenities, 0, 3) as $am)
-                                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-cream-100 border border-slate-200 text-slate-600">&#10003; {{ $am }}</span>
-                                    @endforeach
-                                </div>
+                                {{-- Amenitas --}}
+                                @if(!empty($facility->amenities) && is_array($facility->amenities))
+                                    <div class="mt-3 flex flex-wrap gap-1.5">
+                                        @foreach(array_slice($facility->amenities, 0, 3) as $am)
+                                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-cream-100 border border-slate-200 text-slate-600">&#10003; {{ $am }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
 
                                 <p class="mt-3 text-[13px] text-slate-600 line-clamp-2">{{ $facility->description ?? 'Tidak ada deskripsi.' }}</p>
 
-                                <div class="mt-4 pt-4 border-t border-dashed border-slate-200 flex items-center justify-end gap-2 mt-auto">
-                                    @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna && $facility->facility_status === 'aktif')
-                                        <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas]) }}" class="inline-flex items-center px-4 py-2 bg-maroon-800 text-xs font-extrabold text-cream-100 rounded-xl hover:bg-maroon-900 transition shadow-sm">
-                                            Booking
-                                        </a>
-                                    @else
-                                        <a href="{{ route('facilities.show', $facility->id_fasilitas) }}" class="inline-flex items-center px-4 py-2 bg-maroon-800 text-xs font-bold text-white rounded-xl hover:bg-maroon-900 transition">
-                                            Lihat Detail
-                                        </a>
-                                    @endif
+                                <div class="mt-4 pt-4 border-t border-dashed border-slate-200 flex items-center justify-between gap-2 mt-auto">
+                                    <a href="{{ route('facilities.show', $facility->id_fasilitas) }}" class="text-xs font-bold text-maroon-700 hover:text-maroon-900 hover:underline inline-flex items-center gap-1">
+                                        Cek Jadwal Slot &rarr;
+                                    </a>
+
+                                    <div class="flex items-center gap-2">
+                                        @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna && $facility->facility_status === 'aktif')
+                                            <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas]) }}" class="inline-flex items-center px-4 py-2 bg-maroon-800 text-xs font-extrabold text-cream-100 rounded-xl hover:bg-maroon-900 transition shadow-sm">
+                                                Booking
+                                            </a>
+                                        @else
+                                            <a href="{{ route('facilities.show', $facility->id_fasilitas) }}" class="inline-flex items-center px-4 py-2 bg-maroon-800 text-xs font-bold text-white rounded-xl hover:bg-maroon-900 transition shadow-sm">
+                                                Lihat Detail
+                                            </a>
+                                        @endif
+                                    </div>
                                 </div>
-                                <a href="{{ route('facilities.show', $facility->id_fasilitas) }}" class="mt-2 text-xs font-bold text-maroon-700 hover:text-maroon-900 hover:underline">Cek Jadwal Slot &rarr;</a>
                             </div>
                         </article>
                     @endforeach

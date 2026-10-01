@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <x-slot name="header">
         <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
             {{ __('Ajukan Reservasi Fasilitas') }}
@@ -38,7 +38,7 @@
                 {{-- Tanggal --}}
                 <div>
                     <label class="block text-sm font-semibold text-maroon-800 mb-1">Tanggal Kegiatan</label>
-                    <input type="date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" required
+                    <input type="date" id="reservation_date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" required
                            class="w-full rounded-md border-slate-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                 </div>
 
@@ -46,7 +46,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-maroon-800 mb-1">Jam Mulai (07:00 - 19:30)</label>
-                        <select name="start_time" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
+                        <select name="start_time" id="start_time" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                             @for($h = 7; $h <= 19; $h++)
                                 @foreach(['00', '30'] as $m)
                                     @php $time = sprintf('%02d:%s', $h, $m); @endphp
@@ -58,7 +58,7 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-maroon-800 mb-1">Jam Selesai (07:30 - 20:00)</label>
-                        <select name="end_time" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
+                        <select name="end_time" id="end_time" required class="w-full rounded-md border-slate-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">
                             @for($h = 7; $h <= 20; $h++)
                                 @foreach(['00', '30'] as $m)
                                     @if($h == 7 && $m == '00') @continue @endif
@@ -80,12 +80,90 @@
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <a href="{{ route('facilities.index') }}" class="px-4 py-2 border border-maroon-700/30 rounded-md text-maroon-700 font-semibold hover:bg-maroon-800/5">Batal</a>
-                    <button type="submit" class="px-5 py-2 bg-maroon-800 text-maroon-900 font-bold rounded-md hover:bg-maroon-900 transition shadow-sm">
+                    <button type="submit" class="px-5 py-2 bg-maroon-800 text-cream-100 font-bold rounded-md hover:bg-maroon-900 transition shadow-sm">
                         Kirim Pengajuan
                     </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('reservation_date');
+            const startTimeSelect = document.getElementById('start_time');
+            const endTimeSelect = document.getElementById('end_time');
+
+            function getTodayStr() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            // Menghitung batas waktu minimal pemesanan (Waktu Sekarang + 1 Jam Buffer)
+            function getMinStartTimeStr() {
+                const minTime = new Date(Date.now() + 60 * 60 * 1000);
+                const hours = String(minTime.getHours()).padStart(2, '0');
+                const minutes = String(minTime.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            }
+
+            function filterTimeSlots() {
+                const selectedDate = dateInput.value;
+                const todayStr = getTodayStr();
+                const minStartTimeStr = getMinStartTimeStr();
+                const isToday = selectedDate === todayStr;
+
+                let firstValidStart = null;
+
+                Array.from(startTimeSelect.options).forEach(option => {
+                    const timeVal = option.value;
+                    if (isToday && timeVal < minStartTimeStr) {
+                        option.disabled = true;
+                        if (!option.dataset.originalText) {
+                            option.dataset.originalText = timeVal;
+                        }
+                        option.innerText = timeVal + ' (< 1 Jam / Berlalu)';
+                    } else {
+                        option.disabled = false;
+                        option.innerText = option.dataset.originalText || timeVal;
+                        if (!firstValidStart) firstValidStart = timeVal;
+                    }
+                });
+
+                if (startTimeSelect.selectedOptions[0] && startTimeSelect.selectedOptions[0].disabled) {
+                    if (firstValidStart) {
+                        startTimeSelect.value = firstValidStart;
+                    }
+                }
+
+                const currentStart = startTimeSelect.value;
+                let firstValidEnd = null;
+
+                Array.from(endTimeSelect.options).forEach(option => {
+                    const timeVal = option.value;
+                    if (timeVal <= currentStart || (isToday && timeVal < minStartTimeStr)) {
+                        option.disabled = true;
+                    } else {
+                        option.disabled = false;
+                        if (!firstValidEnd) firstValidEnd = timeVal;
+                    }
+                });
+
+                if (endTimeSelect.selectedOptions[0] && endTimeSelect.selectedOptions[0].disabled) {
+                    if (firstValidEnd) {
+                        endTimeSelect.value = firstValidEnd;
+                    }
+                }
+            }
+
+            dateInput.addEventListener('change', filterTimeSlots);
+            startTimeSelect.addEventListener('change', filterTimeSlots);
+
+            filterTimeSlots();
+        });
+    </script>
 </x-app-layout>
 

@@ -59,14 +59,16 @@
                 <section class="bg-white rounded-2xl border border-slate-200/70 p-6">
                     <h2 class="font-extrabold text-maroon-800">Tentang fasilitas ini</h2>
                     <p class="mt-2 text-sm text-slate-600 leading-relaxed">{{ $facility->description ?? 'Tidak ada deskripsi.' }}</p>
-                    <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-                        @foreach($facility->amenities as $am)
-                            <div class="rounded-xl bg-cream-100 border border-slate-200 px-2 py-2.5">
-                                <p class="text-base">&#10003;</p>
-                                <p class="text-[11px] font-bold text-maroon-800">{{ $am }}</p>
-                            </div>
-                        @endforeach
-                    </div>
+                    @if(!empty($facility->amenities) && is_array($facility->amenities))
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                            @foreach($facility->amenities as $am)
+                                <div class="rounded-xl bg-cream-100 border border-slate-200 px-2 py-2.5">
+                                    <p class="text-base">&#10003;</p>
+                                    <p class="text-[11px] font-bold text-maroon-800">{{ $am }}</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </section>
 
                 {{-- Slot ketersediaan --}}
@@ -88,15 +90,19 @@
                             @php
                                 $statusKey = strtolower($slot['status'] ?? ($slot['is_available'] ? 'tersedia' : 'terisi'));
                                 $isPending = in_array($statusKey, ['pending', 'menunggu', 'diproses', 'menunggu persetujuan']);
+                                $isBerlalu = $statusKey === 'berlalu';
                             @endphp
                             <div class="p-2.5 rounded-xl border text-center text-xs
                                 @if($slot['is_available']) bg-green-50 border-green-200 text-green-900
+                                @elseif($isBerlalu) bg-slate-100 border-slate-200 text-slate-400
                                 @elseif($isPending) bg-yellow-50 border-yellow-300 text-yellow-900
                                 @else bg-red-50 border-red-200 text-red-900 @endif">
-                                <div class="font-extrabold text-[13px]">{{ $slot['start'] }} - {{ $slot['end'] }}</div>
+                                <div class="font-extrabold text-[13px] {{ $isBerlalu ? 'line-through text-slate-400' : '' }}">{{ $slot['start'] }} - {{ $slot['end'] }}</div>
                                 <div class="mt-1.5">
                                     @if($slot['is_available'])
                                         <span class="px-2 py-0.5 rounded-md text-[11px] font-bold text-white" style="background:#22C55E;">Tersedia</span>
+                                    @elseif($isBerlalu)
+                                        <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-200 text-slate-600">Berlalu</span>
                                     @elseif($isPending)
                                         <span class="px-2 py-0.5 rounded-md text-[11px] font-bold" style="background:#EAB308;color:#101F4A;">Menunggu</span>
                                     @else
@@ -114,6 +120,7 @@
 
                     <div class="mt-4 text-xs text-slate-500 flex flex-wrap gap-4">
                         <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full inline-block" style="background:#22C55E"></span> Tersedia / Kosong</span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full inline-block bg-slate-300"></span> Waktu Berlalu (&lt; 1 Jam)</span>
                         <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full inline-block" style="background:#EAB308"></span> Menunggu Persetujuan</span>
                         <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full inline-block" style="background:#EF4444"></span> Sudah Dibooking</span>
                     </div>
