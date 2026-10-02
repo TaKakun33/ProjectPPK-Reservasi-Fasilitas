@@ -18,10 +18,29 @@
             </div>
         @endif
 
+        {{-- Filter Tab Status --}}
+        <div class="mb-6 flex space-x-2 border-b border-gray-200 pb-2 overflow-x-auto">
+            @php
+                $reportTabs = [
+                    'all'      => 'Semua',
+                    'baru'     => 'Baru (Belum Diproses)',
+                    'diproses' => 'Sedang Diproses',
+                    'selesai'  => 'Selesai',
+                    'ditolak'  => 'Ditolak',
+                ];
+            @endphp
+            @foreach($reportTabs as $key => $label)
+                <a href="{{ $key === 'all' ? route('petugas.reports.index') : route('petugas.reports.index', ['status' => $key]) }}"
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap {{ ($selectedStatus ?? 'all') === $key ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                    {{ $label }}
+                </a>
+            @endforeach
+        </div>
+
         <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
             @if($reports->isEmpty())
                 <div class="p-12 text-center text-gray-500">
-                    Tidak ada laporan yang menunggu diproses.
+                    Belum ada laporan kerusakan yang sesuai dengan filter.
                 </div>
             @else
                 <div class="overflow-x-auto">

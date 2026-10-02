@@ -12,16 +12,26 @@ use Illuminate\Support\Facades\DB;
 // Controller pengelolaan antrian dan verifikasi reservasi oleh Petugas
 class ReservationController extends Controller
 {
-    // Menampilkan antrian reservasi yang berstatus pending (menunggu konfirmasi)
+    // Menampilkan riwayat & antrian reservasi lengkap untuk petugas
     public function index(Request $request)
     {
-        // Antrian reservasi pending, diurutkan dari yang paling lama menunggu.
-        $reservations = Reservation::with(['user', 'facility'])
-            ->where('reservation_status', 'pending')
-            ->orderBy('created_at', 'asc')
-            ->paginate(15);
+        $query = Reservation::with(['user', 'facility']);
 
-        return view('petugas.reservations.index', compact('reservations'));
+        // Filter berdasarkan status jika ditentukan
+        if ($request->filled('status') && in_array($request->status, ['pending', 'approved', 'rejected', 'cancelled'])) {
+            $query->where('reservation_status', $request->status);
+        }
+
+        // Riwayat lengkap diurutkan berdasarkan waktu terbaru
+        $reservations = $query->orderBy('created_at', 'desc')
+            ->orderBy('date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        $selectedStatus = $request->input('status', 'all');
+
+        return view('petugas.reservations.index', compact('reservations', 'selectedStatus'));
     }
 
     // Menyetujui permohonan reservasi (dengan pengecekan bentrok jadwal & lock database)
