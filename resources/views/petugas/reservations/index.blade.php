@@ -43,7 +43,7 @@
             @endphp
             @foreach($statusTabs as $key => $label)
                 <a href="{{ $key === 'all' ? route('petugas.reservations.index') : route('petugas.reservations.index', ['status' => $key]) }}"
-                   class="px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap {{ $selectedStatus === $key ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                   class="px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap {{ $selectedStatus === $key ? 'bg-rose-800 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                     {{ $label }}
                 </a>
             @endforeach

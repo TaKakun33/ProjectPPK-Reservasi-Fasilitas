@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
-    // Route /reservasi ini cuma buat role "pengguna". Kalau yang login petugas, 
-    // langsung lempar ke halaman reservasi miliknya sendiri di /petugas/reservasi (bukan ditolak) 
-    // petugas memang gak boleh ajukan reservasi sendiri (lihat catatan self-approval di routes/reservasi.php),
-    // tapi dia tetap punya halaman reservasi versi petugas sendiri. Admin tetap ditolak, gak ada urusan di sini.
     protected function ensurePengguna(): ?RedirectResponse
     {
         $role = auth()->user()->role;

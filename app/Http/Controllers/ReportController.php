@@ -83,12 +83,6 @@ class ReportController extends Controller
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photoFile) {
-                // Disk 'local' (storage/app/private) — TIDAK di-symlink ke
-                // public/storage, jadi foto laporan kerusakan (yang bisa
-                // memuat info lokasi/identitas pelapor) tidak bisa diakses
-                // langsung lewat URL publik. Satu-satunya jalan masuk yang
-                // sah adalah lewat ReportController@photo yang mengecek
-                // otorisasi (lihat method photo() di bawah).
                 $photoPath = $photoFile->store('reports/'.$laporan->id_laporan, 'local');
 
                 $laporan->photos()->create([
@@ -116,8 +110,6 @@ class ReportController extends Controller
         return view('reports.show', compact('laporan'));
     }
 
-    // Serve satu foto laporan dari disk privat. Hanya pemilik laporan,
-    // petugas, atau admin yang boleh melihatnya — beda dengan disk 'public' lama yang bisa diakses siapa saja yang tahu/menebak URL-nya.
     public function photo(Request $request, \App\Models\ReportPhoto $foto)
     {
         $laporan = $foto->report;

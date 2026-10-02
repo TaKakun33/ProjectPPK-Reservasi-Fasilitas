@@ -13,12 +13,6 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 // Export data ke excel
 class RekapFasilitasExport implements FromArray, WithStyles, WithColumnWidths
 {
-    /**
-     * Cegah Excel formula injection: kalau nilai string diawali karakter
-     * yang ditafsirkan Excel/Sheets/LibreOffice sebagai awal formula
-     * ('=', '+', '-', '@', atau tab/CR buat menyamarkan awalan itu),
-     * tambahkan apostrof di depan supaya dibaca sebagai teks biasa.
-     */
     private function sanitizeForSpreadsheet($value)
     {
         if (! is_string($value) || $value === '') {

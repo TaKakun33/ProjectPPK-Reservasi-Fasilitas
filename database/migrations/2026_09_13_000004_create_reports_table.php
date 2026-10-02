@@ -31,10 +31,6 @@ return new class extends Migration
             $table->index('report_status', 'idx_reports_report_status');
         });
 
-        // Kunci nilai report_status ke daftar yang benar-benar dipakai
-        // aplikasi, biar tidak ada "magic string" nyasar dari luar Eloquent.
-        // Foto laporan disimpan di tabel report_photos (mendukung banyak
-        // foto per laporan), bukan sebagai kolom di sini.
         DB::statement("ALTER TABLE reports ADD CONSTRAINT chk_reports_report_status CHECK (report_status IN ('baru', 'diproses', 'selesai', 'ditolak'))");
     }
 
