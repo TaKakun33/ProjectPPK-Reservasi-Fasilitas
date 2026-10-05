@@ -21,7 +21,7 @@ Aplikasi web berbasis **Laravel** yang dirancang untuk mengelola peminjaman/rese
 Sistem Reservasi & Pengelolaan Fasilitas Kampus memfasilitasi interaksi antara sivitas akademika (mahasiswa/dosen/staf) dengan pengelola fasilitas kampus. Aplikasi ini menggantikan proses reservasi manual yang rawan tumpang-tindih (*double-booking*) dan pelaporan kerusakan fasilitas yang seringkali tidak terdokumentasi dengan baik.
 
 ### Tech Stack:
-- **Backend Framework**: Laravel 13 (PHP 8.2+)
+- **Backend Framework**: Laravel 13 (PHP 8.3+)
 - **Database**: MySQL
 - **Frontend / UI**: Laravel Blade Templates, Tailwind CSS, Alpine.js
 - **Export Engine**:
@@ -62,6 +62,10 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
   - `aktif`: Fasilitas siap digunakan dan dapat direservasi.
   - `dalam perbaikan`: Fasilitas sedang ditangani petugas akibat kerusakan (tidak dapat direservasi).
   - `nonaktif`: Fasilitas dinonaktifkan oleh Admin (disembunyikan dari katalog publik).
+- **Reservasi Pending Kedaluwarsa**: reservasi `pending` yang waktu mulainya sudah lewat ditolak otomatis (alasan "Kedaluwarsa", tercatat di log status) sehingga tidak mengunci slot maupun kuota pemesan (maks. 3 reservasi pending yang masih berlaku per pengguna).
+- **Penonaktifan Fasilitas**: admin tidak dapat menonaktifkan fasilitas yang masih punya reservasi `approved` yang akan berlangsung (batalkan lewat petugas dulu). Reservasi `pending` yang akan berlangsung ditolak otomatis. Saat laporan `diproses` membuat fasilitas masuk perbaikan, petugas diberi peringatan dan daftar reservasi approved yang terdampak.
+- **Catatan Resolusi Laporan**: wajib diisi saat laporan ditutup (`selesai` atau `ditolak`).
+- **Rekap Okupansi**: okupansi = jam reservasi `approved` dibanding jam operasional (07:00-20:00) pada periode terpilih (default: awal bulan sampai hari ini); tersedia agregasi per lokasi. Hanya reservasi yang sudah selesai yang dihitung, dan penyebut hanya hari kerja (Senin-Jumat) yang sudah berjalan; fasilitas nonaktif tidak dihitung, kecuali pada hari ia terbukti dipakai. CSV memakai BOM UTF-8. Filter periode ikut ke ekspor CSV/Excel/PDF.
 - **Privasi Bukti Foto Kerusakan**: Foto laporan disimpan pada storage lokal privat (`storage/app/private`), bukan direktori public. Akses file diproteksi melalui controller resmi (`/laporan/foto/{foto}`).
 - **Pencatatan Audit Trail**: Setiap perubahan status reservasi dicatat ke tabel `log_status_reservasi`, dan perubahan status laporan dicatat ke tabel `log_status_laporan`.
 - **Verifikasi Akun Baru**: Pengguna yang mendaftar mandiri melalui `/register` mendapat status `pending` dan **tidak dapat login** sebelum diverifikasi oleh Admin.
@@ -76,7 +80,7 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
 | :--- | :--- | :--- |
 | **FR-USR-01** | Autentikasi | Pengguna dapat melakukan registrasi akun mandiri dengan status awal `pending` (menunggu verifikasi Admin). |
 | **FR-USR-02** | Autentikasi | Pengguna dapat melakukan login, logout, dan memperbarui informasi profil akun. |
-| **FR-USR-03** | Fasilitas | Pengguna publik dapat melihat katalog fasilitas kampus serta melakukan pencarian berdasarkan nama, tipe, lokasi, dan kapasitas. |
+| **FR-USR-03** | Fasilitas | Pengguna publik dapat melihat katalog fasilitas kampus serta melakukan pencarian berdasarkan tipe, lokasi, dan kapasitas. |
 | **FR-USR-04** | Fasilitas | Pengguna publik dapat melihat ketersediaan timeline slot waktu 30 menit (07:00–20:00) pada fasilitas untuk tanggal tertentu. |
 | **FR-USR-05** | Reservasi | Pengguna terdaftar dapat mengajukan reservasi fasilitas dengan validasi batas jam operasional, kelipatan slot 30 menit, dan anti-bentrok. |
 | **FR-USR-06** | Reservasi | Pengguna dapat melihat riwayat dan memantau status permohonan reservasi miliknya (`pending`, `approved`, `rejected`, `cancelled`). |
@@ -194,6 +198,27 @@ Untuk mencegah konflik merge file kode (*merge conflict*), arsitektur rute dan c
 | 5 | **Abhista** | **Modul Admin** | `routes/admin.php` | • `Admin\DashboardController.php`<br>• `Admin\FacilityController.php`<br>• `Admin\UserController.php`<br>• `Admin\RekapController.php`<br>• `app/Exports/RekapFasilitasExport.php`<br>• `resources/views/admin/*` |
 
 ---
+## ⚙️ Setup & Informasi Setting Menjalankan Program
+
+1. `composer install` dan `npm install && npm run build`
+2. `cp .env.example .env` lalu `php artisan key:generate`
+3. Buat database MySQL `PPK_project`, sesuaikan `DB_USERNAME` / `DB_PASSWORD` di `.env`
+   (file `.env` asli **tidak** disertakan di zip demi keamanan).
+4. `php artisan migrate --seed` (migrasi membuat trigger & CHECK constraint → wajib **MySQL 8.0.16+** / MariaDB 10.2+)
+5. `php artisan serve` → buka `http://localhost:8000`
+6. **Pengaturan `php.ini` untuk upload foto laporan** (maks. 5 foto × 2 MB):
+   `upload_max_filesize = 3M` dan `post_max_size = 16M`. Jika terlalu kecil, form laporan gagal tanpa pesan jelas.
+7. `APP_LOCALE=id` (pesan validasi bahasa Indonesia, berkas ada di `lang/id`). Untuk demo/produksi set `APP_DEBUG=false`.
+8. **Penjadwal (opsional, disarankan)**: jalankan `php artisan schedule:work` agar reservasi `pending` yang jadwalnya sudah lewat
+   ditolak otomatis tiap 5 menit. Tanpa penjadwal pun, pembersihan yang sama berjalan otomatis (maks. 1x/menit) saat petugas
+   membuka dashboard/antrian dan saat pengguna mengajukan reservasi. Bisa juga manual: `php artisan reservasi:kedaluwarsakan`.
+9. **Email**: `MAIL_MAILER=log` berarti email (mis. tautan reset password) hanya ditulis ke `storage/logs/laravel.log`, tidak terkirim.
+   Untuk pengiriman nyata isi `MAIL_*` dengan SMTP yang valid.
+10. **Menjalankan tes**: buat database kosong `PPK_project_test` (`CREATE DATABASE PPK_project_test;`), lalu `php artisan test`.
+    Tes memakai database MySQL terpisah (bukan SQLite) karena migrasi memakai trigger & CHECK constraint MySQL.
+11. Akun seeder (lihat tabel di bawah) memakai password `password` hanya untuk demo. **Ganti/hapus** sebelum dipakai di luar lingkungan lokal.
+
+---
 ## Akun Testing & Skenario Pengujian
 
 Database seeder secara otomatis menyediakan 3 akun default siap pakai :
@@ -202,7 +227,7 @@ Database seeder secara otomatis menyediakan 3 akun default siap pakai :
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin@example.com` | `password` | `/admin/dashboard` |
 | **Petugas** | `petugas@example.com` | `password` | `/petugas/dashboard` |
-| **Pengguna** | `ferry@example.com` | `password` | `/facilities` / `/reservasi` |
+| **Pengguna** | `ferry@example.com` | `password` | `/fasilitas` / `/reservasi` |
 
 ---
 
