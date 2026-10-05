@@ -6,9 +6,13 @@ use App\Enums\UserRole;
 use App\Models\Facility;
 use App\Models\Report;
 use App\Models\ReportCategory;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ReportController extends Controller
 {
@@ -66,36 +70,90 @@ class ReportController extends Controller
         }
 
         $validated = $request->validate([
-            'id_fasilitas' => ['required', 'exists:facilities,id_fasilitas'],
-            'id_kategori'  => ['required', 'exists:report_categories,id_kategori'],
-            'description'  => ['required', 'string'],
+            // PERBAIKAN E8: hanya fasilitas yang tampil (tidak nonaktif & belum soft-deleted)
+            'id_fasilitas' => ['required', 'uuid',
+                Rule::exists('facilities', 'id_fasilitas')
+                    ->where('facility_status', '!=', 'nonaktif')
+                    ->whereNull('deleted_at')],
+            'id_kategori'  => ['required', 'uuid',
+                Rule::exists('report_categories', 'id_kategori')->where('is_active', true)],
+            // PERBAIKAN E8: deskripsi sebelumnya tanpa batas panjang
+            'description'  => ['required', 'string', 'min:10', 'max:2000'],
             'photos'       => ['nullable', 'array', 'max:5'],
             'photos.*'     => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+        ], [
+            'id_fasilitas.exists' => 'Fasilitas yang dipilih tidak valid atau sudah dinonaktifkan.',
+            'id_kategori.exists'  => 'Kategori laporan tidak valid.',
+            'description.min'     => 'Deskripsi minimal :min karakter agar petugas memahami masalahnya.',
+            'photos.*.max'        => 'Ukuran tiap foto maksimal 2 MB.',
+            'photos.*.image'      => 'Berkas harus berupa gambar.',
+            'photos.*.mimes'      => 'Foto harus berformat jpeg, png, jpg, gif, atau webp.',
         ]);
 
-        $laporan = Report::create([
-            'id_user'       => auth()->id(),
-            'id_fasilitas'  => $validated['id_fasilitas'],
-            'id_kategori'   => $validated['id_kategori'],
-            'description'   => $validated['description'],
-            'report_status' => 'baru',
-        ]);
+        $laporan = null;
+        $folderFoto = null;
 
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $index => $photoFile) {
-                // Disk 'local' (storage/app/private) — TIDAK di-symlink ke
-                // public/storage, jadi foto laporan kerusakan (yang bisa
-                // memuat info lokasi/identitas pelapor) tidak bisa diakses
-                // langsung lewat URL publik. Satu-satunya jalan masuk yang
-                // sah adalah lewat ReportController@photo yang mengecek
-                // otorisasi (lihat method photo() di bawah).
-                $photoPath = $photoFile->store('reports/'.$laporan->id_laporan, 'local');
+        try {
+            // PERBAIKAN E8: laporan + foto dalam satu transaksi. Jika penyimpanan foto gagal di
+            // tengah jalan, baris laporan dibatalkan dan file yang sudah tersimpan dihapus.
+            DB::transaction(function () use ($validated, $request, &$laporan, &$folderFoto) {
+                // Kunci baris pelapor lalu cek laporan ganda DI DALAM transaksi: pengecekan di luar
+                // transaksi bisa dilewati dua request paralel (double-submit) yang sama-sama lolos cek.
+                User::whereKey(auth()->id())->lockForUpdate()->first();
 
-                $laporan->photos()->create([
-                    'photo_path' => $photoPath,
-                    'urutan'     => $index,
+                $sudahAda = Report::where('id_user', auth()->id())
+                    ->where('id_fasilitas', $validated['id_fasilitas'])
+                    ->where('id_kategori', $validated['id_kategori'])
+                    ->whereIn('report_status', ['baru', 'diproses'])
+                    ->exists();
+
+                if ($sudahAda) {
+                    throw ValidationException::withMessages([
+                        'id_fasilitas' => 'Anda sudah memiliki laporan yang masih berjalan untuk fasilitas dan kategori ini. Pantau statusnya di Riwayat Laporan.',
+                    ]);
+                }
+
+                $laporan = Report::create([
+                    'id_user'       => auth()->id(),
+                    'id_fasilitas'  => $validated['id_fasilitas'],
+                    'id_kategori'   => $validated['id_kategori'],
+                    'description'   => $validated['description'],
+                    'report_status' => 'baru',
                 ]);
+
+                if ($request->hasFile('photos')) {
+                    $folderFoto = 'reports/' . $laporan->id_laporan;
+
+                    foreach ($request->file('photos') as $index => $photoFile) {
+                        // Disk 'local' (storage/app/private) — TIDAK di-symlink ke public/storage,
+                        // sehingga foto hanya bisa diakses lewat ReportController@photo
+                        // yang mengecek otorisasi.
+                        $photoPath = $photoFile->store($folderFoto, 'local');
+
+                        if ($photoPath === false) {
+                            throw new \RuntimeException('Gagal menyimpan foto laporan.');
+                        }
+
+                        $laporan->photos()->create([
+                            'photo_path' => $photoPath,
+                            'urutan'     => $index,
+                        ]);
+                    }
+                }
+            });
+        } catch (ValidationException $e) {
+            // Biarkan Laravel mengubahnya menjadi redirect back + error (bukan "gagal disimpan")
+            throw $e;
+        } catch (\Throwable $e) {
+            if ($folderFoto) {
+                Storage::disk('local')->deleteDirectory($folderFoto);
             }
+
+            report($e);
+
+            return back()->withInput()->withErrors([
+                'photos' => 'Laporan gagal disimpan. Silakan coba lagi.',
+            ]);
         }
 
         return redirect()
@@ -132,6 +190,9 @@ class ReportController extends Controller
 
         abort_unless(Storage::disk('local')->exists($foto->photo_path), 404);
 
-        return Storage::disk('local')->response($foto->photo_path);
+        return Storage::disk('local')->response($foto->photo_path, null, [
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control'          => 'private, max-age=0, no-store',
+        ]);
     }
 }
