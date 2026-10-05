@@ -12,10 +12,15 @@ class ReservationAvailability
     public const OPERATIONAL_START = '07:00:00';
     public const OPERATIONAL_END = '20:00:00';
 
-    // Validasi jam oprasional
+    // Validasi jam oprasional + kelipatan 30 menit
     public static function isValidSlotTime(string $time): bool
     {
-        $carbonTime = Carbon::createFromTimeString($time);
+        try {
+            $carbonTime = Carbon::createFromTimeString($time);
+        } catch (\Throwable $e) {
+            return false;
+        }
+
         $timeStr = $carbonTime->format('H:i:s');
 
         // Cek jam operasional
@@ -32,6 +37,7 @@ class ReservationAvailability
     }
 
     // Cek apakah ada jadwal yang bentrok di fasilitas & tanggal yang sama.
+    // Dipakai bersama oleh ReservationController@store (satu sumber logika, tidak diduplikasi lagi).
     public static function hasConflict(string $facilityId, string $date, string $startTime, string $endTime, ?string $excludeReservationId = null): bool
     {
         $query = Reservation::where('id_fasilitas', $facilityId)
@@ -53,10 +59,11 @@ class ReservationAvailability
     }
 
     // Generate seluruh slot waktu 30 menit dari 07:00 sampai 20:00 beserta statusnya.
-    public static function getDailySlots(string $facilityId, string $date): array
+    // $facilityReservable=false (fasilitas dalam perbaikan) membuat seluruh slot tidak tersedia.
+    public static function getDailySlots(string $facilityId, string $date, bool $facilityReservable = true): array
     {
-        // Ambil semua reservasi aktif di tanggal tersebut
-        $reservations = Reservation::with('user')
+        // Hanya kolom yang dibutuhkan (tanpa relasi user) agar data pemohon tidak ikut dimuat di halaman publik
+        $reservations = Reservation::select('id_reservasi', 'id_user', 'start_time', 'end_time', 'reservation_status')
             ->where('id_fasilitas', $facilityId)
             ->where('date', $date)
             ->whereIn('reservation_status', ['approved', 'pending'])
@@ -65,6 +72,7 @@ class ReservationAvailability
         $slots = [];
         $timezone = config('app.timezone', 'Asia/Jakarta');
         $now = Carbon::now($timezone);
+        $minStart = $now->copy()->addHour();
 
         $current = Carbon::parse($date . ' ' . self::OPERATIONAL_START, $timezone);
         $end = Carbon::parse($date . ' ' . self::OPERATIONAL_END, $timezone);
@@ -79,15 +87,24 @@ class ReservationAvailability
                 return $res->start_time < $slotEnd && $res->end_time > $slotStart;
             });
 
-            // Slot dianggap tidak dapat dipesan jika waktu mulainya ($current) kurang dari 1 jam dari sekarang
-            $minStart = $now->copy()->addHour();
+            // Slot dianggap tidak dapat dipesan jika waktu mulainya kurang dari 1 jam dari sekarang
             $isPastOrTooSoon = $current->lt($minStart);
+
+            if ($booking) {
+                $status = $booking->reservation_status;
+            } elseif ($isPastOrTooSoon) {
+                $status = 'berlalu';
+            } elseif (! $facilityReservable) {
+                $status = 'perbaikan';
+            } else {
+                $status = 'tersedia';
+            }
 
             $slots[] = [
                 'start'        => $current->format('H:i'),
                 'end'          => $next->format('H:i'),
-                'is_available' => is_null($booking) && !$isPastOrTooSoon,
-                'status'       => $booking ? $booking->reservation_status : ($isPastOrTooSoon ? 'berlalu' : 'tersedia'),
+                'is_available' => $status === 'tersedia',
+                'status'       => $status,
                 'booking'      => $booking,
                 'is_past'      => $isPastOrTooSoon,
             ];

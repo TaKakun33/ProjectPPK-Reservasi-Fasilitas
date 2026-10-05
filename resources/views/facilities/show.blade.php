@@ -58,8 +58,9 @@
                             @elseif($slot['status'] === 'berlalu')
                                 <span class="px-2 py-0.5 rounded bg-gray-200 text-gray-700 font-semibold">Berlalu</span>
                             @else
+                                {{-- Blueprint US #1: hanya "tersedia / tidak tersedia", tanpa membuka status internal (pending/approved) --}}
                                 <span class="px-2 py-0.5 rounded bg-red-200 text-red-900 font-semibold">
-                                    {{ ucfirst($slot['status']) }}
+                                    Tidak tersedia
                                 </span>
 
                                 {{-- PRIVASI: Jika login, tampilkan keterangan jika milik sendiri --}}
