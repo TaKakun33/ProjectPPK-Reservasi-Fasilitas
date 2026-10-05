@@ -46,7 +46,7 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
    - Menyetujui (*approve*) atau menolak (*reject*) reservasi dengan mencantumkan alasan.
    - Membatalkan (*cancel*) reservasi berstatus `approved` jika terjadi kondisi darurat/mendesak.
    - Mengelola laporan kerusakan: memproses laporan (`diproses`), menandai perbaikan selesai (`selesai`), atau menolak laporan (`ditolak`).
-   - Perubahan status laporan otomatis mengubah status fasilitas (`dalam perbaikan` / `aktif`).
+   - Saat memproses laporan, petugas dapat mencentang opsi **Tutup fasilitas untuk perbaikan**; status fasilitas lalu berubah menjadi `dalam perbaikan` dan kembali `aktif` otomatis saat tidak ada lagi laporan yang menutup fasilitas tersebut.
 3. **Admin**:
    - Memantau ringkasan statistik global fasilitas, reservasi, laporan, dan pengguna.
    - Melakukan manajemen data fasilitas kampus (Tambah, Edit, Nonaktifkan, dan Aktivasi).
@@ -56,19 +56,21 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
 ### 2. Aturan Bisnis & Batasan Sistem (Business Rules)
 - **Jam Operasional**: Reservasi hanya diizinkan pada rentang pukul `07:00:00` hingga `20:00:00`.
 - **Interval Waktu Slot**: Durasi reservasi wajib kelipatan slot 30 menit (misal: 08:00 - 09:30).
-- **Pencegahan Bentrok (*Anti-Conflict*)**: Dua reservasi tidak boleh disetujui pada fasilitas, tanggal, dan rentang jam yang saling tumpang-tindih. Proteksi dilakukan di tingkat aplikasi menggunakan transaksi database dengan mekanisme *pessimistic locking* (`lockForUpdate()`).
-- **Batas Waktu Pembatalan oleh Pengguna**: Pengguna hanya dapat membatalkan reservasi miliknya sendiri maksimal **H-1** sebelum tanggal jadwal kegiatan dan paling lambat pada pukul **23:59 WIB**. Pada hari-H kegiatan, pengguna tidak dapat lagi membatalkan reservasi secara mandiri (pembatalan darurat pada hari-H hanya dapat diproses oleh Petugas Fasilitas).
+- **Pencegahan Bentrok (*Anti-Conflict*)**: Dua reservasi tidak boleh disetujui pada fasilitas, tanggal, dan rentang jam yang saling tumpang-tindih. Proteksi berlapis: di tingkat aplikasi menggunakan transaksi database dengan mekanisme *pessimistic locking* (`lockForUpdate()`), dan di tingkat database menggunakan *trigger* anti-bentrok pada tabel `reservations` sebagai pengaman terakhir.
+- **Batas Waktu Pembatalan oleh Pengguna**: Reservasi `approved` hanya dapat dibatalkan oleh pemiliknya maksimal **H-1** sebelum tanggal jadwal kegiatan dan paling lambat pada pukul **23:59 WIB**. Pada hari-H kegiatan, pengguna tidak dapat lagi membatalkan reservasi `approved` secara mandiri (pembatalan darurat pada hari-H hanya dapat diproses oleh Petugas Fasilitas). Reservasi `pending` (belum diproses petugas) boleh dibatalkan kapan saja selama kegiatannya belum lewat.
+- **Batasan Pengajuan Reservasi**: pengajuan minimal 1 jam sebelum jam mulai (buffer), maksimal 60 hari ke depan, durasi maksimal 4 jam per reservasi, maksimal 3 reservasi `pending` dan 5 reservasi aktif (`pending` + `approved`) per pengguna, serta dibatasi 10 pengajuan per menit per pengguna (anti-spam).
 - **Single Source of Truth Status Fasilitas**:
   - `aktif`: Fasilitas siap digunakan dan dapat direservasi.
   - `dalam perbaikan`: Fasilitas sedang ditangani petugas akibat kerusakan (tidak dapat direservasi).
   - `nonaktif`: Fasilitas dinonaktifkan oleh Admin (disembunyikan dari katalog publik).
 - **Reservasi Pending Kedaluwarsa**: reservasi `pending` yang waktu mulainya sudah lewat ditolak otomatis (alasan "Kedaluwarsa", tercatat di log status) sehingga tidak mengunci slot maupun kuota pemesan (maks. 3 reservasi pending yang masih berlaku per pengguna).
-- **Penonaktifan Fasilitas**: admin tidak dapat menonaktifkan fasilitas yang masih punya reservasi `approved` yang akan berlangsung (batalkan lewat petugas dulu). Reservasi `pending` yang akan berlangsung ditolak otomatis. Saat laporan `diproses` membuat fasilitas masuk perbaikan, petugas diberi peringatan dan daftar reservasi approved yang terdampak.
+- **Penonaktifan Fasilitas**: admin tidak dapat menonaktifkan fasilitas yang masih punya reservasi `approved` yang akan berlangsung (batalkan lewat petugas dulu). Reservasi `pending` yang akan berlangsung ditolak otomatis. Fasilitas yang hanya punya riwayat reservasi lama tetap bisa dinonaktifkan tanpa error. Saat petugas memproses laporan dengan opsi **Tutup fasilitas untuk perbaikan**, reservasi `approved` yang akan berlangsung dibatalkan dan reservasi `pending` ditolak otomatis (alasan tercatat dan terlihat oleh pemesan); detail laporan juga menampilkan daftar reservasi approved yang terdampak.
 - **Catatan Resolusi Laporan**: wajib diisi saat laporan ditutup (`selesai` atau `ditolak`).
 - **Rekap Okupansi**: okupansi = jam reservasi `approved` dibanding jam operasional (07:00-20:00) pada periode terpilih (default: awal bulan sampai hari ini); tersedia agregasi per lokasi. Hanya reservasi yang sudah selesai yang dihitung, dan penyebut hanya hari kerja (Senin-Jumat) yang sudah berjalan; fasilitas nonaktif tidak dihitung, kecuali pada hari ia terbukti dipakai. CSV memakai BOM UTF-8. Filter periode ikut ke ekspor CSV/Excel/PDF.
 - **Privasi Bukti Foto Kerusakan**: Foto laporan disimpan pada storage lokal privat (`storage/app/private`), bukan direktori public. Akses file diproteksi melalui controller resmi (`/laporan/foto/{foto}`).
 - **Pencatatan Audit Trail**: Setiap perubahan status reservasi dicatat ke tabel `log_status_reservasi`, dan perubahan status laporan dicatat ke tabel `log_status_laporan`.
 - **Verifikasi Akun Baru**: Pengguna yang mendaftar mandiri melalui `/register` mendapat status `pending` dan **tidak dapat login** sebelum diverifikasi oleh Admin.
+- **Keamanan Login & Sesi**: kredensial dan status akun diperiksa sebelum sesi dibuat. Percobaan login dibatasi (5x per kombinasi email+IP, 20x per IP, 30x per email). Status akun dicek ulang di setiap request, sehingga akun yang dibekukan/ditolak admin langsung terputus dari sesi lamanya.
 
 ---
 
@@ -84,7 +86,7 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
 | **FR-USR-04** | Fasilitas | Pengguna publik dapat melihat ketersediaan timeline slot waktu 30 menit (07:00–20:00) pada fasilitas untuk tanggal tertentu. |
 | **FR-USR-05** | Reservasi | Pengguna terdaftar dapat mengajukan reservasi fasilitas dengan validasi batas jam operasional, kelipatan slot 30 menit, dan anti-bentrok. |
 | **FR-USR-06** | Reservasi | Pengguna dapat melihat riwayat dan memantau status permohonan reservasi miliknya (`pending`, `approved`, `rejected`, `cancelled`). |
-| **FR-USR-07** | Reservasi | Pengguna dapat membatalkan reservasi miliknya sendiri maksimal H-1 sebelum tanggal jadwal kegiatan (maksimal pukul 23:59 WIB). |
+| **FR-USR-07** | Reservasi | Pengguna dapat membatalkan reservasi miliknya sendiri: reservasi `approved` maksimal H-1 sebelum tanggal jadwal kegiatan (maksimal pukul 23:59 WIB), reservasi `pending` kapan saja selama kegiatan belum lewat. |
 | **FR-USR-08** | Laporan | Pengguna dapat membuat laporan kerusakan sarana/prasarana dengan memilih fasilitas, kategori, deskripsi, dan upload beberapa foto bukti. |
 | **FR-USR-09** | Laporan | Pengguna dapat melihat daftar laporan kerusakan yang pernah diajukan, melihat pratinjau foto, dan membaca catatan resolusi dari petugas. |
 
@@ -93,14 +95,14 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
 | Kode FR | Modul | Deskripsi Kebutuhan Fungsional |
 | :--- | :--- | :--- |
 | **FR-STF-01** | Dashboard | Petugas dapat melihat ringkasan statistik: total reservasi pending, laporan baru, laporan diproses, dan fasilitas dalam perbaikan. |
-| **FR-STF-02** | Reservasi | Petugas dapat melihat daftar antrian permohonan reservasi berstatus `pending` yang diurutkan dari yang paling lama menunggu. |
+| **FR-STF-02** | Reservasi | Petugas dapat melihat antrian permohonan reservasi berstatus `pending` yang diurutkan dari yang paling lama menunggu pada panel dashboard, serta riwayat seluruh reservasi (dapat difilter per status, terbaru lebih dulu) pada menu Antrian Reservasi. |
 | **FR-STF-03** | Reservasi | Petugas dapat menyetujui (*approve*) reservasi dengan validasi pencegahan bentrok jadwal otomatis (*pessimistic locking*). |
 | **FR-STF-04** | Reservasi | Petugas dapat menolak (*reject*) reservasi pending dengan kewajiban mencantumkan alasan penolakan untuk pemohon. |
 | **FR-STF-05** | Reservasi | Petugas dapat membatalkan (*cancel*) reservasi yang sudah disetujui sebelumnya dalam kondisi mendesak dengan wajib mengisi alasan pembatalan. |
-| **FR-STF-06** | Laporan | Petugas dapat melihat daftar antrian laporan kerusakan yang belum selesai (`baru` dan `diproses`). |
+| **FR-STF-06** | Laporan | Petugas dapat melihat laporan `baru` (terlama dulu) pada panel dashboard, serta daftar seluruh laporan kerusakan (dapat difilter per status `baru`, `diproses`, `selesai`, `ditolak`) pada menu Laporan Kerusakan. |
 | **FR-STF-07** | Laporan | Petugas dapat membuka detail laporan kerusakan dan melihat foto bukti kerusakan yang tersimpan secara privat. |
 | **FR-STF-08** | Laporan | Petugas dapat memperbarui status laporan (`diproses`, `selesai`, `ditolak`) serta memberikan catatan resolusi penanganan. |
-| **FR-STF-09** | Fasilitas | Sistem otomatis mengubah status fasilitas menjadi `dalam perbaikan` saat laporan diproses, dan kembali `aktif` saat perbaikan selesai. |
+| **FR-STF-09** | Fasilitas | Petugas dapat menandai fasilitas `dalam perbaikan` dengan mencentang **Tutup fasilitas untuk perbaikan** saat memproses laporan. Sistem otomatis mengembalikan status fasilitas menjadi `aktif` saat laporan tersebut `selesai`/`ditolak` dan tidak ada laporan lain yang masih menutup fasilitas. |
 | **FR-STF-10** | Audit Log | Sistem otomatis mencatat log riwayat setiap perubahan status reservasi dan laporan ke tabel database audit. |
 
 ### 3.Administrator
@@ -129,6 +131,9 @@ ProjectPPK-Reservasi-Fasilitas/
 ├── app/
 │   ├── Enums/
 │   │   └── UserRole.php              # Enum role pengguna: admin, petugas, pengguna
+│   ├── Console/
+│   │   └── Commands/
+│   │       └── KedaluwarsakanReservasi.php # php artisan reservasi:kedaluwarsakan
 │   ├── Exports/
 │   │   └── RekapFasilitasExport.php  # Class generator export Excel (Maatwebsite Excel)
 │   ├── Http/
@@ -147,8 +152,16 @@ ProjectPPK-Reservasi-Fasilitas/
 │   │   │   ├── ProfileController.php     # Controller profil pengguna
 │   │   │   ├── ReportController.php      # Controller laporan kerusakan pengguna (Akbar)
 │   │   │   └── ReservationController.php # Controller reservasi pengguna (Zhafran)
-│   │   └── Middleware/
-│   │       └── CheckRole.php         # Middleware validasi hak akses role
+│   │   ├── Middleware/
+│   │   │   ├── CheckRole.php                 # Middleware validasi hak akses role
+│   │   │   └── PastikanAkunTerverifikasi.php # Cek ulang status akun di setiap request
+│   │   └── Requests/                 # Form Request (validasi sisi server)
+│   │       ├── Admin/                # BuatAkunRequest, SimpanFasilitasRequest
+│   │       ├── Auth/                 # LoginRequest (rate limiting berlapis)
+│   │       ├── Petugas/              # UbahStatusLaporanRequest
+│   │       ├── ProfileUpdateRequest.php
+│   │       ├── RegistrasiPenggunaRequest.php
+│   │       └── SimpanReservasiRequest.php
 │   ├── Models/
 │   │   ├── Facility.php              # Model Fasilitas
 │   │   ├── LogStatusLaporan.php      # Model Log Perubahan Status Laporan
@@ -159,12 +172,17 @@ ProjectPPK-Reservasi-Fasilitas/
 │   │   ├── Reservation.php           # Model Reservasi Fasilitas
 │   │   └── User.php                  # Model Pengguna
 │   └── Services/
-│       └── ReservationAvailability.php # Service validasi bentrok & slot waktu
+│       ├── RekapService.php          # Perhitungan rekap okupansi & kerusakan
+│       ├── ReservationAvailability.php # Service validasi bentrok & slot waktu
+│       └── ReservationExpiry.php     # Penolakan otomatis reservasi pending kedaluwarsa
 ├── database/
 │   ├── factories/                    # Factory pengujian data
 │   ├── migrations/                   # Skema migrasi tabel database & trigger
 │   └── seeders/
-│       └── DatabaseSeeder.php        # Seeder akun testing & kategori laporan
+│       ├── DatabaseSeeder.php        # Seeder akun testing & data contoh fasilitas
+│       └── ReportCategorySeeder.php  # Seeder kategori laporan kerusakan
+├── lang/
+│   └── id/                           # Pesan validasi, auth, & password bahasa Indonesia
 ├── resources/
 │   └── views/
 │       ├── admin/                    # Tampilan modul Admin
@@ -174,13 +192,17 @@ ProjectPPK-Reservasi-Fasilitas/
 │       ├── petugas/                  # Tampilan dashboard & antrian Petugas
 │       ├── reports/                  # Tampilan form & riwayat laporan pengguna
 │       └── reservations/             # Tampilan form & riwayat reservasi pengguna
-└── routes/
-    ├── admin.php                     # Rute modul Admin (prefix: /admin)
-    ├── auth.php                      # Rute autentikasi
-    ├── laporan.php                   # Rute modul Laporan Kerusakan (prefix: /laporan)
-    ├── petugas.php                   # Rute modul Petugas (prefix: /petugas)
-    ├── reservasi.php                 # Rute modul Fasilitas & Reservasi (prefix: /reservasi)
-    └── web.php                       # Pintu masuk utama & redirector dashboard
+├── routes/
+│   ├── admin.php                     # Rute modul Admin (prefix: /admin)
+│   ├── auth.php                      # Rute autentikasi
+│   ├── console.php                   # Jadwal reservasi:kedaluwarsakan (tiap 5 menit)
+│   ├── laporan.php                   # Rute modul Laporan Kerusakan (prefix: /laporan)
+│   ├── petugas.php                   # Rute modul Petugas (prefix: /petugas)
+│   ├── reservasi.php                 # Rute modul Fasilitas (/fasilitas) & Reservasi (/reservasi)
+│   └── web.php                       # Pintu masuk utama & redirector dashboard
+└── tests/
+    ├── Concerns/                     # Helper pembuat data uji
+    └── Feature/                      # Tes auth, reservasi, pembatalan, laporan, fasilitas, user, rekap
 ```
 
 ---
@@ -189,13 +211,13 @@ ProjectPPK-Reservasi-Fasilitas/
 
 Untuk mencegah konflik merge file kode (*merge conflict*), arsitektur rute dan controller dipisah secara modular:
 
-| No | Anggota Tim | Modul Tanggung Jawab | File Rute | Controller & View Utama |
+| No | Anggota Tim (NIM) | Modul Tanggung Jawab | File Rute | Controller & View Utama |
 | :---: | :--- | :--- | :--- | :--- |
-| 1 | **Akmal** | **Auth & Struktur Dasar** | `routes/auth.php`<br>`routes/web.php` | • `app/Http/Controllers/Auth/*`<br>• Setup skema migrasi awal & layout dasar |
-| 2 | **Zhafran** | **Reservasi (Pengguna)** | `routes/reservasi.php` | • `FacilityController.php`<br>• `ReservationController.php`<br>• `ReservationAvailability.php`<br>• `resources/views/facilities/*`<br>• `resources/views/reservations/*` |
-| 3 | **Akbar** | **Laporan Kerusakan (Pengguna)** | `routes/laporan.php` | • `ReportController.php`<br>• Upload foto storage privat & serve handler<br>• `resources/views/reports/*` |
-| 4 | **Ilham** | **Modul Petugas** | `routes/petugas.php` | • `Petugas\DashboardController.php`<br>• `Petugas\ReservationController.php`<br>• `Petugas\ReportController.php`<br>• Audit Log (`LogStatusReservasi`, `LogStatusLaporan`)<br>• `resources/views/petugas/*` |
-| 5 | **Abhista** | **Modul Admin** | `routes/admin.php` | • `Admin\DashboardController.php`<br>• `Admin\FacilityController.php`<br>• `Admin\UserController.php`<br>• `Admin\RekapController.php`<br>• `app/Exports/RekapFasilitasExport.php`<br>• `resources/views/admin/*` |
+| 1 | **Akmal** (NIM: ........) | **Auth & Struktur Dasar** | `routes/auth.php`<br>`routes/web.php` | • `app/Http/Controllers/Auth/*`<br>• Setup skema migrasi awal & layout dasar |
+| 2 | **Zhafran** (NIM: ........) | **Reservasi (Pengguna)** | `routes/reservasi.php` | • `FacilityController.php`<br>• `ReservationController.php`<br>• `ReservationAvailability.php`<br>• `resources/views/facilities/*`<br>• `resources/views/reservations/*` |
+| 3 | **Akbar** (NIM: ........) | **Laporan Kerusakan (Pengguna)** | `routes/laporan.php` | • `ReportController.php`<br>• Upload foto storage privat & serve handler<br>• `resources/views/reports/*` |
+| 4 | **Ilham** (NIM: ........) | **Modul Petugas** | `routes/petugas.php` | • `Petugas\DashboardController.php`<br>• `Petugas\ReservationController.php`<br>• `Petugas\ReportController.php`<br>• Audit Log (`LogStatusReservasi`, `LogStatusLaporan`)<br>• `resources/views/petugas/*` |
+| 5 | **Abhista** (NIM: ........) | **Modul Admin** | `routes/admin.php` | • `Admin\DashboardController.php`<br>• `Admin\FacilityController.php`<br>• `Admin\UserController.php`<br>• `Admin\RekapController.php`<br>• `app/Exports/RekapFasilitasExport.php`<br>• `resources/views/admin/*` |
 
 ---
 ## ⚙️ Setup & Informasi Setting Menjalankan Program
@@ -203,7 +225,7 @@ Untuk mencegah konflik merge file kode (*merge conflict*), arsitektur rute dan c
 1. `composer install` dan `npm install && npm run build`
 2. `cp .env.example .env` lalu `php artisan key:generate`
 3. Buat database MySQL `PPK_project`, sesuaikan `DB_USERNAME` / `DB_PASSWORD` di `.env`
-   (file `.env` asli **tidak** disertakan di zip demi keamanan).
+   (file `.env` asli tidak boleh ikut dikumpulkan/di-commit demi keamanan; `.env.example` sudah menyediakan templatenya).
 4. `php artisan migrate --seed` (migrasi membuat trigger & CHECK constraint → wajib **MySQL 8.0.16+** / MariaDB 10.2+)
 5. `php artisan serve` → buka `http://localhost:8000`
 6. **Pengaturan `php.ini` untuk upload foto laporan** (maks. 5 foto × 2 MB):
@@ -247,15 +269,16 @@ Database seeder secara otomatis menyediakan 3 akun default siap pakai :
    - Klik **Setujui** pada reservasi pending dari akun pengguna.
    - Coba setujui reservasi lain yang jam dan tanggalnya bertabrakan pada fasilitas yang sama. Sistem akan menolak karena bentrok.
 4. Buka menu **Laporan Kerusakan**:
-   - Buka detail laporan, ubah status menjadi `diproses`. Periksa bahwa status fasilitas tersebut otomatis berubah menjadi `dalam perbaikan` di katalog.
-   - Setelah selesai, ubah status menjadi `selesai`. Fasilitas otomatis kembali berstatus `aktif`.
+   - Buka detail laporan, ubah status menjadi `diproses` dengan mencentang **Tutup fasilitas untuk perbaikan** (peringatan beserta daftar reservasi terdampak akan muncul). Periksa bahwa status fasilitas tersebut berubah menjadi `dalam perbaikan` di katalog dan reservasi mendatang pada fasilitas itu dibatalkan/ditolak. Tanpa centang tersebut, laporan tetap `diproses` tetapi fasilitas masih `aktif`.
+   - Setelah selesai, ubah status menjadi `selesai` dengan mengisi catatan resolusi (wajib). Fasilitas otomatis kembali berstatus `aktif`.
 5. Periksa tabel `log_status_reservasi` dan `log_status_laporan` di database untuk memastikan audit trail tersimpan dengan benar.
 
 #### 3. Pengujian Administrator
 1. Login menggunakan akun `admin@example.com`.
 2. Buka menu **Fasilitas**:
    - Tambah fasilitas baru melalui form `/admin/fasilitas/create`.
-   - Coba nonaktifkan fasilitas yang memiliki riwayat reservasi. Sistem akan melakukan *soft-deactivation* (mengubah status menjadi `nonaktif` tanpa error foreign key).
+   - Coba nonaktifkan fasilitas yang hanya memiliki riwayat reservasi lama. Sistem akan melakukan *soft-deactivation* (mengubah status menjadi `nonaktif` tanpa error foreign key).
+   - Coba nonaktifkan fasilitas yang masih punya reservasi `approved` yang akan berlangsung. Sistem menolak dan meminta petugas membatalkan reservasinya terlebih dahulu.
 3. Buka menu **User**:
    - Daftarkan akun petugas atau pengguna baru secara langsung. Akun tersebut langsung berstatus `verified`.
    - Lakukan pengetesan *suspend* pada salah satu akun untuk memastikan akun yang dibekukan tidak dapat melakukan login.
@@ -265,3 +288,17 @@ Database seeder secara otomatis menyediakan 3 akun default siap pakai :
      - **CSV**: Mengunduh file `.csv` 
      - **Excel**: Mengunduh file `.xlsx` 
      - **PDF**: Mengunduh dokumen `.pdf` 
+
+---
+
+## Catatan Perbaikan Hasil Audit QA
+
+- Menambahkan `.env.example` (sebelumnya hilang, sehingga `cp .env.example .env` gagal).
+- Pengecekan laporan ganda dipindah ke dalam transaksi + lock baris pelapor (cegah double-submit paralel).
+- Respons lupa-password dibuat seragam (cegah enumerasi email terdaftar).
+- Login memeriksa kredensial dan status akun sebelum sesi dibuat, dengan rate limit per email+IP, per IP, dan per email.
+- Middleware `PastikanAkunTerverifikasi` memutus akses akun yang dibekukan/ditolak tanpa menunggu sesi berakhir.
+- Foto laporan privat dikirim dengan header `X-Content-Type-Options: nosniff` dan `Cache-Control: private, no-store`.
+- Validasi dipindah ke Form Request: `SimpanFasilitasRequest`, `BuatAkunRequest`, `UbahStatusLaporanRequest`, `RegistrasiPenggunaRequest`.
+- Folder kosong `public/storage` dihapus (bentrok dengan `storage:link`; foto laporan memang privat).
+- Setelah `composer install`, jalankan `php artisan test` (butuh database MySQL `PPK_project_test`) untuk memverifikasi.
