@@ -78,6 +78,7 @@
 <body>
     <div class="header">
         <h1>Rekap Okupansi & Kerusakan Fasilitas</h1>
+        <p>Periode: {{ $periode }}</p>
         <p>Didownload pada: {{ $tanggal }}</p>
     </div>
 
@@ -92,6 +93,8 @@
                 <th class="text-center">Status</th>
                 <th class="text-center">Total Reservasi</th>
                 <th class="text-center">Approved</th>
+                <th class="text-center">Jam Terpakai</th>
+                <th class="text-center">Okupansi</th>
                 <th class="text-center">Total Laporan</th>
                 <th class="text-center">Selesai</th>
             </tr>
@@ -109,12 +112,42 @@
                     </td>
                     <td class="text-center">{{ $row['Total Reservasi'] }}</td>
                     <td class="text-center">{{ $row['Reservasi Approved'] }}</td>
+                    <td class="text-center">{{ number_format($row['Jam Terpakai'], 1, ',', '.') }}</td>
+                    <td class="text-center">{{ number_format($row['Okupansi (%)'], 1, ',', '.') }}%</td>
                     <td class="text-center">{{ $row['Total Laporan'] }}</td>
                     <td class="text-center">{{ $row['Laporan Selesai'] }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
+
+    @if($perLokasi->isNotEmpty())
+        <h2 style="font-size:13px; margin-top:20px;">Rekap per Lokasi</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Lokasi</th>
+                    <th class="text-center">Fasilitas</th>
+                    <th class="text-center">Reservasi Approved</th>
+                    <th class="text-center">Jam Terpakai</th>
+                    <th class="text-center">Okupansi</th>
+                    <th class="text-center">Laporan Kerusakan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($perLokasi as $l)
+                    <tr>
+                        <td>{{ $l['lokasi'] }}</td>
+                        <td class="text-center">{{ $l['jumlah_fasilitas'] }}</td>
+                        <td class="text-center">{{ $l['reservasi_approved'] }}</td>
+                        <td class="text-center">{{ number_format($l['jam_terpakai'], 1, ',', '.') }}</td>
+                        <td class="text-center">{{ number_format($l['okupansi'], 1, ',', '.') }}%</td>
+                        <td class="text-center">{{ $l['total_laporan'] }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
 
     <div class="footer">
         Halaman 1 &bull; Sistem Reservasi Fasilitas

@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Exports\RekapFasilitasExport;
-use App\Models\Facility;
-use App\Models\Report;
-use App\Models\Reservation;
+use App\Http\Controllers\Controller;
+use App\Services\RekapService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
-// Controller rekap fasilitas (statistik okupansi dan frekuensi kerusakan)
+// Controller rekap fasilitas (okupansi reservasi dan frekuensi kerusakan) dengan filter periode
 class RekapController extends Controller
 {
     /**
@@ -36,87 +35,94 @@ class RekapController extends Controller
         return $value;
     }
 
+    // Validasi filter periode (?dari=YYYY-MM-DD&sampai=YYYY-MM-DD) lalu hitung rekapnya
+    private function ambilRekap(Request $request): array
+    {
+        $aturanSampai = ['nullable', 'date_format:Y-m-d'];
+
+        if ($request->filled('dari')) {
+            $aturanSampai[] = 'after_or_equal:dari';
+        }
+
+        $validated = $request->validate([
+            'dari'   => ['nullable', 'date_format:Y-m-d'],
+            'sampai' => $aturanSampai,
+        ], [
+            'dari.date_format'      => 'Format tanggal awal harus YYYY-MM-DD.',
+            'sampai.date_format'    => 'Format tanggal akhir harus YYYY-MM-DD.',
+            'sampai.after_or_equal' => 'Tanggal akhir tidak boleh sebelum tanggal awal.',
+        ]);
+
+        $periode = RekapService::periode($validated['dari'] ?? null, $validated['sampai'] ?? null);
+
+        if ($periode['hari'] > RekapService::MAKS_HARI) {
+            // Batasi rentang agar halaman & ekspor tetap ringan
+            $periode = RekapService::periode(
+                Carbon::createFromFormat('Y-m-d', $periode['sampai'])->subDays(RekapService::MAKS_HARI - 1)->toDateString(),
+                $periode['sampai']
+            );
+        }
+
+        return RekapService::hitung($periode['dari'], $periode['sampai']);
+    }
+
     // Menampilkan halaman tabel rekapitulasi okupansi reservasi dan kerusakan fasilitas
     public function index(Request $request)
     {
-        $facilities = Facility::withCount([
-            'reservations as total_reservasi',
-            'reservations as reservasi_approved' => function ($q) {
-                $q->where('reservation_status', 'approved');
-            },
-            'reservations as reservasi_pending' => function ($q) {
-                $q->where('reservation_status', 'pending');
-            },
-            'reports as total_laporan',
-            'reports as laporan_baru' => function ($q) {
-                $q->where('report_status', 'baru');
-            },
-            'reports as laporan_selesai' => function ($q) {
-                $q->where('report_status', 'selesai');
-            },
-        ])->get();
+        $hasil = $this->ambilRekap($request);
 
-        $rekap = $facilities->map(function ($f) {
-            return [
-                'id'                 => $f->id_fasilitas,
-                'nama'               => $f->facility_name,
-                'tipe'               => $f->type,
-                'lokasi'             => $f->location,
-                'kapasitas'          => $f->capacity,
-                'status'             => $f->facility_status,
-                'total_reservasi'    => $f->total_reservasi,
-                'reservasi_approved' => $f->reservasi_approved,
-                'reservasi_pending'  => $f->reservasi_pending,
-                'total_laporan'      => $f->total_laporan,
-                'laporan_baru'       => $f->laporan_baru,
-                'laporan_selesai'    => $f->laporan_selesai,
-            ];
-        });
-
-        return view('admin.rekap.index', compact('rekap'));
+        return view('admin.rekap.index', [
+            'rekap'     => collect($hasil['baris']),
+            'perLokasi' => collect($hasil['per_lokasi']),
+            'periode'   => $hasil['periode'],
+        ]);
     }
 
     /**
      * Export rekap fasilitas dalam format CSV, Excel, atau PDF.
-     * Gunakan query parameter ?format=csv|excel|pdf
+     * Gunakan query parameter ?format=csv|excel|pdf (+ dari/sampai untuk periode)
      */
     public function export(Request $request)
     {
         $format = $request->query('format', 'csv');
 
-        // Excel
-        if ($format === 'excel') {
-            return Excel::download(new RekapFasilitasExport, 'rekap_fasilitas.xlsx');
+        if (! in_array($format, ['csv', 'excel', 'pdf'], true)) {
+            return redirect()->route('admin.rekap.index')
+                ->with('error', 'Format export tidak dikenali. Gunakan csv, excel, atau pdf.');
         }
 
-        // Data
-        $facilities = Facility::withCount([
-            'reservations as total_reservasi',
-            'reservations as reservasi_approved' => function ($q) {
-                $q->where('reservation_status', 'approved');
-            },
-            'reports as total_laporan',
-            'reports as laporan_selesai' => function ($q) {
-                $q->where('report_status', 'selesai');
-            },
-        ])->get();
-
-        $data = $facilities->map(function ($f) {
-            return [
-                'Nama Fasilitas'      => $f->facility_name,
-                'Tipe'                => $f->type,
-                'Lokasi'              => $f->location,
-                'Kapasitas'           => $f->capacity,
-                'Status'              => ucfirst($f->facility_status),
-                'Total Reservasi'     => $f->total_reservasi,
-                'Reservasi Approved'  => $f->reservasi_approved,
-                'Total Laporan'       => $f->total_laporan,
-                'Laporan Selesai'     => $f->laporan_selesai,
-            ];
-        });
+        $hasil   = $this->ambilRekap($request);
+        $periode = $hasil['periode'];
 
         // Timestamp WIB
         $timestampWib = now('Asia/Jakarta')->format('d-m-Y H:i') . ' WIB';
+        $labelPeriode = Carbon::createFromFormat('Y-m-d', $periode['dari'])->format('d-m-Y')
+            . ' s/d ' . Carbon::createFromFormat('Y-m-d', $periode['sampai'])->format('d-m-Y');
+
+        // Excel
+        if ($format === 'excel') {
+            return Excel::download(
+                new RekapFasilitasExport($hasil['baris'], $labelPeriode),
+                'rekap_fasilitas.xlsx'
+            );
+        }
+
+        // Data
+        $data = collect($hasil['baris'])->map(function ($f) {
+            return [
+                'Nama Fasilitas'      => $f['nama'],
+                'Tipe'                => $f['tipe'],
+                'Lokasi'              => $f['lokasi'],
+                'Kapasitas'           => $f['kapasitas'],
+                'Status'              => ucfirst($f['status']),
+                'Total Reservasi'     => $f['total_reservasi'],
+                'Reservasi Approved'  => $f['reservasi_approved'],
+                'Jam Terpakai'        => $f['jam_terpakai'],
+                'Okupansi (%)'        => $f['okupansi'],
+                'Total Laporan'       => $f['total_laporan'],
+                'Laporan Selesai'     => $f['laporan_selesai'],
+            ];
+        });
 
         // CSV
         if ($format === 'csv') {
@@ -128,13 +134,16 @@ class RekapController extends Controller
             });
 
             $headers = [
-                'Content-Type'        => 'text/csv',
+                'Content-Type'        => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="rekap_fasilitas.csv"',
             ];
 
-            $callback = function () use ($csvData, $timestampWib) {
+            $callback = function () use ($csvData, $timestampWib, $labelPeriode) {
                 $file = fopen('php://output', 'w');
+                // BOM UTF-8 supaya Excel membaca file sebagai UTF-8 (huruf non-ASCII tidak rusak)
+                fwrite($file, "\xEF\xBB\xBF");
                 fputcsv($file, ['Rekap Okupansi & Kerusakan Fasilitas']);
+                fputcsv($file, ['Periode: ' . $labelPeriode]);
                 fputcsv($file, ['Didownload pada: ' . $timestampWib]);
                 fputcsv($file, []); // baris kosong pemisah
                 if ($csvData->isNotEmpty()) {
@@ -150,16 +159,13 @@ class RekapController extends Controller
         }
 
         // PDF
-        if ($format === 'pdf') {
-            $pdf = Pdf::loadView('admin.rekap.pdf', [
-                'data'    => $data,
-                'tanggal' => $timestampWib,
-            ])->setPaper('a4', 'landscape');
+        $pdf = Pdf::loadView('admin.rekap.pdf', [
+            'data'      => $data,
+            'perLokasi' => collect($hasil['per_lokasi']),
+            'tanggal'   => $timestampWib,
+            'periode'   => $labelPeriode,
+        ])->setPaper('a4', 'landscape');
 
-            return $pdf->download('rekap_fasilitas.pdf');
-        }
-
-        return redirect()->route('admin.rekap.index')
-            ->with('error', 'Format export tidak dikenali. Gunakan csv, excel, atau pdf.');
+        return $pdf->download('rekap_fasilitas.pdf');
     }
 }
