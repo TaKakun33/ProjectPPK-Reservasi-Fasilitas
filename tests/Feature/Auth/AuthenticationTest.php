@@ -27,7 +27,8 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // Pengguna biasa diarahkan ke daftar fasilitas setelah login
+        $response->assertRedirect(route('facilities.index', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
@@ -50,5 +51,33 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertRedirect('/');
+    }
+
+    public function test_akun_belum_terverifikasi_ditolak_tanpa_membuat_sesi(): void
+    {
+        $user = User::factory()->create(['account_status' => 'pending']);
+
+        $response = $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'password',
+            'remember' => 'on',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    public function test_pembatasan_percobaan_login_per_ip_untuk_banyak_email(): void
+    {
+        for ($i = 0; $i < 20; $i++) {
+            $this->post('/login', ['email' => "orang{$i}@example.com", 'password' => 'salah']);
+        }
+
+        $user = User::factory()->create();
+
+        // Email berbeda dari IP yang sama tetap terkunci setelah 20 kegagalan
+        $this->post('/login', ['email' => $user->email, 'password' => 'password'])
+            ->assertSessionHasErrors('email');
+        $this->assertGuest();
     }
 }

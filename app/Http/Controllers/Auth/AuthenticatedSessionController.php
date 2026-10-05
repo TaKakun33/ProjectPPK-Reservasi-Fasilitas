@@ -21,23 +21,8 @@ class AuthenticatedSessionController extends Controller
     // Login request handling
     public function store(LoginRequest $request): RedirectResponse
     {
+        // authenticate() memeriksa kredensial dan status akun sebelum sesi dibuat
         $request->authenticate();
-
-        if ($request->user()->account_status !== 'verified') {
-            $status = $request->user()->account_status;
-
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
-
-            $message = match ($status) {
-                'pending'   => 'Akun Anda belum diverifikasi admin.',
-                'rejected'  => 'Pendaftaran akun Anda ditolak admin.',
-                'suspended' => 'Akun Anda telah dibekukan oleh admin.',
-                default     => 'Akun Anda belum diverifikasi admin atau telah ditolak.',
-            };
-
-            return back()->withErrors(['email' => $message]);
-        }
 
         $request->session()->regenerate();
 
