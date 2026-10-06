@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Http\Requests\SimpanLaporanRequest;
 use App\Models\Facility;
 use App\Models\Report;
 use App\Models\ReportCategory;
@@ -11,7 +12,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ReportController extends Controller
@@ -63,32 +63,10 @@ class ReportController extends Controller
         return view('reports.create', compact('facilities', 'categories'));
     }
 
-    public function store(Request $request)
+    public function store(SimpanLaporanRequest $request)
     {
-        if ($redirect = $this->ensurePengguna()) {
-            return $redirect;
-        }
-
-        $validated = $request->validate([
-            // PERBAIKAN E8: hanya fasilitas yang tampil (tidak nonaktif & belum soft-deleted)
-            'id_fasilitas' => ['required', 'uuid',
-                Rule::exists('facilities', 'id_fasilitas')
-                    ->where('facility_status', '!=', 'nonaktif')
-                    ->whereNull('deleted_at')],
-            'id_kategori'  => ['required', 'uuid',
-                Rule::exists('report_categories', 'id_kategori')->where('is_active', true)],
-            // PERBAIKAN E8: deskripsi sebelumnya tanpa batas panjang
-            'description'  => ['required', 'string', 'min:10', 'max:2000'],
-            'photos'       => ['nullable', 'array', 'max:5'],
-            'photos.*'     => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-        ], [
-            'id_fasilitas.exists' => 'Fasilitas yang dipilih tidak valid atau sudah dinonaktifkan.',
-            'id_kategori.exists'  => 'Kategori laporan tidak valid.',
-            'description.min'     => 'Deskripsi minimal :min karakter agar petugas memahami masalahnya.',
-            'photos.*.max'        => 'Ukuran tiap foto maksimal 2 MB.',
-            'photos.*.image'      => 'Berkas harus berupa gambar.',
-            'photos.*.mimes'      => 'Foto harus berformat jpeg, png, jpg, gif, atau webp.',
-        ]);
+        // Otorisasi role (hanya pengguna) + seluruh validasi ada di SimpanLaporanRequest
+        $validated = $request->validated();
 
         $laporan = null;
         $folderFoto = null;
