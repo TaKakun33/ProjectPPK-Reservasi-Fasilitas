@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -57,6 +58,12 @@ class LoginRequest extends FormRequest
         $provider = $guard->getProvider();
 
         $user = $provider->retrieveByCredentials($this->only('email'));
+
+        // Email tidak terdaftar tetap menjalankan satu operasi hash (biaya sama dengan verifikasi): tanpa ini respons lebih cepat
+        // daripada email terdaftar sehingga selisih waktunya bisa dipakai untuk menebak email valid.
+        if (! $user) {
+            Hash::make((string) $this->input('password'));
+        }
 
         if (! $user || ! $provider->validateCredentials($user, $this->only('password'))) {
             $this->hitRateLimiters();
