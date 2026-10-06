@@ -60,7 +60,7 @@ class ReservationAvailability
 
     // Generate seluruh slot waktu 30 menit dari 07:00 sampai 20:00 beserta statusnya.
     // $facilityReservable=false (fasilitas dalam perbaikan) membuat seluruh slot tidak tersedia.
-    public static function getDailySlots(string $facilityId, string $date, bool $facilityReservable = true): array
+    public static function getDailySlots(string $facilityId, string $date, bool $facilityReservable = true, ?string $viewerId = null): array
     {
         // Hanya kolom yang dibutuhkan (tanpa relasi user) agar data pemohon tidak ikut dimuat di halaman publik
         $reservations = Reservation::select('id_reservasi', 'id_user', 'start_time', 'end_time', 'reservation_status')
@@ -100,12 +100,14 @@ class ReservationAvailability
                 $status = 'tersedia';
             }
 
+            // PRIVASI: model reservasi (berisi id_user) tidak diteruskan ke view publik;
+            // view cukup tahu apakah slot ini milik penonton yang sedang login.
             $slots[] = [
                 'start'        => $current->format('H:i'),
                 'end'          => $next->format('H:i'),
                 'is_available' => $status === 'tersedia',
                 'status'       => $status,
-                'booking'      => $booking,
+                'is_mine'      => $booking !== null && $viewerId !== null && $booking->id_user === $viewerId,
                 'is_past'      => $isPastOrTooSoon,
             ];
 

@@ -86,7 +86,8 @@ class FacilityController extends Controller
         $slots = ReservationAvailability::getDailySlots(
             $facility->id_fasilitas,
             $selectedDate,
-            $facility->isReservable()
+            $facility->isReservable(),
+            $request->user()?->id_user
         );
 
         return view('facilities.show', compact('facility', 'selectedDate', 'slots'));

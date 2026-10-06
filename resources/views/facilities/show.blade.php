@@ -64,11 +64,9 @@
                                 </span>
 
                                 {{-- PRIVASI: Jika login, tampilkan keterangan jika milik sendiri --}}
-                                @auth
-                                    @if($slot['booking'] && $slot['booking']->id_user === auth()->id())
-                                        <div class="text-[10px] mt-1 text-red-700 font-medium">(Milik Anda)</div>
-                                    @endif
-                                @endauth
+                                @if($slot['is_mine'])
+                                    <div class="text-[10px] mt-1 text-red-700 font-medium">(Milik Anda)</div>
+                                @endif
                             @endif
                         </div>
                     </div>
