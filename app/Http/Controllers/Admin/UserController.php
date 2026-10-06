@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BuatAkunRequest;
+use App\Models\LogStatusReservasi;
+use App\Models\Reservation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -111,15 +113,54 @@ class UserController extends Controller
             return back()->with('error', 'Hanya akun terverifikasi yang dapat dibekukan.');
         }
 
-        DB::transaction(function () use ($user) {
+        $adminId = auth()->user()->id_user;
+        $ditolak = 0;
+
+        DB::transaction(function () use ($user, $adminId, &$ditolak) {
             $user->update(['account_status' => 'suspended']);
 
             // PERBAIKAN E2: putus semua sesi aktif (SESSION_DRIVER=database)
             DB::table('sessions')->where('user_id', $user->id_user)->delete();
+
+            // Akun beku tidak boleh menahan slot: reservasi pending miliknya yang belum berlangsung
+            // ditolak otomatis (tercatat di log). Reservasi approved dibiarkan: pembatalannya
+            // keputusan petugas (wajib beralasan, User Story #10).
+            $pending = Reservation::where('id_user', $user->id_user)
+                ->where('reservation_status', 'pending')
+                ->mendatang()
+                ->lockForUpdate()
+                ->get();
+
+            $alasan = 'Akun pemesan dibekukan oleh admin.';
+
+            foreach ($pending as $reservasi) {
+                $reservasi->update([
+                    'reservation_status' => 'rejected',
+                    'alasan_ditolak'     => $alasan,
+                    'processed_by'       => $adminId,
+                ]);
+
+                LogStatusReservasi::create([
+                    'id_reservasi'  => $reservasi->id_reservasi,
+                    'status_before' => 'pending',
+                    'status_after'  => 'rejected',
+                    'changed_by'    => $adminId,
+                    'notes'         => $alasan,
+                    'created_at'    => now(),
+                ]);
+
+                $ditolak++;
+            }
         });
 
+        $pesan = "Akun {$user->name} berhasil dibekukan.";
+
+        if ($ditolak > 0) {
+            $pesan .= " {$ditolak} reservasi pending miliknya ditolak otomatis.";
+        }
+
         return redirect()->route('admin.users.index')
-            ->with('success', "Akun {$user->name} berhasil dibekukan.");
+            ->with('success', $pesan);
     }
 
     // Mengaktifkan kembali akun pengguna yang dibekukan
