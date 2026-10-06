@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Petugas\BatalkanReservasiRequest;
+use App\Http\Requests\Petugas\SetujuiReservasiRequest;
+use App\Http\Requests\Petugas\TolakReservasiRequest;
 use App\Models\Facility;
 use App\Models\LogStatusReservasi;
 use App\Models\Reservation;
@@ -52,12 +55,9 @@ class ReservationController extends Controller
     }
 
     // Menyetujui permohonan reservasi (cek bentrok, status fasilitas, dan waktu — dalam satu transaksi + lock)
-    public function approve(Request $request, string $reservasi)
+    public function approve(SetujuiReservasiRequest $request, string $reservasi)
     {
-        // Catatan opsional, dibatasi panjangnya (kolom log bertipe text, tapi input tetap harus dibatasi)
-        $validated = $request->validate([
-            'notes' => ['nullable', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::transaction(function () use ($reservasi, $request, $validated) {
@@ -129,12 +129,9 @@ class ReservationController extends Controller
     }
 
     // Menolak permohonan reservasi dengan alasan penolakan
-    public function reject(Request $request, string $reservasi)
+    public function reject(TolakReservasiRequest $request, string $reservasi)
     {
-        // Wajib isi alasan penolakan agar pengguna tahu kenapa reservasinya ditolak
-        $validated = $request->validate([
-            'alasan_ditolak' => ['required', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::transaction(function () use ($reservasi, $request, $validated) {
@@ -175,12 +172,9 @@ class ReservationController extends Controller
     }
 
     // Membatalkan reservasi yang sudah disetujui (wajib mencantumkan alasan)
-    public function cancel(Request $request, string $reservasi)
+    public function cancel(BatalkanReservasiRequest $request, string $reservasi)
     {
-        // Wajib isi alasan pembatalan.
-        $validated = $request->validate([
-            'cancellation_reason' => ['required', 'string', 'max:500'],
-        ]);
+        $validated = $request->validated();
 
         try {
             DB::transaction(function () use ($reservasi, $request, $validated) {

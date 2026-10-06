@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\RekapFasilitasExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\FilterRekapRequest;
 use App\Services\RekapService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -35,23 +35,10 @@ class RekapController extends Controller
         return $value;
     }
 
-    // Validasi filter periode (?dari=YYYY-MM-DD&sampai=YYYY-MM-DD) lalu hitung rekapnya
-    private function ambilRekap(Request $request): array
+    // Filter periode sudah divalidasi FilterRekapRequest; di sini hanya membatasi rentang lalu menghitung rekap
+    private function ambilRekap(FilterRekapRequest $request): array
     {
-        $aturanSampai = ['nullable', 'date_format:Y-m-d'];
-
-        if ($request->filled('dari')) {
-            $aturanSampai[] = 'after_or_equal:dari';
-        }
-
-        $validated = $request->validate([
-            'dari'   => ['nullable', 'date_format:Y-m-d'],
-            'sampai' => $aturanSampai,
-        ], [
-            'dari.date_format'      => 'Format tanggal awal harus YYYY-MM-DD.',
-            'sampai.date_format'    => 'Format tanggal akhir harus YYYY-MM-DD.',
-            'sampai.after_or_equal' => 'Tanggal akhir tidak boleh sebelum tanggal awal.',
-        ]);
+        $validated = $request->validated();
 
         $periode = RekapService::periode($validated['dari'] ?? null, $validated['sampai'] ?? null);
 
@@ -67,7 +54,7 @@ class RekapController extends Controller
     }
 
     // Menampilkan halaman tabel rekapitulasi okupansi reservasi dan kerusakan fasilitas
-    public function index(Request $request)
+    public function index(FilterRekapRequest $request)
     {
         $hasil = $this->ambilRekap($request);
 
@@ -82,7 +69,7 @@ class RekapController extends Controller
      * Export rekap fasilitas dalam format CSV, Excel, atau PDF.
      * Gunakan query parameter ?format=csv|excel|pdf (+ dari/sampai untuk periode)
      */
-    public function export(Request $request)
+    public function export(FilterRekapRequest $request)
     {
         $format = $request->query('format', 'csv');
 
