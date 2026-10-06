@@ -21,7 +21,7 @@ Aplikasi web berbasis **Laravel** yang dirancang untuk mengelola peminjaman/rese
 Sistem Reservasi & Pengelolaan Fasilitas Kampus memfasilitasi interaksi antara sivitas akademika (mahasiswa/dosen/staf) dengan pengelola fasilitas kampus. Aplikasi ini menggantikan proses reservasi manual yang rawan tumpang-tindih (*double-booking*) dan pelaporan kerusakan fasilitas yang seringkali tidak terdokumentasi dengan baik.
 
 ### Tech Stack:
-- **Backend Framework**: Laravel 13 (PHP 8.3+)
+- **Backend Framework**: Laravel 13 (PHP 8.4+; dibutuhkan oleh Symfony 8.1 di composer.lock)
 - **Database**: MySQL
 - **Frontend / UI**: Laravel Blade Templates, Tailwind CSS, Alpine.js
 - **Export Engine**:
