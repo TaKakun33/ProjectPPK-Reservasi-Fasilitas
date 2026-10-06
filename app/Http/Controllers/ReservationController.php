@@ -71,11 +71,13 @@ class ReservationController extends Controller
             return $redirect;
         }
 
-        $facilities = Facility::where('facility_status', 'aktif')->get();
+        $facilities = Facility::where('facility_status', 'aktif')->orderBy('facility_name')->get();
 
         $selectedFacilityId = $request->input('facility_id');
-        $selectedDate = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $request->input('date'))
-            ? $request->input('date')
+        // Tanggal harus benar-benar valid (bukan sekadar cocok pola): 2026-99-99 jatuh ke hari ini
+        $tanggalInput = (string) $request->input('date');
+        $selectedDate = Carbon::canBeCreatedFromFormat($tanggalInput, 'Y-m-d')
+            ? Carbon::createFromFormat('!Y-m-d', $tanggalInput)->toDateString()
             : Carbon::today()->toDateString();
 
         return view('reservations.create', compact('facilities', 'selectedFacilityId', 'selectedDate'));
