@@ -1,27 +1,45 @@
-<x-app-layout>
+<x-petugas-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Detail Laporan Kerusakan') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="font-extrabold text-lg leading-tight" style="color:#252B2B;">Detail Laporan Kerusakan</h2>
+                <p class="text-xs mt-0.5" style="color:#4C4F54;">Investigasi bukti fisik, tentukan status penanganan, dan perbarui fasilitas</p>
+            </div>
+            <a href="{{ route('petugas.reports.index') }}"
+               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-xs hover:bg-[#FAF6F0]"
+               style="background:white; color:#380F17; border:1px solid #EAE0D3;">
+                &larr; Kembali ke Daftar
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-8 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="px-4 sm:px-6 py-5 max-w-4xl mx-auto space-y-5" style="background:#FAF6F0;">
+
         @if(session('success'))
-            <div class="p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded text-sm font-medium">
-                {{ session('success') }}
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
+                 style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>{{ session('success') }}</span>
             </div>
         @endif
 
         @if(session('warning'))
-            <div class="p-4 bg-yellow-50 border-l-4 text-yellow-800 rounded text-sm font-medium" style="border-left-color:#eab308">
-                {{ session('warning') }}
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
+                 style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <span>{{ session('warning') }}</span>
             </div>
         @endif
 
         @if($errors->any())
-            <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                <p class="font-semibold mb-1">Terdapat kesalahan pengisian:</p>
-                <ul class="list-disc pl-5 space-y-1">
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold shadow-xs"
+                 style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
+                <p class="font-bold mb-1">Terdapat kesalahan pengisian:</p>
+                <ul class="list-disc pl-5 space-y-0.5 font-normal">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -29,79 +47,80 @@
             </div>
         @endif
 
-        {{-- Info laporan (sama gayanya dengan halaman detail milik pengguna) --}}
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
-            <div class="p-6 space-y-5">
-                <div class="flex justify-between items-start gap-4">
+        {{-- Card Info Utama Laporan --}}
+        <div class="bg-white rounded-xl shadow-xs overflow-hidden" style="border:1px solid #EAE0D3;">
+            <div class="p-5 sm:p-6 space-y-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4" style="border-bottom:1px solid #EAE0D3;">
                     <div>
-                        <p class="text-sm text-gray-500">Fasilitas</p>
-                        <p class="font-semibold text-gray-900">{{ $laporan->facility->facility_name ?? '-' }}</p>
-                        <p class="text-sm text-gray-500">{{ $laporan->facility->type ?? '' }} - {{ $laporan->facility->location ?? '' }}</p>
+                        <span class="text-xs font-semibold uppercase tracking-wider" style="color:#7C7F84;">Fasilitas Kampus</span>
+                        <h3 class="text-lg font-black mt-0.5" style="color:#252B2B;">{{ $laporan->facility->facility_name ?? '-' }}</h3>
+                        <p class="text-xs mt-0.5" style="color:#4C4F54;">{{ $laporan->facility->type ?? '' }} &bull; {{ $laporan->facility->location ?? '' }}</p>
                     </div>
                     @php
                         $badges = [
-                            'baru'     => 'bg-blue-100 text-blue-800',
-                            'diproses' => 'bg-yellow-100 text-yellow-800',
-                            'selesai'  => 'bg-green-100 text-green-800',
-                            'ditolak'  => 'bg-red-100 text-red-800',
+                            'baru'     => 'background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;',
+                            'diproses' => 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;',
+                            'selesai'  => 'background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;',
+                            'ditolak'  => 'background:#F3F4F6; color:#374151; border:1px solid #E5E7EB;',
                         ];
                     @endphp
-                    <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $badges[$laporan->report_status] ?? 'bg-gray-100 text-gray-800' }}">
-                        {{ ucfirst($laporan->report_status) }}
+                    <span class="px-3 py-1 text-xs font-bold rounded-full shadow-xs"
+                          style="{{ $badges[$laporan->report_status] ?? 'background:#F3F4F6; color:#374151;' }}">
+                        Status: {{ ucfirst($laporan->report_status) }}
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-gray-500">Pelapor</p>
-                        <p class="font-medium text-gray-800">{{ $laporan->user->name ?? '-' }}</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-3 rounded-xl" style="background:#FAF6F0; border:1px solid #EAE0D3;">
+                        <p class="text-[11px] font-semibold" style="color:#7C7F84;">Pelapor</p>
+                        <p class="font-bold text-xs sm:text-sm mt-0.5" style="color:#252B2B;">{{ $laporan->user->name ?? '-' }}</p>
                     </div>
-                    <div>
-                        <p class="text-sm text-gray-500">Kategori</p>
-                        <p class="font-medium text-gray-800">{{ $laporan->category->category_name ?? '-' }}</p>
+                    <div class="p-3 rounded-xl" style="background:#FAF6F0; border:1px solid #EAE0D3;">
+                        <p class="text-[11px] font-semibold" style="color:#7C7F84;">Kategori Kerusakan</p>
+                        <p class="font-bold text-xs sm:text-sm mt-0.5" style="color:#252B2B;">{{ $laporan->category->category_name ?? '-' }}</p>
                     </div>
-                    <div class="sm:col-span-2">
-                        <p class="text-sm text-gray-500">Tanggal Laporan</p>
-                        <p class="font-medium text-gray-800">{{ $laporan->created_at->format('d M Y H:i') }}</p>
+                    <div class="p-3 rounded-xl" style="background:#FAF6F0; border:1px solid #EAE0D3;">
+                        <p class="text-[11px] font-semibold" style="color:#7C7F84;">Tanggal Dilaporkan</p>
+                        <p class="font-bold text-xs sm:text-sm mt-0.5" style="color:#252B2B;">{{ $laporan->created_at->format('d M Y, H:i') }} WIB</p>
                     </div>
                 </div>
 
                 <div>
-                    <p class="text-sm text-gray-500">Deskripsi Kerusakan</p>
-                    <p class="text-gray-800">{{ $laporan->description }}</p>
+                    <h4 class="text-xs font-bold uppercase tracking-wider mb-1.5" style="color:#7C7F84;">Deskripsi Kerusakan</h4>
+                    <div class="p-4 rounded-xl text-xs sm:text-sm leading-relaxed" style="background:#FAF6F0; border:1px solid #EAE0D3; color:#252B2B;">
+                        {{ $laporan->description }}
+                    </div>
                 </div>
 
-                {{-- Galeri foto (bisa 1 sampai banyak foto) --}}
+                {{-- Galeri Foto Kerusakan --}}
                 @if($laporan->photos->isNotEmpty())
                     <div>
-                        <p class="text-sm text-gray-500 mb-2">Foto Kerusakan ({{ $laporan->photos->count() }})</p>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider mb-2" style="color:#7C7F84;">
+                            Lampiran Foto Kerusakan ({{ $laporan->photos->count() }})
+                        </h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             @foreach($laporan->photos as $i => $foto)
                                 <button type="button"
-                                    onclick="bukaLightbox({{ $i }})"
-                                    class="focus:outline-none group">
+                                        onclick="bukaLightbox({{ $i }})"
+                                        class="group rounded-xl overflow-hidden focus:outline-none transition shadow-xs hover:shadow-md"
+                                        style="border:1px solid #EAE0D3;">
                                     <img src="{{ route('reports.photo', $foto->id_foto) }}" alt="Foto kerusakan"
-                                         class="w-full h-32 object-cover rounded-lg border border-gray-200 group-hover:opacity-80 group-hover:ring-2 group-hover:ring-maroon-500 transition cursor-zoom-in">
+                                         class="w-full h-28 object-cover group-hover:scale-105 transition duration-200 cursor-zoom-in">
                                 </button>
                             @endforeach
                         </div>
                     </div>
 
                     {{-- Lightbox Modal --}}
-                    <div id="lightbox" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm" onclick="tutupLightboxJikaBg(event)">
+                    <div id="lightbox" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/85 backdrop-blur-sm" onclick="tutupLightboxJikaBg(event)">
                         <div class="relative max-w-4xl w-full mx-4 flex flex-col items-center">
-                            {{-- Tombol Close --}}
                             <button onclick="tutupLightbox()" class="absolute -top-10 right-0 text-white hover:text-red-400 transition text-4xl font-bold leading-none" title="Tutup (Esc)">&times;</button>
-
-                            {{-- Gambar --}}
-                            <img id="lightbox-img" src="" alt="Foto kerusakan" class="max-h-[80vh] max-w-full rounded-xl shadow-2xl object-contain">
-
-                            {{-- Navigasi & Counter --}}
+                            <img id="lightbox-img" src="" alt="Foto kerusakan" class="max-h-[80vh] max-w-full rounded-2xl shadow-2xl object-contain">
                             <div class="flex items-center gap-6 mt-4">
                                 <button onclick="gantiFoto(-1)" id="lb-prev" class="text-white bg-white/20 hover:bg-white/40 rounded-full p-2 transition disabled:opacity-30" title="Sebelumnya">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                 </button>
-                                <span id="lb-counter" class="text-white text-sm font-medium"></span>
+                                <span id="lb-counter" class="text-white text-xs sm:text-sm font-bold"></span>
                                 <button onclick="gantiFoto(1)" id="lb-next" class="text-white bg-white/20 hover:bg-white/40 rounded-full p-2 transition disabled:opacity-30" title="Selanjutnya">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                 </button>
@@ -149,41 +168,41 @@
                         });
                     </script>
                 @else
-                    <p class="text-sm text-gray-400 italic">Tidak ada foto dilampirkan.</p>
+                    <p class="text-xs italic" style="color:#9CA3AF;">Tidak ada foto dilampirkan oleh pelapor.</p>
                 @endif
 
                 @if($laporan->resolution_notes)
-                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                        <p class="text-sm font-semibold text-blue-800">Catatan untuk Pelapor (terakhir)</p>
-                        <p class="mt-1 text-sm text-blue-900">{{ $laporan->resolution_notes }}</p>
+                    <div class="p-4 rounded-xl shadow-xs" style="background:#FAF6F0; border-left:4px solid #8F0B13; border-top:1px solid #EAE0D3; border-right:1px solid #EAE0D3; border-bottom:1px solid #EAE0D3;">
+                        <p class="text-xs font-bold" style="color:#8F0B13;">Catatan untuk Pelapor (terakhir)</p>
+                        <p class="mt-1 text-xs sm:text-sm" style="color:#252B2B;">{{ $laporan->resolution_notes }}</p>
                     </div>
                 @endif
             </div>
         </div>
 
-        {{-- Indikasi laporan ganda: laporan lain yang masih terbuka untuk fasilitas + kategori yang sama --}}
+        {{-- Indikasi laporan ganda --}}
         @if(($laporanSerupa ?? 0) > 0)
-            <div class="p-4 bg-yellow-50 border-l-4 text-yellow-800 rounded text-sm" style="border-left-color:#eab308">
-                Ada <span class="font-semibold">{{ $laporanSerupa }}</span> laporan lain yang masih terbuka untuk fasilitas dan kategori yang sama.
-                Periksa daftar laporan, kemungkinan ini kerusakan yang sama.
+            <div class="p-4 rounded-xl text-xs sm:text-sm font-medium shadow-xs"
+                 style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">
+                <span class="font-bold">Perhatian:</span> Terdapat <span class="font-bold underline">{{ $laporanSerupa }}</span> laporan lain yang masih terbuka untuk fasilitas dan kategori yang sama. Mohon tinjau apakah ini merupakan laporan kerusakan ganda.
             </div>
         @endif
 
-        {{-- Reservasi disetujui yang akan terdampak bila fasilitas masuk perbaikan --}}
+        {{-- Reservasi terdampak bila fasilitas masuk perbaikan --}}
         @if(isset($reservasiTerdampak) && $reservasiTerdampak->isNotEmpty())
-            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
-                <div class="p-6 space-y-3">
-                    <h3 class="font-semibold text-gray-900">Reservasi disetujui di fasilitas ini</h3>
-                    <p class="text-sm text-gray-600">
-                        Reservasi berikut masih akan berlangsung. Bila Anda memilih menutup fasilitas saat memproses laporan ini,
-                        reservasi disetujui di bawah ini akan dibatalkan otomatis (reservasi yang masih menunggu ditolak otomatis),
-                        lengkap dengan alasan yang terlihat oleh pemesan. Bila fasilitas tidak ditutup, reservasi tidak berubah.
+            <div class="bg-white rounded-xl shadow-xs overflow-hidden" style="border:1px solid #EAE0D3;">
+                <div class="p-5 space-y-3">
+                    <h3 class="font-bold text-sm" style="color:#252B2B;">Daftar Reservasi Disetujui di Fasilitas Ini</h3>
+                    <p class="text-xs leading-relaxed" style="color:#4C4F54;">
+                        Bila Anda memilih opsi <span class="font-semibold text-red-700">"Tutup fasilitas untuk perbaikan"</span>, seluruh jadwal reservasi disetujui di bawah ini akan dibatalkan otomatis dan pengguna akan menerima pemberitahuan.
                     </p>
-                    <ul class="divide-y divide-gray-100 text-sm">
+                    <ul class="divide-y text-xs" style="border-color:#EAE0D3;">
                         @foreach($reservasiTerdampak as $res)
-                            <li class="py-2 flex justify-between gap-4">
-                                <span class="text-gray-800">{{ $res->user->name ?? '-' }}</span>
-                                <span class="text-gray-600">{{ $res->date->format('d M Y') }}, {{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }}</span>
+                            <li class="py-2.5 flex justify-between items-center gap-4">
+                                <span class="font-bold" style="color:#252B2B;">{{ $res->user->name ?? '-' }}</span>
+                                <span class="font-mono text-[11px]" style="color:#4C4F54;">
+                                    {{ $res->date->format('d M Y') }}, {{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }} WIB
+                                </span>
                             </li>
                         @endforeach
                     </ul>
@@ -191,59 +210,60 @@
             </div>
         @endif
 
-        {{-- Aksi petugas: dipisah dari tabel, satu catatan wajib dipakai untuk semua aksi --}}
+        {{-- Form Aksi Petugas --}}
         @if(in_array($laporan->report_status, ['baru', 'diproses']))
-            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
-                <div class="p-6 space-y-4">
-                    <h3 class="font-semibold text-gray-900">Proses Laporan</h3>
+            <div class="bg-white rounded-xl shadow-xs overflow-hidden" style="border:1px solid #EAE0D3;">
+                <div class="p-5 sm:p-6 space-y-4">
+                    <h3 class="font-bold text-sm sm:text-base" style="color:#252B2B;">Form Tindak Lanjut Petugas</h3>
 
                     <form method="POST" action="{{ route('petugas.reports.update-status', $laporan->id_laporan) }}" id="statusForm" class="space-y-4">
                         @csrf
                         @method('PATCH')
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <label class="block text-xs font-bold mb-1" style="color:#252B2B;">
                                 Catatan untuk Pelapor
-                                <span class="text-xs font-normal text-gray-400">(wajib diisi saat menolak atau menyelesaikan laporan, opsional untuk Proses)</span>
+                                <span class="text-[11px] font-normal" style="color:#7C7F84;">(Wajib diisi saat menolak atau menyelesaikan laporan)</span>
                             </label>
                             <textarea name="resolution_notes" id="resolutionNotes" rows="3"
-                                      placeholder="Opsional untuk Proses. Wajib diisi saat Selesai (apa yang diperbaiki) atau Tolak (alasannya)..."
-                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('resolution_notes') }}</textarea>
+                                      placeholder="Tuliskan keterangan tindakan perbaikan atau alasan penolakan..."
+                                      class="w-full rounded-xl text-xs sm:text-sm p-3 transition focus:outline-none"
+                                      style="border:1px solid #EAE0D3; background:#FAF6F0;">{{ old('resolution_notes') }}</textarea>
                         </div>
 
                         @if($laporan->report_status === 'baru')
-                            <div class="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                                <label class="flex items-start gap-2 text-sm text-gray-700">
+                            <div class="p-3.5 rounded-xl" style="background:#FAF6F0; border:1px solid #EAE0D3;">
+                                <label class="flex items-start gap-2.5 text-xs sm:text-sm cursor-pointer" style="color:#252B2B;">
                                     <input type="checkbox" name="menutup_fasilitas" value="1" id="menutupFasilitas"
                                            {{ old('menutup_fasilitas') ? 'checked' : '' }}
-                                           class="mt-0.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                           class="mt-0.5 rounded text-[#8F0B13] focus:ring-[#8F0B13]">
                                     <span>
-                                        <span class="font-medium">Tutup fasilitas untuk perbaikan</span><br>
-                                        <span class="text-xs text-gray-500">
-                                            Centang bila kerusakan membuat fasilitas tidak layak dipakai. Fasilitas berstatus dalam perbaikan,
-                                            reservasi disetujui yang belum berlangsung dibatalkan, dan reservasi yang menunggu ditolak otomatis.
-                                            Biarkan kosong bila fasilitas masih bisa dipakai selama laporan ditangani.
+                                        <span class="font-bold text-red-800">Tutup fasilitas untuk perbaikan (Status: Dalam Perbaikan)</span><br>
+                                        <span class="text-[11px]" style="color:#4C4F54;">
+                                            Centang jika fasilitas tidak dapat digunakan sama sekali selama proses perbaikan. Reservasi disetujui mendatang akan dibatalkan otomatis.
                                         </span>
                                     </span>
                                 </label>
                             </div>
                         @endif
 
-                        {{-- Aksi langsung berupa tombol; setiap tombol sekaligus jadi tombol simpan (tidak ada tombol "Simpan" terpisah) --}}
-                        <div class="flex justify-end gap-2 pt-2 border-t">
+                        <div class="flex justify-end gap-2.5 pt-3" style="border-top:1px solid #EAE0D3;">
                             @if($laporan->report_status === 'baru')
                                 <button type="submit" name="report_status" value="ditolak"
-                                        class="px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-md hover:bg-red-700 transition">
-                                    Tolak
+                                        class="px-4 py-2 text-xs font-bold rounded-xl text-white transition shadow-xs hover:brightness-110"
+                                        style="background:#DC2626;">
+                                    Tolak Laporan
                                 </button>
                                 <button type="submit" name="report_status" value="diproses"
-                                        class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900 transition">
-                                    Proses
+                                        class="px-4 py-2 text-xs font-bold rounded-xl transition shadow-xs hover:brightness-110"
+                                        style="background:#8F0B13; color:#EFDFC5;">
+                                    Mulai Proses Penanganan
                                 </button>
                             @elseif($laporan->report_status === 'diproses')
                                 <button type="submit" name="report_status" value="selesai"
-                                        class="px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 transition">
-                                    Selesai
+                                        class="px-4 py-2 text-xs font-bold rounded-xl text-white transition shadow-xs hover:brightness-110"
+                                        style="background:#059669;">
+                                    Tandai Selesai Diperbaiki
                                 </button>
                             @endif
                         </div>
@@ -256,23 +276,22 @@
                             var notesEl = document.getElementById('resolutionNotes');
                             var notes = notesEl.value.trim();
 
-                            // Catatan wajib saat laporan ditutup: aksi "Tolak" atau "Selesai".
                             if ((action === 'ditolak' || action === 'selesai') && notes === '') {
                                 e.preventDefault();
-                                alert('Catatan resolusi wajib diisi saat laporan ditutup (selesai atau ditolak).');
+                                alert('Catatan untuk pelapor wajib diisi saat laporan ditolak atau diselesaikan.');
                                 notesEl.focus();
                                 return;
                             }
 
                             var confirmMsgs = {
-                                ditolak: 'Tolak laporan ini? Catatan akan dikirim ke pelapor.',
-                                diproses: 'Proses laporan ini?',
-                                selesai: 'Tandai laporan selesai? Bila fasilitas sedang ditutup karena laporan ini, fasilitas akan kembali aktif.'
+                                ditolak: 'Tolak laporan ini? Catatan akan dikirimkan ke pelapor.',
+                                diproses: 'Proses laporan kerusakan ini sekarang?',
+                                selesai: 'Tandai laporan selesai? Bila fasilitas sebelumnya ditutup, fasilitas akan diaktifkan kembali jika tidak ada laporan lain yang aktif.'
                             };
 
                             var tutup = document.getElementById('menutupFasilitas');
                             if (action === 'diproses' && tutup && tutup.checked) {
-                                confirmMsgs.diproses = 'Proses laporan ini dan TUTUP fasilitas? Reservasi disetujui yang belum berlangsung akan dibatalkan dan reservasi menunggu akan ditolak otomatis.';
+                                confirmMsgs.diproses = 'Proses laporan ini dan TUTUP FASILITAS? Reservasi mendatang akan dibatalkan otomatis.';
                             }
                             if (confirmMsgs[action] && !confirm(confirmMsgs[action])) {
                                 e.preventDefault();
@@ -283,10 +302,5 @@
             </div>
         @endif
 
-        <div class="flex justify-end">
-            <a href="{{ route('petugas.reports.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50 bg-white">
-                Kembali ke Daftar Laporan
-            </a>
-        </div>
     </div>
-</x-app-layout>
+</x-petugas-layout>

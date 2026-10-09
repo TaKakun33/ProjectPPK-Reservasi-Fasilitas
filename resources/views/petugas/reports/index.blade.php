@@ -1,25 +1,47 @@
-<x-app-layout>
+<x-petugas-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Antrian Laporan Kerusakan') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="font-extrabold text-lg leading-tight" style="color:#252B2B;">Antrian & Penanganan Laporan Kerusakan</h2>
+                <p class="text-xs mt-0.5" style="color:#4C4F54;">Tinjau, investigasi, dan perbarui status laporan fasilitas kampus</p>
+            </div>
+            <div class="hidden sm:flex items-center gap-2">
+                <a href="{{ route('petugas.dashboard') }}"
+                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-xs hover:brightness-110"
+                   style="background:#8F0B13; color:#EFDFC5;">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-6 py-5 space-y-4" style="background:#FAF6F0;">
+
         @if(session('success'))
-            <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded text-sm font-medium">
-                {{ session('success') }}
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
+                 style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>{{ session('success') }}</span>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
-                {{ session('error') }}
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
+                 style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span>{{ session('error') }}</span>
             </div>
         @endif
 
         {{-- Filter Tab Status --}}
-        <div class="mb-6 flex space-x-2 border-b border-gray-200 pb-2 overflow-x-auto">
+        <div class="flex items-center gap-2 pb-1 overflow-x-auto">
             @php
                 $reportTabs = [
                     'all'      => 'Semua',
@@ -30,56 +52,97 @@
                 ];
             @endphp
             @foreach($reportTabs as $key => $label)
+                @php $isActive = ($selectedStatus ?? 'all') === $key; @endphp
                 <a href="{{ $key === 'all' ? route('petugas.reports.index') : route('petugas.reports.index', ['status' => $key]) }}"
-                   class="px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap {{ ($selectedStatus ?? 'all') === $key ? 'bg-rose-800 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                   class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition whitespace-nowrap shadow-xs"
+                   style="{{ $isActive
+                            ? 'background:#8F0B13; color:#EFDFC5; border:1px solid #8F0B13;'
+                            : 'background:white; color:#4C4F54; border:1px solid #EAE0D3;' }}">
                     {{ $label }}
                 </a>
             @endforeach
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+        {{-- Card Tabel Laporan --}}
+        <div class="bg-white rounded-xl shadow-xs overflow-hidden" style="border:1px solid #EAE0D3;">
             @if($reports->isEmpty())
-                <div class="p-12 text-center text-gray-500">
-                    Belum ada laporan kerusakan yang sesuai dengan filter.
+                <div class="p-12 text-center">
+                    <div class="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-3"
+                         style="background:#FAF6F0; color:#4C4F54; border:1px solid #EAE0D3;">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-bold" style="color:#252B2B;">Tidak ada laporan ditemukan</p>
+                    <p class="text-xs mt-1" style="color:#4C4F54;">Belum ada laporan kerusakan yang sesuai dengan filter ini.</p>
                 </div>
             @else
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 font-semibold border-b">
-                                <th class="p-4">Fasilitas</th>
-                                <th class="p-4">Pelapor</th>
-                                <th class="p-4">Kategori</th>
-                                <th class="p-4">Deskripsi</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4">Tanggal</th>
-                                <th class="p-4 text-center">Aksi</th>
+                            <tr class="font-bold border-b" style="background:#FAF6F0; color:#252B2B; border-color:#EAE0D3;">
+                                <th class="py-3 px-4">Fasilitas</th>
+                                <th class="py-3 px-4">Pelapor</th>
+                                <th class="py-3 px-4">Kategori</th>
+                                <th class="py-3 px-4">Deskripsi</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4">Tanggal Masuk</th>
+                                <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y" style="border-color:#EAE0D3;">
                             @foreach($reports as $report)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="p-4 font-medium text-gray-900">{{ $report->facility->facility_name ?? '-' }}</td>
-                                    <td class="p-4 text-gray-600">{{ $report->user->name ?? '-' }}</td>
-                                    <td class="p-4 text-gray-600">{{ $report->category->category_name ?? '-' }}</td>
-                                    <td class="p-4 text-gray-600">{{ Str::limit($report->description, 50) }}</td>
-                                    <td class="p-4">
+                                <tr class="hover:bg-[#FAF6F0]/60 transition">
+                                    {{-- Fasilitas --}}
+                                    <td class="py-3 px-4 font-bold" style="color:#252B2B;">
+                                        {{ $report->facility->facility_name ?? '-' }}
+                                    </td>
+
+                                    {{-- Pelapor --}}
+                                    <td class="py-3 px-4 font-semibold" style="color:#252B2B;">
+                                        {{ $report->user->name ?? '-' }}
+                                    </td>
+
+                                    {{-- Kategori --}}
+                                    <td class="py-3 px-4">
+                                        <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md"
+                                              style="background:#FAF6F0; color:#4C4F54; border:1px solid #EAE0D3;">
+                                            {{ $report->category->category_name ?? '-' }}
+                                        </span>
+                                    </td>
+
+                                    {{-- Deskripsi --}}
+                                    <td class="py-3 px-4 max-w-xs truncate" style="color:#4C4F54;" title="{{ $report->description }}">
+                                        {{ Str::limit($report->description, 55) }}
+                                    </td>
+
+                                    {{-- Status --}}
+                                    <td class="py-3 px-4">
                                         @php
                                             $badges = [
-                                                'baru'     => 'bg-maroon-100 text-maroon-800',
-                                                'diproses' => 'bg-yellow-100 text-yellow-800',
-                                                'selesai'  => 'bg-green-100 text-green-800',
-                                                'ditolak'  => 'bg-red-100 text-red-800',
+                                                'baru'     => 'background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;',
+                                                'diproses' => 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;',
+                                                'selesai'  => 'background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;',
+                                                'ditolak'  => 'background:#F3F4F6; color:#374151; border:1px solid #E5E7EB;',
                                             ];
                                         @endphp
-                                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $badges[$report->report_status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full inline-block"
+                                              style="{{ $badges[$report->report_status] ?? 'background:#F3F4F6; color:#374151;' }}">
                                             {{ ucfirst($report->report_status) }}
                                         </span>
                                     </td>
-                                    <td class="p-4">{{ $report->created_at->format('d M Y H:i') }}</td>
-                                    <td class="p-4 text-center">
-                                        <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-maroon-700 hover:text-maroon-900 hover:underline">
-                                            Lihat Detail
+
+                                    {{-- Tanggal --}}
+                                    <td class="py-3 px-4 text-xs" style="color:#4C4F54;">
+                                        {{ $report->created_at->format('d M Y H:i') }}
+                                    </td>
+
+                                    {{-- Aksi --}}
+                                    <td class="py-3 px-4 text-center">
+                                        <a href="{{ route('petugas.reports.show', $report->id_laporan) }}"
+                                           class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                           style="background:#8F0B13; color:#EFDFC5;">
+                                            Detail &rarr;
                                         </a>
                                     </td>
                                 </tr>
@@ -88,10 +151,10 @@
                     </table>
                 </div>
 
-                <div class="p-4 border-t">
+                <div class="p-4" style="border-top:1px solid #EAE0D3; background:#FAF6F0/40;">
                     {{ $reports->links() }}
                 </div>
             @endif
         </div>
     </div>
-</x-app-layout>
+</x-petugas-layout>
