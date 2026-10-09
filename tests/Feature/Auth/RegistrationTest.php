@@ -16,7 +16,8 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_new_users_can_register(): void
+    // Alur registrasi sekarang: akun berstatus pending, TIDAK auto-login, menunggu verifikasi admin
+    public function test_new_users_register_as_pending_and_are_not_logged_in(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -25,7 +26,26 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertGuest();
+        $response->assertRedirect(route('login'));
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@example.com',
+            'account_status' => 'pending',
+            'role' => 'pengguna',
+        ]);
+    }
+
+    public function test_pending_users_cannot_login(): void
+    {
+        $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->post('/login', ['email' => 'test@example.com', 'password' => 'password']);
+
+        $this->assertGuest();
     }
 }

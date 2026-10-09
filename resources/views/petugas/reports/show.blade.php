@@ -12,6 +12,12 @@
             </div>
         @endif
 
+        @if(session('warning'))
+            <div class="p-4 bg-yellow-50 border-l-4 text-yellow-800 rounded text-sm font-medium" style="border-left-color:#eab308">
+                {{ session('warning') }}
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
                 <p class="font-semibold mb-1">Terdapat kesalahan pengisian:</p>
@@ -34,7 +40,7 @@
                     </div>
                     @php
                         $badges = [
-                            'baru'     => 'bg-maroon-100 text-maroon-800',
+                            'baru'     => 'bg-blue-100 text-blue-800',
                             'diproses' => 'bg-yellow-100 text-yellow-800',
                             'selesai'  => 'bg-green-100 text-green-800',
                             'ditolak'  => 'bg-red-100 text-red-800',
@@ -83,13 +89,43 @@
                 @endif
 
                 @if($laporan->resolution_notes)
-                    <div class="p-4 bg-maroon-50 border-l-4 border-maroon-600 rounded">
-                        <p class="text-sm font-semibold text-maroon-800">Catatan untuk Pelapor (terakhir)</p>
-                        <p class="mt-1 text-sm text-maroon-900">{{ $laporan->resolution_notes }}</p>
+                    <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+                        <p class="text-sm font-semibold text-blue-800">Catatan untuk Pelapor (terakhir)</p>
+                        <p class="mt-1 text-sm text-blue-900">{{ $laporan->resolution_notes }}</p>
                     </div>
                 @endif
             </div>
         </div>
+
+        {{-- Indikasi laporan ganda: laporan lain yang masih terbuka untuk fasilitas + kategori yang sama --}}
+        @if(($laporanSerupa ?? 0) > 0)
+            <div class="p-4 bg-yellow-50 border-l-4 text-yellow-800 rounded text-sm" style="border-left-color:#eab308">
+                Ada <span class="font-semibold">{{ $laporanSerupa }}</span> laporan lain yang masih terbuka untuk fasilitas dan kategori yang sama.
+                Periksa daftar laporan, kemungkinan ini kerusakan yang sama.
+            </div>
+        @endif
+
+        {{-- Reservasi disetujui yang akan terdampak bila fasilitas masuk perbaikan --}}
+        @if(isset($reservasiTerdampak) && $reservasiTerdampak->isNotEmpty())
+            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+                <div class="p-6 space-y-3">
+                    <h3 class="font-semibold text-gray-900">Reservasi disetujui di fasilitas ini</h3>
+                    <p class="text-sm text-gray-600">
+                        Reservasi berikut masih akan berlangsung. Bila Anda memilih menutup fasilitas saat memproses laporan ini,
+                        reservasi disetujui di bawah ini akan dibatalkan otomatis (reservasi yang masih menunggu ditolak otomatis),
+                        lengkap dengan alasan yang terlihat oleh pemesan. Bila fasilitas tidak ditutup, reservasi tidak berubah.
+                    </p>
+                    <ul class="divide-y divide-gray-100 text-sm">
+                        @foreach($reservasiTerdampak as $res)
+                            <li class="py-2 flex justify-between gap-4">
+                                <span class="text-gray-800">{{ $res->user->name ?? '-' }}</span>
+                                <span class="text-gray-600">{{ $res->date->format('d M Y') }}, {{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
 
         {{-- Aksi petugas: dipisah dari tabel, satu catatan wajib dipakai untuk semua aksi --}}
         @if(in_array($laporan->report_status, ['baru', 'diproses']))
@@ -104,12 +140,30 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Catatan untuk Pelapor
-                                <span class="text-xs font-normal text-gray-400">(wajib diisi hanya saat menolak, opsional untuk aksi lainnya)</span>
+                                <span class="text-xs font-normal text-gray-400">(wajib diisi saat menolak atau menyelesaikan laporan, opsional untuk Proses)</span>
                             </label>
                             <textarea name="resolution_notes" id="resolutionNotes" rows="3"
-                                      placeholder="Opsional untuk Proses/Selesai - wajib diisi jika menolak laporan..."
-                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700">{{ old('resolution_notes') }}</textarea>
+                                      placeholder="Opsional untuk Proses. Wajib diisi saat Selesai (apa yang diperbaiki) atau Tolak (alasannya)..."
+                                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('resolution_notes') }}</textarea>
                         </div>
+
+                        @if($laporan->report_status === 'baru')
+                            <div class="p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                <label class="flex items-start gap-2 text-sm text-gray-700">
+                                    <input type="checkbox" name="menutup_fasilitas" value="1" id="menutupFasilitas"
+                                           {{ old('menutup_fasilitas') ? 'checked' : '' }}
+                                           class="mt-0.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span>
+                                        <span class="font-medium">Tutup fasilitas untuk perbaikan</span><br>
+                                        <span class="text-xs text-gray-500">
+                                            Centang bila kerusakan membuat fasilitas tidak layak dipakai. Fasilitas berstatus dalam perbaikan,
+                                            reservasi disetujui yang belum berlangsung dibatalkan, dan reservasi yang menunggu ditolak otomatis.
+                                            Biarkan kosong bila fasilitas masih bisa dipakai selama laporan ditangani.
+                                        </span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endif
 
                         {{-- Aksi langsung berupa tombol; setiap tombol sekaligus jadi tombol simpan (tidak ada tombol "Simpan" terpisah) --}}
                         <div class="flex justify-end gap-2 pt-2 border-t">
@@ -119,7 +173,7 @@
                                     Tolak
                                 </button>
                                 <button type="submit" name="report_status" value="diproses"
-                                        class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900 transition">
+                                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700 transition">
                                     Proses
                                 </button>
                             @elseif($laporan->report_status === 'diproses')
@@ -138,19 +192,24 @@
                             var notesEl = document.getElementById('resolutionNotes');
                             var notes = notesEl.value.trim();
 
-                            // Catatan hanya wajib saat aksi "Tolak".
-                            if (action === 'ditolak' && notes === '') {
+                            // Catatan wajib saat laporan ditutup: aksi "Tolak" atau "Selesai".
+                            if ((action === 'ditolak' || action === 'selesai') && notes === '') {
                                 e.preventDefault();
-                                alert('Catatan untuk pelapor wajib diisi saat menolak laporan.');
+                                alert('Catatan resolusi wajib diisi saat laporan ditutup (selesai atau ditolak).');
                                 notesEl.focus();
                                 return;
                             }
 
                             var confirmMsgs = {
                                 ditolak: 'Tolak laporan ini? Catatan akan dikirim ke pelapor.',
-                                diproses: 'Proses laporan ini? Fasilitas akan ditandai dalam perbaikan.',
-                                selesai: 'Tandai laporan selesai? Fasilitas akan kembali aktif.'
+                                diproses: 'Proses laporan ini?',
+                                selesai: 'Tandai laporan selesai? Bila fasilitas sedang ditutup karena laporan ini, fasilitas akan kembali aktif.'
                             };
+
+                            var tutup = document.getElementById('menutupFasilitas');
+                            if (action === 'diproses' && tutup && tutup.checked) {
+                                confirmMsgs.diproses = 'Proses laporan ini dan TUTUP fasilitas? Reservasi disetujui yang belum berlangsung akan dibatalkan dan reservasi menunggu akan ditolak otomatis.';
+                            }
                             if (confirmMsgs[action] && !confirm(confirmMsgs[action])) {
                                 e.preventDefault();
                             }

@@ -7,9 +7,16 @@ use App\Models\Facility;
 use App\Services\ReservationAvailability;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class FacilityController extends Controller
 {
+    // Escape wildcard LIKE (% dan _) supaya input filter dibaca sebagai teks biasa
+    private function escapeLike(string $nilai): string
+    {
+        return addcslashes($nilai, '%_\\');
+    }
+
     // Menampilkan daftar fasilitas dan fitur pencarian.
     public function index(Request $request)
     {
@@ -26,22 +33,25 @@ class FacilityController extends Controller
 
         $query = Facility::visible();
 
-        // Filter: Tipe, Lokasi, Kapasitas
-        if ($request->filled('type')) {
-            $query->where('type', 'like', '%' . $request->type . '%');
+        // Filter: Tipe, Lokasi, Kapasitas (input dibersihkan & dibatasi panjangnya)
+        $type = Str::limit(trim((string) $request->query('type', '')), 50, '');
+        $location = Str::limit(trim((string) $request->query('location', '')), 150, '');
+
+        if ($type !== '') {
+            $query->where('type', 'like', '%' . $this->escapeLike($type) . '%');
         }
 
-        if ($request->filled('location')) {
-            $query->where('location', 'like', '%' . $request->location . '%');
+        if ($location !== '') {
+            $query->where('location', 'like', '%' . $this->escapeLike($location) . '%');
         }
 
-        if ($request->filled('capacity')) {
-            $query->where('capacity', '>=', (int) $request->capacity);
+        if ($request->filled('capacity') && is_numeric($request->capacity)) {
+            $query->where('capacity', '>=', max(0, min((int) $request->capacity, 100000)));
         }
 
-        $facilities = $query->paginate(9)->withQueryString();
+        $facilities = $query->orderBy('facility_name')->paginate(9)->withQueryString();
 
-        // Ambil daftar unik tipe & lokasi untuk dropdown 
+        // Ambil daftar unik tipe & lokasi untuk dropdown
         $types = Facility::visible()->distinct()->pluck('type');
         $locations = Facility::visible()->distinct()->pluck('location');
 
@@ -59,11 +69,26 @@ class FacilityController extends Controller
             ->where('id_fasilitas', $fasilitas)
             ->firstOrFail();
 
-        // Tanggal yang dicek, default adalah hari ini
-        $selectedDate = $request->input('date', Carbon::today()->toDateString());
+        // PERBAIKAN E3: tanggal wajib berformat Y-m-d yang valid. Sebelumnya ?date=abc
+        // membuat Carbon::parse() melempar exception (HTTP 500). Jika tidak valid → hari ini.
+        $tanggalInput = (string) $request->query('date', '');
+        $selectedDate = Carbon::today()->toDateString();
 
-        // Ambil timeline slot waktu dari Service
-        $slots = ReservationAvailability::getDailySlots($facility->id_fasilitas, $selectedDate);
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggalInput)) {
+            try {
+                $selectedDate = Carbon::createFromFormat('!Y-m-d', $tanggalInput)->toDateString();
+            } catch (\Throwable $e) {
+                // tetap pakai hari ini
+            }
+        }
+
+        // Ambil timeline slot waktu dari Service (slot ditandai tidak tersedia bila fasilitas dalam perbaikan)
+        $slots = ReservationAvailability::getDailySlots(
+            $facility->id_fasilitas,
+            $selectedDate,
+            $facility->isReservable(),
+            $request->user()?->id_user
+        );
 
         return view('facilities.show', compact('facility', 'selectedDate', 'slots'));
     }

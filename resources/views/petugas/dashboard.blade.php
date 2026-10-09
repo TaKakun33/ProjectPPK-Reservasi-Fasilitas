@@ -22,8 +22,9 @@
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['reservasi_pending'] }}</p>
                     </div>
                 </div>
-                <div class="mt-3 text-xs text-gray-500">
+                <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
                     <span>Menunggu persetujuan</span>
+                    <span class="font-semibold text-yellow-700 group-hover:underline">Buka antrian &rarr;</span>
                 </div>
             </a>
 
@@ -41,27 +42,29 @@
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['laporan_baru'] }}</p>
                     </div>
                 </div>
-                <div class="mt-3 text-xs text-gray-500">
+                <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
                     <span>Belum diproses</span>
+                    <span class="font-semibold text-red-700 group-hover:underline">Tindak lanjuti &rarr;</span>
                 </div>
             </a>
 
             {{-- Laporan Sedang Diproses --}}
             <a href="{{ route('petugas.reports.index', ['status' => 'diproses']) }}"
-               class="block bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-amber-300 transition group cursor-pointer">
+               class="block bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md hover:border-blue-300 transition group cursor-pointer">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-amber-50 text-amber-600 group-hover:bg-amber-100 transition">
+                    <div class="p-3 rounded-full bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500 group-hover:text-amber-700 transition">Laporan Diproses</p>
+                        <p class="text-sm font-medium text-gray-500 group-hover:text-blue-700 transition">Laporan Diproses</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['laporan_diproses'] }}</p>
                     </div>
                 </div>
-                <div class="mt-3 text-xs text-gray-500">
+                <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
                     <span>{{ $stats['fasilitas_perbaikan'] }} fasilitas perbaikan</span>
+                    <span class="font-semibold text-blue-700 group-hover:underline">Lihat progress &rarr;</span>
                 </div>
             </a>
 
@@ -79,21 +82,27 @@
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['reservasi_approved'] }}</p>
                     </div>
                 </div>
-                <div class="mt-3 text-xs text-gray-500">
+                <div class="mt-3 flex justify-between items-center text-xs text-gray-500">
                     <span>{{ $stats['fasilitas_aktif'] }} fasilitas siap pakai</span>
+                    <span class="font-semibold text-green-700 group-hover:underline">Lihat detail &rarr;</span>
                 </div>
             </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {{-- Antrian & Reservasi Terbaru --}}
+            {{-- Antrian Reservasi Menunggu --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="font-semibold text-gray-900">Antrian & Reservasi Terbaru</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">Pantau status permohonan reservasi</p>
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Antrian Reservasi Menunggu</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Diurutkan dari yang paling lama menunggu</p>
+                    </div>
+                    <a href="{{ route('petugas.reservations.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                        Buka Antrian &rarr;
+                    </a>
                 </div>
                 @if($recentReservations->isEmpty())
-                    <div class="p-6 text-center text-gray-500 text-sm">Belum ada reservasi.</div>
+                    <div class="p-6 text-center text-gray-500 text-sm">Tidak ada reservasi yang menunggu. 🎉</div>
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach($recentReservations as $res)
@@ -118,7 +127,7 @@
                                         {{ ucfirst($res->reservation_status) }}
                                     </span>
                                     @if($res->reservation_status === 'pending')
-                                        <a href="{{ route('petugas.reservations.index') }}" class="text-xs font-semibold text-rose-700 hover:text-rose-900">
+                                        <a href="{{ route('petugas.reservations.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
                                             Proses &rarr;
                                         </a>
                                     @endif
@@ -129,14 +138,19 @@
                 @endif
             </div>
 
-            {{-- Laporan Kerusakan Terbaru --}}
+            {{-- Antrian Laporan Baru --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div class="p-6 border-b border-gray-100">
-                    <h3 class="font-semibold text-gray-900">Laporan Kerusakan Terbaru</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">Pantau laporan fasilitas yang rusak</p>
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Antrian Laporan Baru</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Laporan yang belum ditangani, terlama dulu</p>
+                    </div>
+                    <a href="{{ route('petugas.reports.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                        Buka Antrian &rarr;
+                    </a>
                 </div>
                 @if($recentReports->isEmpty())
-                    <div class="p-6 text-center text-gray-500 text-sm">Belum ada laporan kerusakan.</div>
+                    <div class="p-6 text-center text-gray-500 text-sm">Tidak ada laporan baru yang menunggu. 🎉</div>
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach($recentReports as $report)
@@ -150,16 +164,16 @@
                                 <div class="flex items-center space-x-2 shrink-0">
                                     @php
                                         $reportBadges = [
-                                            'baru'     => 'bg-rose-100 text-rose-800',
-                                            'diproses' => 'bg-amber-100 text-amber-800',
-                                            'selesai'  => 'bg-green-100 text-green-800',
-                                            'ditolak'  => 'bg-red-100 text-red-800',
+                                            'baru'            => 'bg-blue-100 text-blue-800',
+                                            'diproses'        => 'bg-yellow-100 text-yellow-800',
+                                            'selesai'         => 'bg-green-100 text-green-800',
+                                            'ditolak'         => 'bg-red-100 text-red-800',
                                         ];
                                     @endphp
                                     <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $reportBadges[$report->report_status] ?? 'bg-gray-100' }}">
                                         {{ ucfirst($report->report_status) }}
                                     </span>
-                                    <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-rose-700 hover:text-rose-900">
+                                    <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
                                         Detail &rarr;
                                     </a>
                                 </div>

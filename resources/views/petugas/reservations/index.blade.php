@@ -137,7 +137,7 @@
                                                         class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700 transition">
                                                     Tolak
                                                 </button>
-                                            @elseif($res->reservation_status === 'approved')
+                                            @elseif($res->reservation_status === 'approved' && ! $res->sudahSelesai())
                                                 <button type="button"
                                                         onclick="openCancelModal('{{ route('petugas.reservations.cancel', $res->id_reservasi) }}')"
                                                         class="px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded transition border border-gray-300">

@@ -32,7 +32,7 @@ Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->name(
 Route::middleware(['auth'])->prefix('reservasi')->name('reservations.')->group(function () {
     Route::get('/', [ReservationController::class, 'index'])->name('index'); // riwayat + status
     Route::get('/create', [ReservationController::class, 'create'])->name('create'); // form ajukan
-    Route::post('/', [ReservationController::class, 'store'])->name('store'); // validasi server: jam operasional, slot 30 menit, bentrok
+    Route::post('/', [ReservationController::class, 'store'])->middleware('throttle:10,1')->name('store'); // dibatasi 10 pengajuan/menit/user (anti-spam) // validasi server: jam operasional, slot 30 menit, bentrok
     Route::get('/{reservasi}', [ReservationController::class, 'show'])->name('show'); // detail 1 reservasi milik sendiri
     Route::delete('/{reservasi}', [ReservationController::class, 'destroy'])->name('destroy'); // batalkan punya sendiri
 });
