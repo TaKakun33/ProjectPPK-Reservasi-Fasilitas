@@ -37,15 +37,19 @@
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-6">
-            <x-primary-button>
-                {{ __('Log in') }}
-            </x-primary-button>
+        <div class="mt-6">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl font-extrabold text-sm shadow-md transition duration-150"
+                    style="background: #8F0B13; color: #EFDFC5; border: 1px solid #70090F;"
+                    onmouseover="this.style.background='#380F17';"
+                    onmouseout="this.style.background='#8F0B13';">
+                {{ __('Masuk Sekarang') }}
+            </button>
         </div>
 
         <div class="mt-6 pt-4 border-t border-slate-100 text-center text-sm text-slate-600">
             Belum punya akun?
-            <a href="{{ route('register') }}" class="font-bold text-maroon-700 hover:text-maroon-900 underline">Daftar di sini</a>
+            <a href="{{ route('register') }}" class="font-bold text-[#8F0B13] hover:text-[#380F17] hover:underline">Daftar di sini</a>
         </div>
     </form>
 </x-guest-layout>

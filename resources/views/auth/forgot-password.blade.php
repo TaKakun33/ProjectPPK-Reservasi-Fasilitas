@@ -16,10 +16,18 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+        <div class="mt-4">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl font-extrabold text-sm shadow-md transition duration-150"
+                    style="background: #8F0B13; color: #EFDFC5; border: 1px solid #70090F;"
+                    onmouseover="this.style.background='#380F17';"
+                    onmouseout="this.style.background='#8F0B13';">
+                {{ __('Kirim Link Reset Password') }}
+            </button>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-100 text-center text-xs sm:text-sm text-[#4C4F54]">
+            <a href="{{ route('login') }}" class="font-bold text-[#8F0B13] hover:text-[#380F17] hover:underline">&larr; Kembali ke Login</a>
         </div>
     </form>
 </x-guest-layout>
