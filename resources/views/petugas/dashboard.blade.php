@@ -90,19 +90,19 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {{-- Antrian & Reservasi Terbaru --}}
+            {{-- Antrian Reservasi Menunggu --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <div>
-                        <h3 class="font-semibold text-gray-900">Antrian & Reservasi Terbaru</h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Pantau status permohonan reservasi</p>
+                        <h3 class="font-semibold text-gray-900">Antrian Reservasi Menunggu</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Diurutkan dari yang paling lama menunggu</p>
                     </div>
                     <a href="{{ route('petugas.reservations.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
                         Buka Antrian &rarr;
                     </a>
                 </div>
                 @if($recentReservations->isEmpty())
-                    <div class="p-6 text-center text-gray-500 text-sm">Belum ada reservasi.</div>
+                    <div class="p-6 text-center text-gray-500 text-sm">Tidak ada reservasi yang menunggu. 🎉</div>
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach($recentReservations as $res)
@@ -138,19 +138,19 @@
                 @endif
             </div>
 
-            {{-- Laporan Kerusakan Terbaru --}}
+            {{-- Antrian Laporan Baru --}}
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <div>
-                        <h3 class="font-semibold text-gray-900">Laporan Kerusakan Terbaru</h3>
-                        <p class="text-xs text-gray-500 mt-0.5">Pantau laporan fasilitas yang rusak</p>
+                        <h3 class="font-semibold text-gray-900">Antrian Laporan Baru</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">Laporan yang belum ditangani, terlama dulu</p>
                     </div>
                     <a href="{{ route('petugas.reports.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
                         Buka Antrian &rarr;
                     </a>
                 </div>
                 @if($recentReports->isEmpty())
-                    <div class="p-6 text-center text-gray-500 text-sm">Belum ada laporan kerusakan.</div>
+                    <div class="p-6 text-center text-gray-500 text-sm">Tidak ada laporan baru yang menunggu. 🎉</div>
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach($recentReports as $report)

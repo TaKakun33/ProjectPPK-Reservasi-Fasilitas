@@ -38,7 +38,7 @@
                 {{-- Tanggal --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kegiatan</label>
-                    <input type="date" id="reservation_date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" required
+                    <input type="date" id="reservation_date" name="date" value="{{ old('date', $selectedDate) }}" min="{{ date('Y-m-d') }}" max="{{ now()->addDays(\App\Http\Requests\SimpanReservasiRequest::MAKS_HARI_KEDEPAN)->toDateString() }}" required
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
 
@@ -94,20 +94,25 @@
             const startTimeSelect = document.getElementById('start_time');
             const endTimeSelect = document.getElementById('end_time');
 
-            function getTodayStr() {
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const day = String(now.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
+            // Waktu acuan = Asia/Jakarta (sama dengan app.timezone di server), bukan jam perangkat
+            // pengguna, supaya buffer 1 jam di sisi client konsisten dengan validasi server.
+            function jakartaNow(offsetMs = 0) {
+                const bagian = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+                }).formatToParts(new Date(Date.now() + offsetMs)).reduce((o, p) => (o[p.type] = p.value, o), {});
+                return { date: `${bagian.year}-${bagian.month}-${bagian.day}`, time: `${bagian.hour}:${bagian.minute}` };
             }
 
-            // Menghitung waktu minimal pemesanan (Waktu Sekarang + 1 Jam Buffer)
+            function getTodayStr() {
+                return jakartaNow().date;
+            }
+
+            // Waktu minimal pemesanan (Waktu Sekarang + 1 Jam Buffer)
             function getMinStartTimeStr() {
-                const minTime = new Date(Date.now() + 60 * 60 * 1000);
-                const hours = String(minTime.getHours()).padStart(2, '0');
-                const minutes = String(minTime.getMinutes()).padStart(2, '0');
-                return `${hours}:${minutes}`;
+                const nanti = jakartaNow(60 * 60 * 1000);
+                // Jika +1 jam melewati tengah malam, semua slot hari ini sudah tidak valid
+                return nanti.date !== getTodayStr() ? '23:59' : nanti.time;
             }
 
             function filterTimeSlots() {

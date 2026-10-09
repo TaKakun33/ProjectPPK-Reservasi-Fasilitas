@@ -17,6 +17,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- Filter --}}
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
             <form method="GET" action="{{ route('admin.fasilitas.index') }}" class="flex flex-wrap gap-3 items-end">

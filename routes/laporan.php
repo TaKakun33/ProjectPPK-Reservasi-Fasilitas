@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->prefix('laporan')->name('reports.')->group(function () {
     Route::get('/', [ReportController::class, 'index'])->name('index'); // riwayat + status laporan sendiri
     Route::get('/create', [ReportController::class, 'create'])->name('create'); // form: kategori, deskripsi, foto
-    Route::post('/', [ReportController::class, 'store'])->name('store');
+    Route::post('/', [ReportController::class, 'store'])->middleware('throttle:10,1')->name('store'); // dibatasi 10 laporan/menit/user (anti-spam)
     Route::get('/{laporan:id_laporan}', [ReportController::class, 'show'])->name('show'); // detail status
     Route::get('/foto/{foto:id_foto}', [ReportController::class, 'photo'])->name('photo'); // serve foto privat, dicek otorisasi
 });

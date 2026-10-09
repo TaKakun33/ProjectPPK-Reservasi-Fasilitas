@@ -20,6 +20,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- Form Tambah Akun (muncul jika ?create=1) --}}
         @if(request('create') === '1')
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
@@ -91,6 +97,7 @@
                         <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="verified" {{ request('status') === 'verified' ? 'selected' : '' }}>Verified</option>
                         <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>Suspended</option>
                     </select>
                 </div>
                 <div>
@@ -176,6 +183,12 @@
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="text-xs font-semibold text-green-600 hover:text-green-800 hover:underline">Aktifkan</button>
+                                            </form>
+                                        @elseif($u->account_status === 'rejected')
+                                            <form method="POST" action="{{ route('admin.users.verify', $u->id_user) }}" class="inline" onsubmit="return confirm('Verifikasi ulang akun yang sebelumnya ditolak ini?')">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-xs font-semibold text-green-600 hover:text-green-800 hover:underline">Verifikasi ulang</button>
                                             </form>
                                         @else
                                             <span class="text-xs text-gray-400">-</span>
