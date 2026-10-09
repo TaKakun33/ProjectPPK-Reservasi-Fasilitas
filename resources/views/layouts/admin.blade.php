@@ -64,7 +64,7 @@
                         <x-application-logo class="h-9 w-auto" />
                         <span class="leading-tight">
                             <span class="block text-sm font-bold text-cream-100 tracking-wide">SyncSpace</span>
-                            <span class="block text-[10px] font-medium text-cream-300 tracking-widest uppercase">Panel Admin</span>
+                            <span class="block text-[10px] font-medium text-cream-300 tracking-widest uppercase">Portal Administrasi</span>
                         </span>
                     </a>
                 </div>
@@ -73,10 +73,10 @@
                 <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                     @php
                         $adminNav = [
-                            ['route' => 'admin.dashboard',        'match' => 'admin.dashboard',      'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'label' => 'Dashboard'],
-                            ['route' => 'admin.fasilitas.index',   'match' => 'admin.fasilitas.*',    'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', 'label' => 'Fasilitas'],
-                            ['route' => 'admin.users.index',       'match' => 'admin.users.*',        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'label' => 'User'],
-                            ['route' => 'admin.rekap.index',       'match' => 'admin.rekap.*',        'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'label' => 'Rekap'],
+                            ['route' => 'admin.dashboard',        'match' => 'admin.dashboard',      'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'label' => 'Dashboard Admin'],
+                            ['route' => 'admin.fasilitas.index',   'match' => 'admin.fasilitas.*',    'icon' => 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', 'label' => 'Fasilitas Kampus'],
+                            ['route' => 'admin.users.index',       'match' => 'admin.users.*',        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'label' => 'Data Pengguna'],
+                            ['route' => 'admin.rekap.index',       'match' => 'admin.rekap.*',        'icon' => 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', 'label' => 'Rekapitulasi Data'],
                         ];
                     @endphp
 
@@ -91,7 +91,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
                             </svg>
                             {{ $item['label'] }}
-                            @if($item['label'] === 'User' && isset($adminPendingCount) && $adminPendingCount > 0)
+                            @if($item['route'] === 'admin.users.index' && isset($adminPendingCount) && $adminPendingCount > 0)
                                 <span class="ml-auto bg-orange-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">{{ $adminPendingCount }}</span>
                             @endif
                         </a>
@@ -101,23 +101,24 @@
                 {{-- User Info + Logout --}}
                 <div class="px-4 py-4 border-t border-white/10">
                     <div class="flex items-center gap-3 mb-3">
-                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-sm"
+                             style="background:#EFDFC5; color:#380F17; border:1px solid rgba(239, 223, 197, 0.35);">
                             {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                         </div>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold text-cream-100 truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-cream-300 truncate">{{ Auth::user()->email }}</p>
+                            <p class="text-sm font-extrabold text-cream-100 truncate leading-tight">{{ Auth::user()->name }}</p>
+                            <p class="text-xs font-semibold text-cream-200 truncate mt-0.5 leading-tight">{{ Auth::user()->email }}</p>
                         </div>
                     </div>
                     <div class="flex gap-2">
                         <a href="{{ route('profile.edit') }}"
-                           class="flex-1 text-center text-xs font-medium text-cream-200 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition">
-                            Profil
+                           class="flex-1 inline-flex items-center justify-center text-center text-xs font-medium text-cream-200 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                            Profil Akun
                         </a>
-                        <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                        <form method="POST" action="{{ route('logout') }}" class="flex-1 flex">
                             @csrf
                             <button type="submit"
-                                    class="w-full text-xs font-medium text-cream-200 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition">
+                                    class="w-full inline-flex items-center justify-center text-xs font-medium text-cream-200 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition whitespace-nowrap">
                                 Keluar
                             </button>
                         </form>

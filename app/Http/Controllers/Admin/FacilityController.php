@@ -58,7 +58,7 @@ class FacilityController extends Controller
         Facility::create($validated);
 
         return redirect()->route('admin.fasilitas.index')
-            ->with('success', 'Fasilitas berhasil ditambahkan.');
+            ->with('success', 'Data fasilitas kampus berhasil ditambahkan ke dalam sistem.');
     }
 
     // Menampilkan form edit fasilitas
@@ -75,7 +75,7 @@ class FacilityController extends Controller
         $fasilitas->update($validated);
 
         return redirect()->route('admin.fasilitas.index')
-            ->with('success', 'Fasilitas berhasil diperbarui.');
+            ->with('success', 'Pembaruan data fasilitas kampus berhasil disimpan.');
     }
 
     // Menonaktifkan fasilitas (mengubah status menjadi 'nonaktif').
@@ -102,7 +102,7 @@ class FacilityController extends Controller
                 return ['status' => 'ditolak', 'jumlah' => $jumlahApproved];
             }
 
-            $alasan = 'Fasilitas dinonaktifkan oleh admin.';
+            $alasan = 'Fasilitas dinonaktifkan oleh administrator.';
 
             $pending = Reservation::where('id_fasilitas', $f->id_fasilitas)
                 ->where('reservation_status', 'pending')
@@ -138,14 +138,14 @@ class FacilityController extends Controller
 
         if ($hasil['status'] === 'ditolak') {
             return redirect()->route('admin.fasilitas.index')->with('error',
-                "Fasilitas tidak dapat dinonaktifkan: masih ada {$hasil['jumlah']} reservasi disetujui yang akan berlangsung. "
-                . 'Minta petugas membatalkannya (dengan alasan) di menu Reservasi, lalu nonaktifkan lagi.');
+                "Fasilitas tidak dapat dinonaktifkan: masih terdapat {$hasil['jumlah']} permohonan reservasi berstatus disetujui yang akan berlangsung. "
+                . 'Silakan koordinasikan dengan petugas untuk pembatalan reservasi terlebih dahulu.');
         }
 
-        $pesan = 'Fasilitas berhasil dinonaktifkan.';
+        $pesan = 'Fasilitas kampus berhasil dinonaktifkan dari sistem operasional.';
 
         if ($hasil['jumlah'] > 0) {
-            $pesan .= " {$hasil['jumlah']} reservasi pending yang akan berlangsung ditolak otomatis.";
+            $pesan .= " Sebanyak {$hasil['jumlah']} permohonan reservasi menunggu persetujuan dibatalkan secara otomatis.";
         }
 
         return redirect()->route('admin.fasilitas.index')->with('success', $pesan);
@@ -177,8 +177,8 @@ class FacilityController extends Controller
         });
 
         $message = $masihDiperbaiki
-            ? 'Fasilitas diaktifkan, namun statusnya dikembalikan ke "dalam perbaikan" karena masih ada laporan kerusakan yang sedang diproses petugas.'
-            : 'Fasilitas berhasil diaktifkan kembali.';
+            ? 'Fasilitas kampus telah diaktifkan kembali dengan status "dalam perbaikan" karena masih terdapat laporan kerusakan yang sedang ditangani oleh petugas.'
+            : 'Fasilitas kampus berhasil diaktifkan kembali.';
 
         return redirect()->route('admin.fasilitas.index')
             ->with('success', $message);

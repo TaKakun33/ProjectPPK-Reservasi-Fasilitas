@@ -33,16 +33,16 @@
                     @auth
                         @if(auth()->user()->role === \App\Enums\UserRole::Admin)
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                                {{ __('Dashboard') }}
+                                {{ __('Dashboard Admin') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.fasilitas.index')" :active="request()->routeIs('admin.fasilitas.*')">
-                                {{ __('Fasilitas') }}
+                                {{ __('Fasilitas Kampus') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                                {{ __('User') }}
+                                {{ __('Data Pengguna') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.rekap.index')" :active="request()->routeIs('admin.rekap.*')">
-                                {{ __('Rekap') }}
+                                {{ __('Rekapitulasi Data') }}
                             </x-nav-link>
                         @endif
                     @endauth
@@ -135,10 +135,10 @@
                         {{ __('Dashboard Admin') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.fasilitas.index')" :active="request()->routeIs('admin.fasilitas.*')">
-                        {{ __('Fasilitas') }}
+                        {{ __('Fasilitas Kampus') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                        {{ __('User') }}
+                        {{ __('Data Pengguna') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.rekap.index')" :active="request()->routeIs('admin.rekap.*')">
                         {{ __('Rekap') }}

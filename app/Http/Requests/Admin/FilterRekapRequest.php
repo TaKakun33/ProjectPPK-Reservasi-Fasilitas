@@ -22,8 +22,10 @@ class FilterRekapRequest extends FormRequest
         }
 
         return [
-            'dari'   => ['nullable', 'date_format:Y-m-d'],
-            'sampai' => $aturanSampai,
+            'dari'        => ['nullable', 'date_format:Y-m-d'],
+            'sampai'      => $aturanSampai,
+            'page'        => ['nullable', 'integer', 'min:1'],
+            'page_lokasi' => ['nullable', 'integer', 'min:1'],
         ];
     }
 

@@ -67,7 +67,7 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')
-            ->with('success', "Akun {$validated['role']} berhasil dibuat dan langsung verified.");
+            ->with('success', "Akun {$validated['role']} berhasil didaftarkan dan telah diverifikasi secara resmi.");
     }
 
     // Menyetujui/verifikasi akun pengguna yang mendaftar mandiri (dari status pending, atau rejected
@@ -75,30 +75,30 @@ class UserController extends Controller
     public function verify(User $user): RedirectResponse
     {
         if (! in_array($user->account_status, ['pending', 'rejected'], true)) {
-            return back()->with('error', 'Hanya akun berstatus pending atau rejected yang dapat diverifikasi.');
+            return back()->with('error', 'Hanya pendaftaran akun berstatus menunggu verifikasi atau ditolak yang dapat diverifikasi.');
         }
 
         $user->update(['account_status' => 'verified']);
 
         return redirect()->route('admin.users.index')
-            ->with('success', "Akun {$user->name} berhasil diverifikasi.");
+            ->with('success', "Pendaftaran akun pengguna {$user->name} berhasil diverifikasi.");
     }
 
     // Menolak pendaftaran akun pengguna (hanya dari status pending, bukan akun admin/sendiri)
     public function reject(User $user): RedirectResponse
     {
         if ($user->is(auth()->user()) || $user->role === UserRole::Admin) {
-            return back()->with('error', 'Akun admin tidak dapat ditolak.');
+            return back()->with('error', 'Akun administrator tidak dapat ditolak.');
         }
 
         if ($user->account_status !== 'pending') {
-            return back()->with('error', 'Hanya pendaftaran berstatus pending yang dapat ditolak.');
+            return back()->with('error', 'Hanya pendaftaran akun berstatus menunggu verifikasi yang dapat ditolak.');
         }
 
         $user->update(['account_status' => 'rejected']);
 
         return redirect()->route('admin.users.index')
-            ->with('success', "Akun {$user->name} telah ditolak.");
+            ->with('success', "Permohonan pendaftaran akun pengguna {$user->name} telah ditolak.");
     }
 
     // Membekukan akun yang sebelumnya verified; sesi aktifnya ikut diputus
@@ -106,11 +106,11 @@ class UserController extends Controller
     {
         // PERBAIKAN E11: admin tidak boleh mengunci dirinya sendiri / admin lain
         if ($user->is(auth()->user()) || $user->role === UserRole::Admin) {
-            return back()->with('error', 'Akun admin tidak dapat dibekukan.');
+            return back()->with('error', 'Akun administrator tidak dapat ditangguhkan.');
         }
 
         if ($user->account_status !== 'verified') {
-            return back()->with('error', 'Hanya akun terverifikasi yang dapat dibekukan.');
+            return back()->with('error', 'Hanya akun pengguna terverifikasi yang dapat ditangguhkan.');
         }
 
         $adminId = auth()->user()->id_user;
@@ -153,10 +153,10 @@ class UserController extends Controller
             }
         });
 
-        $pesan = "Akun {$user->name} berhasil dibekukan.";
+        $pesan = "Akun pengguna {$user->name} berhasil ditangguhkan.";
 
         if ($ditolak > 0) {
-            $pesan .= " {$ditolak} reservasi pending miliknya ditolak otomatis.";
+            $pesan .= " Sebanyak {$ditolak} permohonan reservasi menunggu persetujuan dibatalkan secara otomatis.";
         }
 
         return redirect()->route('admin.users.index')
@@ -167,12 +167,12 @@ class UserController extends Controller
     public function reactivate(User $user): RedirectResponse
     {
         if ($user->account_status !== 'suspended') {
-            return back()->with('error', 'Hanya akun yang dibekukan yang dapat diaktifkan kembali.');
+            return back()->with('error', 'Hanya akun pengguna yang ditangguhkan yang dapat diaktifkan kembali.');
         }
 
         $user->update(['account_status' => 'verified']);
 
         return redirect()->route('admin.users.index')
-            ->with('success', "Akun {$user->name} berhasil diaktifkan kembali.");
+            ->with('success', "Akun pengguna {$user->name} berhasil diaktifkan kembali.");
     }
 }

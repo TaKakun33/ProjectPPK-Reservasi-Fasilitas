@@ -53,14 +53,78 @@
                     <div>
                         <p class="text-sm text-gray-500 mb-2">Foto Kerusakan ({{ $laporan->photos->count() }})</p>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            @foreach($laporan->photos as $foto)
-                                <a href="{{ route('reports.photo', $foto->id_foto) }}" target="_blank">
+                            @foreach($laporan->photos as $i => $foto)
+                                <button type="button"
+                                    onclick="bukaLightbox({{ $i }})"
+                                    class="focus:outline-none group">
                                     <img src="{{ route('reports.photo', $foto->id_foto) }}" alt="Foto kerusakan"
-                                        class="w-full h-32 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition">
-                                </a>
+                                        class="w-full h-32 object-cover rounded-lg border border-gray-200 group-hover:opacity-80 group-hover:ring-2 group-hover:ring-maroon-500 transition cursor-zoom-in">
+                                </button>
                             @endforeach
                         </div>
                     </div>
+
+                    {{-- Lightbox Modal --}}
+                    <div id="lightbox" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm" onclick="tutupLightboxJikaBg(event)">
+                        <div class="relative max-w-4xl w-full mx-4 flex flex-col items-center">
+                            {{-- Tombol Close --}}
+                            <button onclick="tutupLightbox()" class="absolute -top-10 right-0 text-white hover:text-red-400 transition text-4xl font-bold leading-none" title="Tutup (Esc)">&times;</button>
+
+                            {{-- Gambar --}}
+                            <img id="lightbox-img" src="" alt="Foto kerusakan" class="max-h-[80vh] max-w-full rounded-xl shadow-2xl object-contain">
+
+                            {{-- Navigasi & Counter --}}
+                            <div class="flex items-center gap-6 mt-4">
+                                <button onclick="gantiFoto(-1)" id="lb-prev" class="text-white bg-white/20 hover:bg-white/40 rounded-full p-2 transition disabled:opacity-30" title="Sebelumnya">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                </button>
+                                <span id="lb-counter" class="text-white text-sm font-medium"></span>
+                                <button onclick="gantiFoto(1)" id="lb-next" class="text-white bg-white/20 hover:bg-white/40 rounded-full p-2 transition disabled:opacity-30" title="Selanjutnya">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        const fotoUrls = @json($laporan->photos->map(fn($f) => route('reports.photo', $f->id_foto)));
+                        let fotoAktif = 0;
+
+                        function bukaLightbox(index) {
+                            fotoAktif = index;
+                            updateLightbox();
+                            document.getElementById('lightbox').classList.remove('hidden');
+                            document.body.style.overflow = 'hidden';
+                        }
+
+                        function tutupLightbox() {
+                            document.getElementById('lightbox').classList.add('hidden');
+                            document.body.style.overflow = '';
+                        }
+
+                        function tutupLightboxJikaBg(e) {
+                            if (e.target === document.getElementById('lightbox')) tutupLightbox();
+                        }
+
+                        function gantiFoto(arah) {
+                            fotoAktif = (fotoAktif + arah + fotoUrls.length) % fotoUrls.length;
+                            updateLightbox();
+                        }
+
+                        function updateLightbox() {
+                            document.getElementById('lightbox-img').src = fotoUrls[fotoAktif];
+                            document.getElementById('lb-counter').textContent = (fotoAktif + 1) + ' / ' + fotoUrls.length;
+                            document.getElementById('lb-prev').disabled = fotoUrls.length <= 1;
+                            document.getElementById('lb-next').disabled = fotoUrls.length <= 1;
+                        }
+
+                        document.addEventListener('keydown', function(e) {
+                            if (document.getElementById('lightbox').classList.contains('hidden')) return;
+                            if (e.key === 'Escape') tutupLightbox();
+                            if (e.key === 'ArrowLeft') gantiFoto(-1);
+                            if (e.key === 'ArrowRight') gantiFoto(1);
+                        });
+                    </script>
                 @endif
                 
                 @if($laporan->resolution_notes)

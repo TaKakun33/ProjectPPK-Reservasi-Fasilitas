@@ -77,9 +77,9 @@
 </head>
 <body>
     <div class="header">
-        <h1>Rekap Okupansi & Kerusakan Fasilitas</h1>
-        <p>Periode: {{ $periode }}</p>
-        <p>Didownload pada: {{ $tanggal }}</p>
+        <h1>LAPORAN REKAPITULASI OKUPANSI DAN PEMELIHARAAN FASILITAS KAMPUS</h1>
+        <p>Periode Pelaporan: {{ $periode }}</p>
+        <p>Waktu Penerbitan Dokumen: {{ $tanggal }}</p>
     </div>
 
     <table>
@@ -87,16 +87,16 @@
             <tr>
                 <th>No</th>
                 <th>Nama Fasilitas</th>
-                <th>Tipe</th>
-                <th>Lokasi</th>
+                <th>Kategori</th>
+                <th>Lokasi Gedung</th>
                 <th class="text-center">Kapasitas</th>
                 <th class="text-center">Status</th>
-                <th class="text-center">Total Reservasi</th>
-                <th class="text-center">Approved</th>
-                <th class="text-center">Jam Terpakai</th>
-                <th class="text-center">Okupansi</th>
+                <th class="text-center">Total Permohonan</th>
+                <th class="text-center">Disetujui</th>
+                <th class="text-center">Jam Penggunaan</th>
+                <th class="text-center">Tingkat Okupansi</th>
                 <th class="text-center">Total Laporan</th>
-                <th class="text-center">Selesai</th>
+                <th class="text-center">Selesai Ditangani</th>
             </tr>
         </thead>
         <tbody>
@@ -112,7 +112,7 @@
                     </td>
                     <td class="text-center">{{ $row['Total Reservasi'] }}</td>
                     <td class="text-center">{{ $row['Reservasi Approved'] }}</td>
-                    <td class="text-center">{{ number_format($row['Jam Terpakai'], 1, ',', '.') }}</td>
+                    <td class="text-center">{{ number_format($row['Jam Terpakai'], 1, ',', '.') }} jam</td>
                     <td class="text-center">{{ number_format($row['Okupansi (%)'], 1, ',', '.') }}%</td>
                     <td class="text-center">{{ $row['Total Laporan'] }}</td>
                     <td class="text-center">{{ $row['Laporan Selesai'] }}</td>
@@ -122,16 +122,16 @@
     </table>
 
     @if($perLokasi->isNotEmpty())
-        <h2 style="font-size:13px; margin-top:20px;">Rekap per Lokasi</h2>
+        <h2 style="font-size:13px; margin-top:20px;">Rekapitulasi Berdasarkan Lokasi Gedung</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Lokasi</th>
-                    <th class="text-center">Fasilitas</th>
-                    <th class="text-center">Reservasi Approved</th>
-                    <th class="text-center">Jam Terpakai</th>
-                    <th class="text-center">Okupansi</th>
-                    <th class="text-center">Laporan Kerusakan</th>
+                    <th>Lokasi Gedung</th>
+                    <th class="text-center">Jumlah Fasilitas</th>
+                    <th class="text-center">Reservasi Disetujui</th>
+                    <th class="text-center">Total Jam Terpakai</th>
+                    <th class="text-center">Tingkat Okupansi</th>
+                    <th class="text-center">Total Laporan Kerusakan</th>
                 </tr>
             </thead>
             <tbody>
@@ -140,7 +140,7 @@
                         <td>{{ $l['lokasi'] }}</td>
                         <td class="text-center">{{ $l['jumlah_fasilitas'] }}</td>
                         <td class="text-center">{{ $l['reservasi_approved'] }}</td>
-                        <td class="text-center">{{ number_format($l['jam_terpakai'], 1, ',', '.') }}</td>
+                        <td class="text-center">{{ number_format($l['jam_terpakai'], 1, ',', '.') }} jam</td>
                         <td class="text-center">{{ number_format($l['okupansi'], 1, ',', '.') }}%</td>
                         <td class="text-center">{{ $l['total_laporan'] }}</td>
                     </tr>
@@ -150,7 +150,7 @@
     @endif
 
     <div class="footer">
-        Halaman 1 &bull; Sistem Reservasi Fasilitas
+        Dokumen Resmi &bull; Sistem Reservasi Fasilitas Kampus SyncSpace
     </div>
 </body>
 </html>

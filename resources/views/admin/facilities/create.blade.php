@@ -1,7 +1,7 @@
 <x-admin-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Fasilitas Baru') }}
+            {{ __('Pendaftaran Fasilitas Kampus Baru') }}
         </h2>
     </x-slot>
 
@@ -10,7 +10,7 @@
 
             @if($errors->any())
                 <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
-                    <p class="font-semibold mb-1">Terdapat kesalahan pengisian:</p>
+                    <p class="font-semibold mb-1">Terdapat kesalahan pengisian data formulir:</p>
                     <ul class="list-disc pl-5 space-y-1">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -23,21 +23,21 @@
                 @csrf
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Fasilitas</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Fasilitas Kampus</label>
                     <input type="text" name="facility_name" value="{{ old('facility_name') }}" required
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700"
-                           placeholder="Contoh: Laboratorium Komputer 1">
+                           placeholder="Contoh: Laboratorium Komputer Terpadu 1">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori Fasilitas</label>
                         <input type="text" name="type" value="{{ old('type') }}" required
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700"
-                               placeholder="Contoh: Laboratorium">
+                               placeholder="Contoh: Laboratorium / Ruang Seminar / Auditorium">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Kapasitas (Orang)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kapasitas Maksimal (Orang)</label>
                         <input type="number" name="capacity" value="{{ old('capacity') }}" required min="1"
                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700"
                                placeholder="Contoh: 40">
@@ -45,23 +45,23 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi Gedung & Ruang</label>
                     <input type="text" name="location" value="{{ old('location') }}" required
                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700"
-                           placeholder="Contoh: Gedung A Lantai 2">
+                           placeholder="Contoh: Gedung Kuliah Bersama Lantai 2">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi & Spesifikasi Fasilitas</label>
                     <textarea name="description" rows="3"
                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-maroon-700 focus:ring-maroon-700"
-                              placeholder="Deskripsi singkat fasilitas...">{{ old('description') }}</textarea>
+                              placeholder="Uraikan fungsi fasilitas, kelengkapan sarana, dan ketentuan operasional...">{{ old('description') }}</textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <a href="{{ route('admin.fasilitas.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">Batal</a>
+                    <a href="{{ route('admin.fasilitas.index') }}" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">Batalkan</a>
                     <button type="submit" class="px-5 py-2 bg-maroon-800 text-cream-100 font-semibold rounded-md hover:bg-maroon-900 transition">
-                        Simpan Fasilitas
+                        Simpan Data Fasilitas
                     </button>
                 </div>
             </form>

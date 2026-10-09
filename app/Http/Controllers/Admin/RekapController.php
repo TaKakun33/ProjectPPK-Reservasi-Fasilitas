@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\FilterRekapRequest;
 use App\Services\RekapService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -58,9 +59,41 @@ class RekapController extends Controller
     {
         $hasil = $this->ambilRekap($request);
 
+        $perPage = 10;
+
+        // Paginasi tabel 1: Rekap per Fasilitas (parameter: page)
+        $pageFasilitas  = (int) $request->input('page', 1);
+        $barisFasilitas = collect($hasil['baris']);
+        $paginatedRekap = new LengthAwarePaginator(
+            $barisFasilitas->forPage($pageFasilitas, $perPage)->values(),
+            $barisFasilitas->count(),
+            $perPage,
+            $pageFasilitas,
+            [
+                'path'     => $request->url(),
+                'query'    => $request->query(),
+                'pageName' => 'page',
+            ]
+        );
+
+        // Paginasi tabel 2: Rekap per Lokasi Gedung (parameter: page_lokasi)
+        $pageLokasi      = (int) $request->input('page_lokasi', 1);
+        $barisLokasi     = collect($hasil['per_lokasi']);
+        $paginatedLokasi = new LengthAwarePaginator(
+            $barisLokasi->forPage($pageLokasi, $perPage)->values(),
+            $barisLokasi->count(),
+            $perPage,
+            $pageLokasi,
+            [
+                'path'     => $request->url(),
+                'query'    => $request->query(),
+                'pageName' => 'page_lokasi',
+            ]
+        );
+
         return view('admin.rekap.index', [
-            'rekap'     => collect($hasil['baris']),
-            'perLokasi' => collect($hasil['per_lokasi']),
+            'rekap'     => $paginatedRekap,
+            'perLokasi' => $paginatedLokasi,
             'periode'   => $hasil['periode'],
         ]);
     }
