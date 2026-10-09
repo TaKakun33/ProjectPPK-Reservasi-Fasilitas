@@ -28,7 +28,7 @@
             <div class="relative z-10">
                 <span class="inline-block text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-md mb-2"
                       style="background:rgba(239, 223, 197, 0.15); color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);">
-                    Portal Petugas Fasilitas &bull; SyncSpace
+                    Portal Petugas Fasilitas
                 </span>
                 <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-tight leading-snug">
                     Selamat Bertugas, {{ Auth::user()->name }}
