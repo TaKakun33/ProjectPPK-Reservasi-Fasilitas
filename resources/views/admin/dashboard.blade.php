@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
         <div>
             <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
@@ -11,66 +11,67 @@
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Stat Cards --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6">
+            <a href="{{ route('admin.fasilitas.index') }}"
+               class="block bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6 hover:shadow-md hover:border-maroon-300 transition group cursor-pointer">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-maroon-800/10 text-maroon-700">
+                    <div class="p-3 rounded-full bg-maroon-800/10 text-maroon-700 group-hover:bg-maroon-800/20 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Fasilitas</p>
+                        <p class="text-sm font-medium text-gray-500 group-hover:text-maroon-700 transition">Total Fasilitas</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['total_fasilitas'] }}</p>
                     </div>
                 </div>
                 <p class="mt-2 text-xs text-gray-500">{{ $stats['fasilitas_aktif'] }} aktif</p>
-            </div>
+            </a>
 
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6">
+            <a href="{{ route('admin.rekap.index', ['status' => 'pending']) }}"
+               class="block bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6 hover:shadow-md hover:border-yellow-300 transition group cursor-pointer">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-50 text-yellow-600">
+                    <div class="p-3 rounded-full bg-yellow-50 text-yellow-600 group-hover:bg-yellow-100 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Reservasi Pending</p>
+                        <p class="text-sm font-medium text-gray-500 group-hover:text-yellow-700 transition">Reservasi Pending</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['reservasi_pending'] }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6">
+            <a href="{{ route('admin.rekap.index') }}"
+               class="block bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6 hover:shadow-md hover:border-red-300 transition group cursor-pointer">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-red-50 text-red-600">
+                    <div class="p-3 rounded-full bg-red-50 text-red-600 group-hover:bg-red-100 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Laporan Baru</p>
+                        <p class="text-sm font-medium text-gray-500 group-hover:text-red-700 transition">Laporan Baru</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['laporan_baru'] }}</p>
                     </div>
                 </div>
-            </div>
+            </a>
 
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6">
+            <a href="{{ route('admin.users.index', ['status' => 'pending']) }}"
+               class="block bg-white rounded-xl shadow-sm border border-slate-200/70 border-t-4 border-t-maroon-800 p-6 hover:shadow-md hover:border-orange-300 transition group cursor-pointer">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-orange-50 text-orange-600">
+                    <div class="p-3 rounded-full bg-orange-50 text-orange-600 group-hover:bg-orange-100 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">User Pending</p>
+                        <p class="text-sm font-medium text-gray-500 group-hover:text-orange-700 transition">User Pending</p>
                         <p class="text-2xl font-bold text-gray-900">{{ $stats['user_pending'] }}</p>
                     </div>
                 </div>
                 <p class="mt-2 text-xs text-gray-500">{{ $stats['total_user'] }} total user</p>
-                @if($stats['user_pending'] > 0)
-                    <a href="{{ route('admin.users.index', ['status' => 'pending']) }}" class="mt-2 inline-block text-xs font-semibold text-orange-600 hover:text-orange-800">Review sekarang &rarr;</a>
-                @endif
-            </div>
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -141,5 +142,5 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>
 

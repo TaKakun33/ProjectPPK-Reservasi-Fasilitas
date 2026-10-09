@@ -1,4 +1,4 @@
-﻿<x-guest-layout>
+<x-guest-layout>
     <div class="mb-6 text-center">
         <h1 class="text-xl font-extrabold text-maroon-800">Selamat Datang Kembali</h1>
         <p class="mt-1 text-sm text-slate-500">Masuk untuk mengajukan reservasi fasilitas akademik.</p>
@@ -37,14 +37,8 @@
             </label>
         </div>
 
-        <div class="flex items-center justify-between mt-6">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-maroon-700 hover:text-maroon-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-maroon-700" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
+        <div class="flex items-center justify-end mt-6">
+            <x-primary-button>
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
