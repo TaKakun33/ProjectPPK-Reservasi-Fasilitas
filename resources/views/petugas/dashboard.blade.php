@@ -97,7 +97,7 @@
                         <h3 class="font-semibold text-gray-900">Antrian Reservasi Menunggu</h3>
                         <p class="text-xs text-gray-500 mt-0.5">Diurutkan dari yang paling lama menunggu</p>
                     </div>
-                    <a href="{{ route('petugas.reservations.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                    <a href="{{ route('petugas.reservations.index') }}" class="text-sm text-maroon-700 hover:text-maroon-900 font-medium">
                         Buka Antrian &rarr;
                     </a>
                 </div>
@@ -127,7 +127,7 @@
                                         {{ ucfirst($res->reservation_status) }}
                                     </span>
                                     @if($res->reservation_status === 'pending')
-                                        <a href="{{ route('petugas.reservations.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                        <a href="{{ route('petugas.reservations.index') }}" class="text-xs font-semibold text-maroon-700 hover:text-maroon-900">
                                             Proses &rarr;
                                         </a>
                                     @endif
@@ -145,7 +145,7 @@
                         <h3 class="font-semibold text-gray-900">Antrian Laporan Baru</h3>
                         <p class="text-xs text-gray-500 mt-0.5">Laporan yang belum ditangani, terlama dulu</p>
                     </div>
-                    <a href="{{ route('petugas.reports.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                    <a href="{{ route('petugas.reports.index') }}" class="text-sm text-maroon-700 hover:text-maroon-900 font-medium">
                         Buka Antrian &rarr;
                     </a>
                 </div>
@@ -173,7 +173,7 @@
                                     <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $reportBadges[$report->report_status] ?? 'bg-gray-100' }}">
                                         {{ ucfirst($report->report_status) }}
                                     </span>
-                                    <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                    <a href="{{ route('petugas.reports.show', $report->id_laporan) }}" class="text-xs font-semibold text-maroon-700 hover:text-maroon-900">
                                         Detail &rarr;
                                     </a>
                                 </div>

@@ -237,7 +237,7 @@
                                     Tolak
                                 </button>
                                 <button type="submit" name="report_status" value="diproses"
-                                        class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700 transition">
+                                        class="px-4 py-2 bg-maroon-800 text-cream-100 text-sm font-semibold rounded-md hover:bg-maroon-900 transition">
                                     Proses
                                 </button>
                             @elseif($laporan->report_status === 'diproses')

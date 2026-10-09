@@ -1,15 +1,15 @@
-<nav x-data="{ open: false }" class="bg-maroon-800 shadow-md">
+<nav x-data="{ open: false }" class="sticky top-0 z-50 shadow-md" style="background: linear-gradient(135deg, #380F17 0%, #4D0E17 30%, #6B101C 65%, #8F0B13 100%); border-bottom: 1px solid rgba(239, 223, 197, 0.15);">
     {{-- Primary Navigation Menu --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 {{-- Logo --}}
                 <div class="shrink-0 flex items-center gap-3">
-                    <a href="{{ route('facilities.index') }}" class="flex items-center gap-3">
-                        <x-application-logo class="block h-9 w-auto" />
+                    <a href="{{ route('facilities.index') }}" class="flex items-center gap-3 group">
+                        <x-application-logo class="block h-9 w-auto drop-shadow-xs transition-transform duration-150 group-hover:scale-105" />
                         <span class="hidden md:block leading-tight">
-                            <span class="block text-sm font-bold text-cream-100 tracking-wide">SyncSpace</span>
-                            <span class="block text-[11px] font-medium text-cream-300 tracking-widest uppercase">Reservasi Fasilitas Kampus</span>
+                            <span class="block text-sm font-extrabold tracking-tight text-[#EFDFC5] group-hover:text-white transition-colors">SyncSpace</span>
+                            <span class="block text-[10px] font-semibold tracking-widest uppercase text-[#EFDFC5]/70">Reservasi Fasilitas Kampus</span>
                         </span>
                     </a>
                 </div>
@@ -69,11 +69,18 @@
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-cream-300/30 text-sm leading-4 font-medium rounded-md text-cream-100 bg-white/10 hover:bg-white/20 hover:text-white focus:outline-none transition ease-in-out duration-150">
-                                <div>{{ Auth::user()->name }}</div>
+                            <button class="inline-flex items-center gap-2 px-3 py-1.5 border text-xs leading-4 font-bold rounded-lg transition ease-in-out duration-150 shadow-xs"
+                                    style="background:rgba(239, 223, 197, 0.12); border-color:rgba(239, 223, 197, 0.22); color:#EFDFC5;"
+                                    onmouseover="this.style.background='#8F0B13'; this.style.borderColor='#8F0B13';"
+                                    onmouseout="this.style.background='rgba(239, 223, 197, 0.12)'; this.style.borderColor='rgba(239, 223, 197, 0.22)';">
+                                <div class="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs shrink-0 shadow-xs"
+                                     style="background:#EFDFC5; color:#380F17;">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </div>
+                                <div class="max-w-[120px] truncate">{{ Auth::user()->name }}</div>
 
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <div class="ms-0.5">
+                                    <svg class="fill-current h-3.5 w-3.5 opacity-80" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
@@ -82,7 +89,7 @@
 
                         <x-slot name="content">
                             <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile') }}
+                                {{ __('Profil Akun') }}
                             </x-dropdown-link>
 
                             {{-- Authentication --}}
@@ -90,15 +97,15 @@
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
                                         onclick="event.preventDefault(); this.closest('form').submit();">
-                                    {{ __('Log Out') }}
+                                    {{ __('Keluar') }}
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
                     </x-dropdown>
                 @else
                     <div class="flex items-center space-x-3">
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-cream-200 hover:text-white">Log in</a>
-                        <a href="{{ route('register') }}" class="text-sm font-bold text-cream-100 bg-maroon-700 hover:bg-maroon-900 border border-cream-300/40 px-4 py-2 rounded-md transition">Register</a>
+                        <a href="{{ route('login') }}" class="text-sm font-semibold transition" style="color:#EFDFC5;" onmouseover="this.style.color='#FFFFFF';" onmouseout="this.style.color='#EFDFC5';">Log in</a>
+                        <a href="{{ route('register') }}" class="text-sm font-bold px-4 py-2 rounded-lg transition shadow-xs" style="background:#8F0B13; color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);" onmouseover="this.style.background='#380F17';" onmouseout="this.style.background='#8F0B13';">Register</a>
                     </div>
                 @endauth
             </div>

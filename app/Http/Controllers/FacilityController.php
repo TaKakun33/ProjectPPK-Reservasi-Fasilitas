@@ -49,7 +49,7 @@ class FacilityController extends Controller
             $query->where('capacity', '>=', max(0, min((int) $request->capacity, 100000)));
         }
 
-        $facilities = $query->orderBy('facility_name')->paginate(9)->withQueryString();
+        $facilities = $query->orderBy('facility_name')->paginate(12)->withQueryString();
 
         // Ambil daftar unik tipe & lokasi untuk dropdown
         $types = Facility::visible()->distinct()->pluck('type');

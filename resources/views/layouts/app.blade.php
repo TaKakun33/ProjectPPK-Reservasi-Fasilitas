@@ -7,9 +7,10 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        {{-- Fonts --}}
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        {{-- Fonts: Plus Jakarta Sans --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
         {{-- Scripts --}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -46,8 +47,8 @@
             </script>
         @endguest
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-cream-100">
+    <body class="antialiased" style="background:#FAF6F0; font-family:'Plus Jakarta Sans', sans-serif; color:#252B2B;">
+        <div class="min-h-screen" style="background:#FAF6F0;">
             @include('layouts.navigation')
 
             {{-- Page Heading : cream + border maroon --}}
