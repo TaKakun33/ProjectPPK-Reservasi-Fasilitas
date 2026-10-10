@@ -57,6 +57,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung A Lantai 2',
                 'capacity' => 40,
                 'description' => 'Laboratorium komputer lengkap dengan 40 PC spesifikasi tinggi, proyektor, dan AC.',
+                'amenities' => ['PC High-End', 'LAN Gigabit', 'AC Sentral', 'Proyektor'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -65,6 +66,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung Informatika Lantai 3',
                 'capacity' => 35,
                 'description' => 'Lab khusus praktikum jaringan komputer, mikrokontroler, switch Cisco, dan perangkat IoT.',
+                'amenities' => ['Switch Cisco', 'Perangkat IoT', 'LAN Gigabit', 'AC Sentral'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -73,6 +75,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung Rektorat Lantai 3',
                 'capacity' => 100,
                 'description' => 'Ruang seminar berkapasitas besar dengan sound system profesional dan mic wireless.',
+                'amenities' => ['Sound System Pro', 'Mic Wireless', 'Proyektor', 'AC Sentral'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -81,6 +84,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung Convention Center',
                 'capacity' => 500,
                 'description' => 'Auditorium megah berstandar internasional untuk wisuda, kuliah akbar, dan konser musik kampus.',
+                'amenities' => ['Sound System Pro', 'Panggung Utama', 'Mic Wireless', 'Kapasitas Besar'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -89,6 +93,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung Kemahasiswaan Lantai 1',
                 'capacity' => 250,
                 'description' => 'Aula serbaguna untuk kegiatan ormawa, seminar umum, dan pameran karya.',
+                'amenities' => ['Sound System', 'Panggung', 'Proyektor', 'Kursi Lipat'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -97,6 +102,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Sport Center Kampus',
                 'capacity' => 20,
                 'description' => 'Lapangan futsal rumput sintetis dengan penerangan standar turnamen.',
+                'amenities' => ['Rumput Sintetis', 'Lampu Lapangan', 'Kamar Ganti', 'Toilet Bersih'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -105,6 +111,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Area Terbuka Olahraga Barat',
                 'capacity' => 25,
                 'description' => 'Lapangan basket luar ruangan dengan lantai aspal halus dan ring standar perbasi.',
+                'amenities' => ['Ring Standar Perbasi', 'Lampu Lapangan', 'Tribun Penonton', 'Toilet Bersih'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -113,6 +120,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Sport Center Lantai 2',
                 'capacity' => 12,
                 'description' => 'Lapangan bulu tangkis lantai karpet vinil standar PBSI dengan jaring dan pencahayaan optimal.',
+                'amenities' => ['Lantai Karpet Vinil', 'Jaring Standar PBSI', 'Pencahayaan Optimal', 'Kamar Ganti'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -121,6 +129,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung Rektorat Lantai 2',
                 'capacity' => 30,
                 'description' => 'Ruang rapat VIP meja bundar dilengkapi smart TV 75 inch, video conference, dan mikrofon meja.',
+                'amenities' => ['Smart TV 75 Inci', 'Video Conference', 'Mikrofon Meja', 'AC Sentral'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -129,6 +138,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung D Lantai 1',
                 'capacity' => 10,
                 'description' => 'Studio kedap suara dengan set mikrofon Shure, mixer audio, pencahayaan studio, dan kamera 4K.',
+                'amenities' => ['Kedap Suara', 'Mic Condenser', 'Kamera 4K', 'Lighting Studio'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -137,6 +147,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Perpustakaan Pusat Lantai 2',
                 'capacity' => 50,
                 'description' => 'Ruang kolaborasi modern mahasiswa dengan colokan di setiap meja, Wi-Fi super cepat, dan whiteboard.',
+                'amenities' => ['Wi-Fi Cepat', 'Stopkontak Tiap Meja', 'Whiteboard', 'AC Dingin'],
                 'facility_status' => 'aktif',
             ],
             [
@@ -145,6 +156,7 @@ class DatabaseSeeder extends Seeder
                 'location' => 'Gedung B Lantai 3',
                 'capacity' => 45,
                 'description' => 'Ruang kelas interaktif dengan smart board touchscreen, proyektor laser, dan kursi kuliah ergonomis.',
+                'amenities' => ['Smart Board Touchscreen', 'Proyektor Laser', 'Kursi Ergonomis', 'AC Sentral'],
                 'facility_status' => 'aktif',
             ],
         ];
@@ -157,6 +169,9 @@ class DatabaseSeeder extends Seeder
         }
 
         // Data contoh kategori laporan kerusakan (modul Laporan - Akbar)
-        $this->call(ReportCategorySeeder::class);
+        $this->call([
+            ReportCategorySeeder::class,
+            UndipFacilitiesSeeder::class,
+        ]);
     }
 }

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->uuid('id_kategori');
             $table->text('description');
             $table->string('report_status', 50)->default('baru');
+            // Petugas yang memutuskan apakah penanganan laporan ini menutup fasilitas (status "dalam perbaikan")
+            $table->boolean('menutup_fasilitas')->default(false);
             $table->text('resolution_notes')->nullable();
             $table->uuid('handled_by')->nullable();
             $table->timestamps();
@@ -29,12 +31,10 @@ return new class extends Migration
             $table->index('id_kategori', 'idx_reports_id_kategori');
             $table->index('id_user', 'idx_reports_id_user');
             $table->index('report_status', 'idx_reports_report_status');
+            // Pendukung query rekap kerusakan: filter rentang waktu laporan
+            $table->index('created_at', 'idx_reports_created_at');
         });
 
-        // Kunci nilai report_status ke daftar yang benar-benar dipakai
-        // aplikasi, biar tidak ada "magic string" nyasar dari luar Eloquent.
-        // Foto laporan disimpan di tabel report_photos (mendukung banyak
-        // foto per laporan), bukan sebagai kolom di sini.
         DB::statement("ALTER TABLE reports ADD CONSTRAINT chk_reports_report_status CHECK (report_status IN ('baru', 'diproses', 'selesai', 'ditolak'))");
     }
 

@@ -58,7 +58,7 @@ Sistem memiliki 3 (tiga) peran aktor dengan batas kewenangan (*role-based access
 - **Interval Waktu Slot**: Durasi reservasi wajib kelipatan slot 30 menit (misal: 08:00 - 09:30).
 - **Pencegahan Bentrok (*Anti-Conflict*)**: Dua reservasi tidak boleh disetujui pada fasilitas, tanggal, dan rentang jam yang saling tumpang-tindih. Proteksi berlapis: di tingkat aplikasi menggunakan transaksi database dengan mekanisme *pessimistic locking* (`lockForUpdate()`), dan di tingkat database menggunakan *trigger* anti-bentrok pada tabel `reservations` sebagai pengaman terakhir.
 - **Batas Waktu Pembatalan oleh Pengguna**: Reservasi `approved` hanya dapat dibatalkan oleh pemiliknya maksimal **H-1** sebelum tanggal jadwal kegiatan dan paling lambat pada pukul **23:59 WIB**. Pada hari-H kegiatan, pengguna tidak dapat lagi membatalkan reservasi `approved` secara mandiri (pembatalan darurat pada hari-H hanya dapat diproses oleh Petugas Fasilitas). Reservasi `pending` (belum diproses petugas) boleh dibatalkan kapan saja selama kegiatannya belum lewat.
-- **Batasan Pengajuan Reservasi**: pengajuan minimal 1 jam sebelum jam mulai (buffer), maksimal 60 hari ke depan, durasi maksimal 4 jam per reservasi, maksimal 3 reservasi `pending` dan 5 reservasi aktif (`pending` + `approved`) per pengguna, serta dibatasi 10 pengajuan per menit per pengguna (anti-spam).
+- **Batasan Pengajuan Reservasi**: reservasi tidak dilayani pada hari Minggu (libur), pengajuan minimal 1 jam sebelum jam mulai (buffer), maksimal 60 hari ke depan, durasi reservasi bebas hingga seharian penuh (selama jam operasional 07:00–20:00, maksimal 13 jam), maksimal 3 reservasi `pending` dan 5 reservasi aktif (`pending` + `approved`) per pengguna, serta dibatasi 10 pengajuan per menit per pengguna (anti-spam).
 - **Single Source of Truth Status Fasilitas**:
   - `aktif`: Fasilitas siap digunakan dan dapat direservasi.
   - `dalam perbaikan`: Fasilitas sedang ditangani petugas akibat kerusakan (tidak dapat direservasi).
@@ -288,17 +288,3 @@ Database seeder secara otomatis menyediakan 3 akun default siap pakai :
      - **CSV**: Mengunduh file `.csv` 
      - **Excel**: Mengunduh file `.xlsx` 
      - **PDF**: Mengunduh dokumen `.pdf` 
-
----
-
-## Catatan Perbaikan Hasil Audit QA
-
-- Menambahkan `.env.example` (sebelumnya hilang, sehingga `cp .env.example .env` gagal).
-- Pengecekan laporan ganda dipindah ke dalam transaksi + lock baris pelapor (cegah double-submit paralel).
-- Respons lupa-password dibuat seragam (cegah enumerasi email terdaftar).
-- Login memeriksa kredensial dan status akun sebelum sesi dibuat, dengan rate limit per email+IP, per IP, dan per email.
-- Middleware `PastikanAkunTerverifikasi` memutus akses akun yang dibekukan/ditolak tanpa menunggu sesi berakhir.
-- Foto laporan privat dikirim dengan header `X-Content-Type-Options: nosniff` dan `Cache-Control: private, no-store`.
-- Validasi dipindah ke Form Request: `SimpanFasilitasRequest`, `BuatAkunRequest`, `UbahStatusLaporanRequest`, `RegistrasiPenggunaRequest`.
-- Folder kosong `public/storage` dihapus (bentrok dengan `storage:link`; foto laporan memang privat).
-- Setelah `composer install`, jalankan `php artisan test` (butuh database MySQL `PPK_project_test`) untuk memverifikasi.

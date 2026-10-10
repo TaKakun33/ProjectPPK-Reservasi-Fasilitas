@@ -1,37 +1,52 @@
-<x-app-layout>
+<x-petugas-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Antrian & Riwayat Reservasi') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="font-extrabold text-lg leading-tight" style="color:#252B2B;">Antrian & Riwayat Reservasi</h2>
+                <p class="text-xs mt-0.5" style="color:#4C4F54;">Verifikasi, persetujuan, dan pengelolaan jadwal peminjaman fasilitas</p>
+            </div>
+            <div class="hidden sm:flex items-center gap-2">
+                <a href="{{ route('petugas.dashboard') }}"
+                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-xs hover:brightness-110"
+                   style="background:#8F0B13; color:#EFDFC5;">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded text-sm font-medium">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
-                {{ session('error') }}
-            </div>
-        @endif
+    <div class="px-4 sm:px-6 py-5 space-y-4" style="background:#FAF6F0;">
 
         @error('alasan_ditolak')
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
-                {{ $message }}
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
+                 style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <span>{{ $message }}</span>
             </div>
         @enderror
 
         @error('cancellation_reason')
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
-                {{ $message }}
+            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
+                 style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <span>{{ $message }}</span>
             </div>
         @enderror
 
+        {{-- Pencarian --}}
+        <x-search-bar :action="route('petugas.reservations.index')"
+                      :hidden="['status' => $selectedStatus !== 'all' ? $selectedStatus : null]"
+                      placeholder="Cari nama/surel pemohon, fasilitas, atau tujuan..." />
+
         {{-- Filter Tab Status --}}
-        <div class="mb-6 flex space-x-2 border-b border-gray-200 pb-2 overflow-x-auto">
+        <div class="flex items-center gap-2 pb-1 overflow-x-auto">
             @php
                 $statusTabs = [
                     'all'       => 'Semua',
@@ -42,110 +57,96 @@
                 ];
             @endphp
             @foreach($statusTabs as $key => $label)
-                <a href="{{ $key === 'all' ? route('petugas.reservations.index') : route('petugas.reservations.index', ['status' => $key]) }}"
-                   class="px-4 py-2 text-sm font-medium rounded-lg transition whitespace-nowrap {{ $selectedStatus === $key ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                @php $isActive = $selectedStatus === $key; @endphp
+                <a href="{{ route('petugas.reservations.index', array_filter(['status' => $key === 'all' ? null : $key, 'search' => request('search')], fn ($v) => filled($v))) }}"
+                   class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition whitespace-nowrap shadow-xs"
+                   style="{{ $isActive
+                            ? 'background:#8F0B13; color:#EFDFC5; border:1px solid #8F0B13;'
+                            : 'background:white; color:#4C4F54; border:1px solid #EAE0D3;' }}">
                     {{ $label }}
                 </a>
             @endforeach
         </div>
 
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+        {{-- Card Tabel Reservasi --}}
+        <div class="bg-white rounded-xl shadow-xs overflow-hidden" style="border:1px solid #EAE0D3;">
             @if($reservations->isEmpty())
-                <div class="p-12 text-center text-gray-500">
-                    Belum ada riwayat atau antrian reservasi yang sesuai dengan filter.
+                <div class="p-12 text-center">
+                    <div class="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-3"
+                         style="background:#FAF6F0; color:#4C4F54; border:1px solid #EAE0D3;">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm font-bold" style="color:#252B2B;">Tidak ada reservasi ditemukan</p>
+                    <p class="text-xs mt-1" style="color:#4C4F54;">Belum ada riwayat atau antrian reservasi yang sesuai dengan filter ini.</p>
                 </div>
             @else
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 font-semibold border-b">
-                                <th class="p-4">Pemohon</th>
-                                <th class="p-4">Fasilitas</th>
-                                <th class="p-4">Tanggal & Waktu</th>
-                                <th class="p-4">Tujuan</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4">Keterangan / Catatan</th>
-                                <th class="p-4 text-center">Aksi</th>
+                            <tr class="font-bold border-b" style="background:#FAF6F0; color:#252B2B; border-color:#EAE0D3;">
+                                <th class="py-3 px-4">Pemohon</th>
+                                <th class="py-3 px-4">Fasilitas</th>
+                                <th class="py-3 px-4">Tanggal & Waktu</th>
+                                <th class="py-3 px-4">Tujuan</th>
+                                <th class="py-3 px-4">Status</th>
+                                <th class="py-3 px-4">Keterangan / Catatan</th>
+                                <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y" style="border-color:#EAE0D3;">
                             @foreach($reservations as $res)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-[#FAF6F0]/60 transition">
                                     {{-- Pemohon --}}
-                                    <td class="p-4 font-medium text-gray-900">
+                                    <td class="py-3 px-4 font-bold" style="color:#252B2B;">
                                         {{ $res->user->name ?? '-' }}
                                     </td>
 
                                     {{-- Fasilitas --}}
-                                    <td class="p-4">
-                                        <div class="font-medium text-gray-900">{{ $res->facility->facility_name ?? '-' }}</div>
-                                        <div class="text-xs text-gray-500">{{ $res->facility->type ?? '' }}</div>
+                                    <td class="py-3 px-4">
+                                        <div class="font-bold" style="color:#252B2B;">{{ $res->facility->facility_name ?? '-' }}</div>
+                                        <div class="text-[11px]" style="color:#4C4F54;">{{ $res->facility->type ?? '' }}</div>
                                     </td>
 
                                     {{-- Tanggal & Waktu --}}
-                                    <td class="p-4">
-                                        <div class="font-medium text-gray-900">{{ $res->date->format('d M Y') }}</div>
-                                        <div class="text-xs text-gray-500">{{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }} WIB</div>
+                                    <td class="py-3 px-4">
+                                        <div class="font-semibold" style="color:#252B2B;">{{ $res->date->format('d M Y') }}</div>
+                                        <div class="text-[11px] font-mono mt-0.5" style="color:#4C4F54;">
+                                            {{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }} WIB
+                                        </div>
                                     </td>
 
                                     {{-- Tujuan --}}
-                                    <td class="p-4 text-gray-600 max-w-xs truncate">{{ $res->purpose }}</td>
+                                    <td class="py-3 px-4 max-w-xs truncate" style="color:#4C4F54;" title="{{ $res->purpose }}">
+                                        {{ $res->purpose }}
+                                    </td>
 
                                     {{-- Status Badge --}}
-                                    <td class="p-4">
-                                        @php
-                                            $badges = [
-                                                'pending'   => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                                'approved'  => 'bg-green-100 text-green-800 border-green-200',
-                                                'rejected'  => 'bg-red-100 text-red-800 border-red-200',
-                                                'cancelled' => 'bg-gray-100 text-gray-800 border-gray-200',
-                                            ];
-                                        @endphp
-                                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full border {{ $badges[$res->reservation_status] ?? 'bg-gray-100 text-gray-800' }}">
-                                            {{ ucfirst($res->reservation_status) }}
-                                        </span>
+                                    <td class="py-3 px-4">
+                                        <x-status-badge :status="$res->reservation_status" />
                                     </td>
 
                                     {{-- Keterangan / Alasan --}}
-                                    <td class="p-4 text-xs text-gray-500 max-w-xs">
+                                    <td class="py-3 px-4 text-xs max-w-xs" style="color:#4C4F54;">
                                         @if($res->reservation_status === 'rejected' && $res->alasan_ditolak)
-                                            <span class="text-red-700 font-medium">Ditolak:</span> {{ $res->alasan_ditolak }}
+                                            <span class="font-bold text-red-700">Ditolak:</span> {{ $res->alasan_ditolak }}
                                         @elseif($res->reservation_status === 'cancelled' && $res->cancellation_reason)
-                                            <span class="text-gray-700 font-medium">Dibatalkan:</span> {{ $res->cancellation_reason }}
+                                            <span class="font-bold text-gray-700">Dibatalkan:</span> {{ $res->cancellation_reason }}
                                         @else
-                                            <span class="text-gray-400">-</span>
+                                            <span style="color:#9CA3AF;">-</span>
                                         @endif
                                     </td>
 
                                     {{-- Aksi --}}
-                                    <td class="p-4">
-                                        <div class="flex justify-center gap-2">
-                                            @if($res->reservation_status === 'pending')
-                                                <form method="POST"
-                                                      action="{{ route('petugas.reservations.approve', $res->id_reservasi) }}"
-                                                      onsubmit="return confirm('Setujui reservasi ini?')">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                            class="px-3 py-1 text-xs font-semibold text-white bg-green-600 rounded hover:bg-green-700 transition">
-                                                        Setujui
-                                                    </button>
-                                                </form>
-
-                                                <button type="button"
-                                                        onclick="openRejectModal('{{ route('petugas.reservations.reject', $res->id_reservasi) }}')"
-                                                        class="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700 transition">
-                                                    Tolak
-                                                </button>
-                                            @elseif($res->reservation_status === 'approved' && ! $res->sudahSelesai())
-                                                <button type="button"
-                                                        onclick="openCancelModal('{{ route('petugas.reservations.cancel', $res->id_reservasi) }}')"
-                                                        class="px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded transition border border-gray-300">
-                                                    Batalkan
-                                                </button>
-                                            @else
-                                                <span class="text-xs text-gray-400 font-medium">Selesai</span>
-                                            @endif
+                                    <td class="py-3 px-4">
+                                        <div class="flex flex-wrap justify-center items-center gap-1.5">
+                                            <a href="{{ route('petugas.reservations.show', $res->id_reservasi) }}"
+                                               x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-reservasi-petugas', url: @js(route('petugas.reservations.show', $res->id_reservasi)) })"
+                                               class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                               style="background:#8F0B13; color:#EFDFC5;">
+                                                Detail
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -154,108 +155,15 @@
                     </table>
                 </div>
 
-                <div class="p-4 border-t">
+                <div class="p-4" style="border-top:1px solid #EAE0D3; background:#FAF6F0/40;">
                     {{ $reservations->links() }}
                 </div>
             @endif
         </div>
     </div>
 
-    {{-- Modal Alasan Penolakan --}}
-    <div id="reject-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-            <h3 class="text-lg font-semibold text-gray-900">Tolak Reservasi</h3>
-            <p class="mt-1 text-sm text-gray-500">
-                Jelaskan alasan penolakan supaya pengguna tahu kenapa reservasinya ditolak.
-            </p>
+    <x-modal-detail name="detail-reservasi-petugas" title="Detail Reservasi"
+                    subtitle="Periksa data pemohon dan jadwal sebelum menyetujui atau menolak" max-width="3xl" />
 
-            <form id="reject-form" method="POST" class="mt-4">
-                @csrf
-                @method('PATCH')
-
-                <label for="alasan_ditolak" class="block text-sm font-medium text-gray-700">
-                    Alasan Penolakan <span class="text-red-600">*</span>
-                </label>
-                <textarea id="alasan_ditolak" name="alasan_ditolak" rows="4" required maxlength="500"
-                          class="mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-red-500 focus:ring-red-500"
-                          placeholder="Contoh: Fasilitas sedang dalam perbaikan pada tanggal tersebut."></textarea>
-
-                <div class="mt-5 flex justify-end gap-2">
-                    <button type="button" onclick="closeRejectModal()"
-                            class="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
-                        Tolak Reservasi
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- Modal Alasan Pembatalan (Petugas membatalkan reservasi approved) --}}
-    <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-            <h3 class="text-lg font-semibold text-gray-900">Batalkan Reservasi</h3>
-            <p class="mt-1 text-sm text-gray-500">
-                Jelaskan alasan pembatalan reservasi yang sebelumnya telah disetujui.
-            </p>
-
-            <form id="cancel-form" method="POST" class="mt-4">
-                @csrf
-                @method('PATCH')
-
-                <label for="cancellation_reason" class="block text-sm font-medium text-gray-700">
-                    Alasan Pembatalan <span class="text-red-600">*</span>
-                </label>
-                <textarea id="cancellation_reason" name="cancellation_reason" rows="4" required maxlength="500"
-                          class="mt-1 w-full rounded-md border-gray-300 shadow-sm text-sm focus:border-red-500 focus:ring-red-500"
-                          placeholder="Contoh: Terjadi kendala teknis mendadak pada fasilitas."></textarea>
-
-                <div class="mt-5 flex justify-end gap-2">
-                    <button type="button" onclick="closeCancelModal()"
-                            class="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded hover:bg-gray-200">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-xs font-semibold text-white bg-red-600 rounded hover:bg-red-700">
-                        Proses Pembatalan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openRejectModal(actionUrl) {
-            const modal = document.getElementById('reject-modal');
-            const form = document.getElementById('reject-form');
-            form.setAttribute('action', actionUrl);
-            document.getElementById('alasan_ditolak').value = '';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeRejectModal() {
-            const modal = document.getElementById('reject-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function openCancelModal(actionUrl) {
-            const modal = document.getElementById('cancel-modal');
-            const form = document.getElementById('cancel-form');
-            form.setAttribute('action', actionUrl);
-            document.getElementById('cancellation_reason').value = '';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeCancelModal() {
-            const modal = document.getElementById('cancel-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    </script>
-</x-app-layout>
+    @include('petugas.reservations.partials.modal-aksi')
+</x-petugas-layout>

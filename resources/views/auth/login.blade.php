@@ -1,7 +1,10 @@
 <x-guest-layout>
-    {{-- Session Status --}}
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="mb-6 text-center">
+        <h1 class="text-xl font-extrabold text-maroon-800">Selamat Datang Kembali</h1>
+        <p class="mt-1 text-sm text-slate-500">Masuk untuk mengajukan reservasi fasilitas akademik.</p>
+    </div>
 
+    {{-- Session Status --}}
     <form method="POST" action="{{ route('login') }}" onsubmit="sessionStorage.setItem('tab_session_active', '1');">
         @csrf
 
@@ -27,21 +30,22 @@
         {{-- Remember Me --}}
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-slate-300 text-maroon-700 shadow-sm focus:ring-maroon-700" name="remember">
+                <span class="ms-2 text-sm text-slate-600">{{ __('Remember me') }}</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+        <div class="mt-6">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl font-extrabold text-sm shadow-md transition duration-150 bg-maroon-700 text-cream border border-maroon-800 hover:bg-maroon-900">
+                {{ __('Masuk Sekarang') }}
+            </button>
+        </div>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+        <div class="mt-6 pt-4 border-t border-slate-100 text-center text-sm text-slate-600">
+            Belum punya akun?
+            <a href="{{ route('register') }}" class="font-bold text-[#8F0B13] hover:text-[#380F17] hover:underline">Daftar di sini</a>
         </div>
     </form>
 </x-guest-layout>
+

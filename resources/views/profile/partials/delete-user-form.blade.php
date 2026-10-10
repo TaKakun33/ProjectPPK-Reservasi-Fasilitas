@@ -1,55 +1,50 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
-        </h2>
+<header class="pf-card-head" style="border-color:#FECACA;">
+    <h2 class="pf-card-title" style="color:#991B1B;">Zona Berbahaya</h2>
+    <p class="pf-card-sub">Tindakan di bagian ini tidak dapat dibatalkan.</p>
+</header>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
-        </p>
-    </header>
+<div class="pf-notice pf-notice-danger" style="max-width:34rem;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg>
+    <span>
+        <strong>Hapus akun secara permanen.</strong> Akun Anda tidak dapat digunakan lagi dan semua reservasi aktif (menunggu atau disetujui) akan dibatalkan otomatis.
+    </span>
+</div>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+<div class="pf-actions" style="margin-top:1rem;">
+    <button type="button" class="pf-btn pf-btn-danger" x-on:click="$dispatch('open-modal', 'hapus-akun')">Hapus Akun Saya</button>
+</div>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
-            @csrf
-            @method('delete')
+<x-dialog-form name="hapus-akun" title="Hapus Akun?"
+               subtitle="Masukkan password Anda untuk mengonfirmasi penghapusan akun"
+               max-width="lg" :show="$errors->userDeletion->isNotEmpty()">
+    <form method="post" action="{{ route('profile.destroy') }}" class="pf-form" style="max-width:none;">
+        @csrf
+        @method('delete')
 
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
+        <div class="pf-notice pf-notice-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0zM12 9v4M12 17h.01"/></svg>
+            <span>Setelah dihapus, Anda akan keluar dan tidak dapat masuk kembali dengan akun ini.</span>
+        </div>
 
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-            </p>
-
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
-                />
-
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+        <div class="pf-field" x-data="{ lihat: false }">
+            <label for="password_hapus">Password</label>
+            <div class="pf-input-wrap">
+                <input id="password_hapus" name="password" :type="lihat ? 'text' : 'password'"
+                       class="pf-input {{ $errors->userDeletion->has('password') ? 'has-error' : '' }}"
+                       placeholder="Masukkan password Anda" autocomplete="current-password" required>
+                <button type="button" class="pf-eye" x-on:click="lihat = !lihat" :aria-label="lihat ? 'Sembunyikan password' : 'Tampilkan password'">
+                    <svg x-show="!lihat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg x-show="lihat" x-cloak viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.1 10.1 0 0112 20c-7 0-11-8-11-8a18.5 18.5 0 015.1-5.9M9.9 4.2A9.1 9.1 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.2 3.2M1 1l22 22"/></svg>
+                </button>
             </div>
+            @foreach((array) $errors->userDeletion->get('password') as $pesan)
+                <ul class="pf-error"><li>{{ $pesan }}</li></ul>
+            @endforeach
+        </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
-
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
-            </div>
-        </form>
-    </x-modal>
-</section>
+        <div class="pf-actions" style="justify-content:flex-end;">
+            <button type="button" class="pf-btn pf-btn-ghost" x-on:click="$dispatch('close-modal', 'hapus-akun')">Batal</button>
+            <button type="submit" class="pf-btn pf-btn-danger">Ya, Hapus Akun</button>
+        </div>
+    </form>
+</x-dialog-form>

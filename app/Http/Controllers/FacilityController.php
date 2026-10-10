@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
 use App\Models\Facility;
+use App\Models\FacilityPhoto;
 use App\Services\ReservationAvailability;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FacilityController extends Controller
@@ -31,7 +33,21 @@ class FacilityController extends Controller
             return redirect()->route('petugas.dashboard');
         }
 
-        $query = Facility::visible();
+        // Fasilitas nonaktif tetap ditampilkan (abu-abu, di urutan paling belakang) agar pengguna tahu fasilitasnya ada
+        $query = Facility::query()->with('photos');
+
+        // Pencarian kata kunci: nama, tipe, lokasi, atau deskripsi fasilitas
+        $search = Str::limit(trim((string) $request->query('search', '')), 100, '');
+
+        if ($search !== '') {
+            $kata = $this->escapeLike($search);
+            $query->where(function ($q) use ($kata) {
+                $q->where('facility_name', 'like', "%{$kata}%")
+                  ->orWhere('type', 'like', "%{$kata}%")
+                  ->orWhere('location', 'like', "%{$kata}%")
+                  ->orWhere('description', 'like', "%{$kata}%");
+            });
+        }
 
         // Filter: Tipe, Lokasi, Kapasitas (input dibersihkan & dibatasi panjangnya)
         $type = Str::limit(trim((string) $request->query('type', '')), 50, '');
@@ -49,11 +65,14 @@ class FacilityController extends Controller
             $query->where('capacity', '>=', max(0, min((int) $request->capacity, 100000)));
         }
 
-        $facilities = $query->orderBy('facility_name')->paginate(9)->withQueryString();
+        $facilities = $query->orderByRaw("CASE WHEN facility_status = 'nonaktif' THEN 1 ELSE 0 END")
+            ->orderBy('facility_name')
+            ->paginate(12)
+            ->withQueryString();
 
         // Ambil daftar unik tipe & lokasi untuk dropdown
-        $types = Facility::visible()->distinct()->pluck('type');
-        $locations = Facility::visible()->distinct()->pluck('location');
+        $types = Facility::distinct()->pluck('type');
+        $locations = Facility::distinct()->pluck('location');
 
         return view('facilities.index', compact('facilities', 'types', 'locations'));
     }
@@ -66,6 +85,7 @@ class FacilityController extends Controller
         abort_if($request->user()?->role === UserRole::Petugas, 403, 'Halaman fasilitas ini khusus untuk pengguna.');
 
         $facility = Facility::visible()
+            ->with('photos')
             ->where('id_fasilitas', $fasilitas)
             ->firstOrFail();
 
@@ -91,5 +111,17 @@ class FacilityController extends Controller
         );
 
         return view('facilities.show', compact('facility', 'selectedDate', 'slots'));
+    }
+
+    // Melayani satu foto fasilitas dari disk privat. Foto fasilitas bersifat publik
+    // (tampil di daftar fasilitas tanpa login); yang dilayani hanya berkas milik baris foto itu sendiri.
+    public function photo(FacilityPhoto $foto)
+    {
+        abort_unless(Storage::disk('local')->exists($foto->photo_path), 404);
+
+        return Storage::disk('local')->response($foto->photo_path, null, [
+            'Cache-Control'          => 'public, max-age=86400',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 }

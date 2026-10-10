@@ -12,6 +12,16 @@ class ReservationAvailability
     public const OPERATIONAL_START = '07:00:00';
     public const OPERATIONAL_END = '20:00:00';
 
+    // Hari Minggu adalah hari libur: tidak melayani reservasi fasilitas
+    public static function isSunday(string $date): bool
+    {
+        try {
+            return Carbon::createFromFormat('!Y-m-d', $date)->isSunday();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     // Validasi jam oprasional + kelipatan 30 menit
     public static function isValidSlotTime(string $time): bool
     {
@@ -73,6 +83,7 @@ class ReservationAvailability
         $timezone = config('app.timezone', 'Asia/Jakarta');
         $now = Carbon::now($timezone);
         $minStart = $now->copy()->addHour();
+        $isSunday = self::isSunday($date);
 
         $current = Carbon::parse($date . ' ' . self::OPERATIONAL_START, $timezone);
         $end = Carbon::parse($date . ' ' . self::OPERATIONAL_END, $timezone);
@@ -94,6 +105,8 @@ class ReservationAvailability
                 $status = $booking->reservation_status;
             } elseif ($isPastOrTooSoon) {
                 $status = 'berlalu';
+            } elseif ($isSunday) {
+                $status = 'libur';
             } elseif (! $facilityReservable) {
                 $status = 'perbaikan';
             } else {

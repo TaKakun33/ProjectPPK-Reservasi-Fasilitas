@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\UserRole;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\LogStatusReservasi;
+use App\Models\Report;
 use App\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,8 +19,20 @@ class ProfileController extends Controller
     // Menampilkan formulir profil pengguna
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
+        // Ringkasan aktivitas (hanya relevan untuk pengguna kampus)
+        $statistik = null;
+        if ($user->role === UserRole::Pengguna) {
+            $statistik = [
+                'reservasi' => Reservation::where('id_user', $user->id_user)->count(),
+                'laporan'   => Report::where('id_user', $user->id_user)->count(),
+            ];
+        }
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user'      => $user,
+            'statistik' => $statistik,
         ]);
     }
 

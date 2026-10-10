@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="mb-6 text-center">
+        <h1 class="text-xl font-extrabold text-maroon-800">Buat Akun Baru</h1>
+        <p class="mt-1 text-sm text-slate-500">Daftar untuk mulai meminjam ruang, lab, dan auditorium.</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
@@ -39,14 +44,17 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
+        <div class="mt-6">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl font-extrabold text-sm shadow-md transition duration-150 bg-maroon-700 text-cream border border-maroon-800 hover:bg-maroon-900">
+                {{ __('Daftar Sekarang') }}
+            </button>
+        </div>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+        <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs sm:text-sm text-[#4C4F54]">
+            Sudah punya akun?
+            <a href="{{ route('login') }}" class="font-bold text-[#8F0B13] hover:text-[#380F17] hover:underline">Masuk di sini</a>
         </div>
     </form>
 </x-guest-layout>
+

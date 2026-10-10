@@ -147,7 +147,12 @@ class ReportController extends Controller
 
         abort_unless($laporan->id_user === auth()->id(), 403);
 
-        $laporan->load('photos');
+        $laporan->load(['photos', 'facility', 'category']);
+
+        // Permintaan AJAX (pop-up detail): kembalikan potongan isi saja, tanpa layout halaman
+        if ($request->ajax()) {
+            return view('reports.partials.detail', ['laporan' => $laporan, 'modal' => true]);
+        }
 
         return view('reports.show', compact('laporan'));
     }

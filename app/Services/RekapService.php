@@ -32,14 +32,14 @@ class RekapService
         return self::menit(ReservationAvailability::OPERATIONAL_END) - self::menit(ReservationAvailability::OPERATIONAL_START);
     }
 
-    // Periode default: awal bulan berjalan sampai hari ini (WIB)
+    // Periode default: awal bulan berjalan sampai akhir bulan berjalan (WIB)
     public static function periode(?string $dari, ?string $sampai): array
     {
         $zona    = config('app.timezone', 'Asia/Jakarta');
         $hariIni = Carbon::now($zona)->startOfDay();
 
         $awal  = $dari ? Carbon::createFromFormat('Y-m-d', $dari, $zona)->startOfDay() : $hariIni->copy()->startOfMonth();
-        $akhir = $sampai ? Carbon::createFromFormat('Y-m-d', $sampai, $zona)->startOfDay() : $hariIni->copy();
+        $akhir = $sampai ? Carbon::createFromFormat('Y-m-d', $sampai, $zona)->startOfDay() : $hariIni->copy()->endOfMonth();
 
         if ($akhir->lt($awal)) {
             $akhir = $awal->copy();

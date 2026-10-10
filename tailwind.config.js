@@ -11,8 +11,46 @@ export default {
 
     theme: {
         extend: {
+            // Alias bayangan gaya Tailwind v4 supaya class shadow-xs dan shadow-2xs
+            // yang sudah dipakai di view tetap menghasilkan bayangan di Tailwind v3
+            boxShadow: {
+                '2xs': '0 1px 0 0 rgb(0 0 0 / 0.05)',
+                'xs':  '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            },
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Plus Jakarta Sans', 'Figtree', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                maroon: {
+                    deep:    '#380F17',
+                    crimson: '#8F0B13',
+                    50:      '#FDF2F2',
+                    100:     '#FBE4E5',
+                    200:     '#F5B8BA',
+                    300:     '#E87D82',
+                    400:     '#B82A33',
+                    700:     '#8F0B13',
+                    800:     '#5A121D',
+                    900:     '#380F17',
+                },
+                cream: {
+                    DEFAULT: '#EFDFC5',
+                    50:      '#FAF6F0',
+                    100:     '#F5EFE6',
+                    200:     '#EFDFC5',
+                    300:     '#DFC9A6',
+                    border:  '#EAE0D3',
+                },
+                charcoal: {
+                    dark:   '#252B2B',
+                    medium: '#4C4F54',
+                    light:  '#7A7E85',
+                },
+                status: {
+                    available: '#22C55E',
+                    pending:   '#D97706',
+                    booked:    '#EF4444',
+                },
             },
         },
     },

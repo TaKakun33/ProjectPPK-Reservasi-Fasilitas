@@ -1,38 +1,27 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <div class="mp-head-row flex justify-between items-center">
+            <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Riwayat Reservasi Saya') }}
             </h2>
-            <a href="{{ route('reservations.create') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-md hover:bg-indigo-700">
+            <a href="{{ route('reservations.create') }}" x-data @click.prevent="$dispatch('open-modal', 'reservasi')" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-maroon-800 rounded-xl font-extrabold text-cream-100 hover:bg-maroon-900 transition text-sm shadow-sm">
                 + Ajukan Reservasi Baru
             </a>
         </div>
     </x-slot>
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded text-sm font-medium">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+        <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200/70 border-t-4 border-t-maroon-800">
             @if($reservations->isEmpty())
                 <div class="p-12 text-center text-gray-500">
                     Anda belum memiliki riwayat reservasi fasilitas.
                 </div>
             @else
-                <div class="overflow-x-auto">
+                {{-- Desktop / tablet: tabel --}}
+                <div class="mp-d overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-600 font-semibold border-b">
+                            <tr class="bg-maroon-800 text-white font-semibold border-b border-maroon-900">
                                 <th class="p-4">Fasilitas</th>
                                 <th class="p-4">Tanggal</th>
                                 <th class="p-4">Waktu</th>
@@ -43,28 +32,20 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($reservations as $res)
-                                <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-cream-100">
                                     <td class="p-4 font-medium text-gray-900">{{ $res->facility->facility_name ?? '-' }}</td>
                                     <td class="p-4">{{ $res->date->format('d M Y') }}</td>
                                     <td class="p-4">{{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }}</td>
                                     <td class="p-4 text-gray-600">{{ $res->purpose }}</td>
                                     <td class="p-4">
-                                        @php
-                                            $badges = [
-                                                'pending'   => 'bg-yellow-100 text-yellow-800',
-                                                'approved'  => 'bg-green-100 text-green-800',
-                                                'rejected'  => 'bg-red-100 text-red-800',
-                                                'cancelled' => 'bg-gray-100 text-gray-800',
-                                            ];
-                                        @endphp
-                                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $badges[$res->reservation_status] ?? 'bg-gray-100' }}">
-                                            {{ ucfirst($res->reservation_status) }}
-                                        </span>
+                                        <x-status-badge :status="$res->reservation_status" />
                                     </td>
                                     <td class="p-4 text-center">
                                         <a href="{{ route('reservations.show', $res->id_reservasi) }}"
-                                           class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
-                                            Lihat Detail
+                                           x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-reservasi', url: @js(route('reservations.show', $res->id_reservasi)) })"
+                                           class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                           style="background:#8F0B13; color:#EFDFC5;">
+                                            Detail
                                         </a>
                                     </td>
                                 </tr>
@@ -73,10 +54,36 @@
                     </table>
                 </div>
 
+                {{-- Mobile: daftar kartu (tanpa geser horizontal) --}}
+                <div class="mp-m mp-cardlist">
+                    @foreach($reservations as $res)
+                        <article class="mp-rcard">
+                            <div class="mp-rcard-top">
+                                <h3>{{ $res->facility->facility_name ?? '-' }}</h3>
+                                <x-status-badge :status="$res->reservation_status" />
+                            </div>
+                            <p class="mp-rcard-meta">
+                                <span>{{ $res->date->format('d M Y') }}</span>
+                                <span>{{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }}</span>
+                            </p>
+                            <p class="mp-rcard-text">{{ $res->purpose }}</p>
+                            <a href="{{ route('reservations.show', $res->id_reservasi) }}"
+                               x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-reservasi', url: @js(route('reservations.show', $res->id_reservasi)) })"
+                               class="mp-rcard-btn">
+                                Lihat Detail
+                            </a>
+                        </article>
+                    @endforeach
+                </div>
+
                 <div class="p-4 border-t">
                     {{ $reservations->links() }}
                 </div>
             @endif
         </div>
     </div>
+
+    <x-modal-reservasi />
+
+    <x-modal-detail name="detail-reservasi" title="Detail Reservasi" max-width="xl" />
 </x-app-layout>

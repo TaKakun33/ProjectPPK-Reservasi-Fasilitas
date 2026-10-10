@@ -1,0 +1,299 @@
+// Struktur database SyncSpace - Reservasi Fasilitas (MySQL)
+// Tempel seluruh isi file ini di https://dbdiagram.io/d  (Import > From DBML / editor kiri)
+
+Project reservasi_fasilitas {
+  database_type: 'MySQL'
+  Note: 'Sistem reservasi fasilitas kampus + pelaporan kerusakan'
+}
+
+// ===================== PENGGUNA & AUTENTIKASI =====================
+
+Table users {
+  id_user uuid [pk]
+  name varchar(100) [not null]
+  email varchar(100) [not null, unique]
+  email_verified_at timestamp
+  password varchar(255) [not null]
+  remember_token varchar(100)
+  role varchar(50) [not null, note: "CHECK: 'pengguna' | 'petugas' | 'admin'"]
+  account_status varchar(50) [not null, default: 'pending', note: "CHECK: 'pending' | 'verified' | 'rejected' | 'suspended'"]
+  registered_by uuid [note: 'user (admin) yang mendaftarkan akun ini']
+  deleted_at timestamp [note: 'soft delete']
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table password_reset_tokens {
+  email varchar(255) [pk]
+  token varchar(255) [not null]
+  created_at timestamp
+}
+
+Table sessions {
+  id varchar(255) [pk]
+  user_id uuid
+  ip_address varchar(45)
+  user_agent text
+  payload longtext [not null]
+  last_activity int [not null]
+
+  indexes {
+    user_id
+    last_activity
+  }
+}
+
+// ===================== FASILITAS =====================
+
+Table facilities {
+  id_fasilitas uuid [pk]
+  facility_name varchar(100) [not null]
+  type varchar(50) [not null]
+  location varchar(150) [not null]
+  capacity int [not null, note: 'CHECK: capacity > 0']
+  description text
+  amenities json [note: 'daftar sarana penunjang (array teks)']
+  facility_status varchar(50) [not null, default: 'aktif', note: "CHECK: 'aktif' | 'dalam perbaikan' | 'nonaktif'"]
+  deleted_at timestamp [note: 'soft delete']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    facility_status [name: 'idx_facilities_facility_status']
+    (type, location, capacity) [name: 'idx_facilities_type_location_capacity']
+  }
+}
+
+Table facility_photos {
+  id_foto uuid [pk]
+  id_fasilitas uuid [not null]
+  photo_path varchar(255) [not null]
+  urutan int [not null, default: 0, note: 'maks. 5 foto per fasilitas (dijaga aplikasi)']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (id_fasilitas, urutan) [name: 'idx_facility_photos_fasilitas_urutan']
+  }
+}
+
+// ===================== RESERVASI =====================
+
+Table reservations {
+  id_reservasi uuid [pk]
+  id_user uuid [not null, note: 'pemesan']
+  id_fasilitas uuid [not null]
+  date date [not null]
+  start_time time [not null]
+  end_time time [not null]
+  purpose varchar(255) [not null]
+  reservation_status varchar(50) [not null, default: 'pending', note: "CHECK: 'pending' | 'approved' | 'rejected' | 'cancelled'"]
+  cancellation_reason text
+  alasan_ditolak text
+  processed_by uuid [note: 'petugas/admin yang memproses']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (id_fasilitas, date, reservation_status) [name: 'idx_reservations_fasilitas_date_status']
+    id_fasilitas [name: 'idx_reservations_id_fasilitas']
+    id_user [name: 'idx_reservations_id_user']
+    reservation_status [name: 'idx_reservations_reservation_status']
+    (reservation_status, date) [name: 'idx_reservations_status_date']
+  }
+
+  Note: '''
+    CHECK: end_time > start_time; jam operasional 07:00-20:00; slot kelipatan 30 menit.
+    TRIGGER (BEFORE INSERT/UPDATE): menolak jadwal bentrok (pending/approved) pada fasilitas + tanggal yang sama.
+  '''
+}
+
+Table log_status_reservasi {
+  id_log uuid [pk]
+  id_reservasi uuid [not null]
+  status_before varchar(50) [note: "NULL atau 'pending' | 'approved' | 'rejected' | 'cancelled'"]
+  status_after varchar(50) [not null, note: "'pending' | 'approved' | 'rejected' | 'cancelled'"]
+  changed_by uuid
+  notes text
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    id_reservasi [name: 'idx_log_status_reservasi_id_reservasi']
+  }
+}
+
+// ===================== LAPORAN KERUSAKAN =====================
+
+Table report_categories {
+  id_kategori uuid [pk]
+  category_name varchar(50) [not null, unique]
+  is_active boolean [not null, default: true]
+}
+
+Table reports {
+  id_laporan uuid [pk]
+  id_user uuid [not null, note: 'pelapor']
+  id_fasilitas uuid [not null]
+  id_kategori uuid [not null]
+  description text [not null]
+  report_status varchar(50) [not null, default: 'baru', note: "CHECK: 'baru' | 'diproses' | 'selesai' | 'ditolak'"]
+  menutup_fasilitas boolean [not null, default: false, note: 'true = penanganan laporan menutup fasilitas (dalam perbaikan)']
+  resolution_notes text
+  handled_by uuid [note: 'petugas yang menangani']
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    id_fasilitas [name: 'idx_reports_id_fasilitas']
+    id_kategori [name: 'idx_reports_id_kategori']
+    id_user [name: 'idx_reports_id_user']
+    report_status [name: 'idx_reports_report_status']
+    created_at [name: 'idx_reports_created_at']
+  }
+}
+
+Table report_photos {
+  id_foto uuid [pk]
+  id_laporan uuid [not null]
+  photo_path varchar(255) [not null]
+  urutan int [not null, default: 0]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    id_laporan [name: 'idx_report_photos_id_laporan']
+  }
+}
+
+Table log_status_laporan {
+  id_log uuid [pk]
+  id_laporan uuid [not null]
+  status_before varchar(50) [note: "NULL atau 'baru' | 'diproses' | 'selesai' | 'ditolak'"]
+  status_after varchar(50) [not null, note: "'baru' | 'diproses' | 'selesai' | 'ditolak'"]
+  changed_by uuid
+  notes text
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    id_laporan [name: 'idx_log_status_laporan_id_laporan']
+  }
+}
+
+// ===================== TABEL SISTEM LARAVEL (cache & queue) =====================
+
+Table cache {
+  key varchar(255) [pk]
+  value mediumtext [not null]
+  expiration bigint [not null]
+
+  indexes {
+    expiration
+  }
+}
+
+Table cache_locks {
+  key varchar(255) [pk]
+  owner varchar(255) [not null]
+  expiration bigint [not null]
+
+  indexes {
+    expiration
+  }
+}
+
+Table jobs {
+  id bigint [pk, increment]
+  queue varchar(255) [not null]
+  payload longtext [not null]
+  attempts smallint [not null]
+  reserved_at int
+  available_at int [not null]
+  created_at int [not null]
+
+  indexes {
+    queue
+  }
+}
+
+Table job_batches {
+  id varchar(255) [pk]
+  name varchar(255) [not null]
+  total_jobs int [not null]
+  pending_jobs int [not null]
+  failed_jobs int [not null]
+  failed_job_ids longtext [not null]
+  options mediumtext
+  cancelled_at int
+  created_at int [not null]
+  finished_at int
+}
+
+Table failed_jobs {
+  id bigint [pk, increment]
+  uuid varchar(255) [not null, unique]
+  connection varchar(255) [not null]
+  queue varchar(255) [not null]
+  payload longtext [not null]
+  exception longtext [not null]
+  failed_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (connection, queue, failed_at)
+  }
+}
+
+// ===================== RELASI =====================
+
+Ref: users.registered_by > users.id_user [delete: set null]
+Ref: sessions.user_id > users.id_user [delete: set null]
+
+Ref: facility_photos.id_fasilitas > facilities.id_fasilitas [delete: cascade]
+
+Ref: reservations.id_user > users.id_user [delete: restrict]
+Ref: reservations.id_fasilitas > facilities.id_fasilitas [delete: restrict]
+Ref: reservations.processed_by > users.id_user [delete: set null]
+
+Ref: log_status_reservasi.id_reservasi > reservations.id_reservasi [delete: cascade]
+Ref: log_status_reservasi.changed_by > users.id_user [delete: set null]
+
+Ref: reports.id_user > users.id_user [delete: restrict]
+Ref: reports.id_fasilitas > facilities.id_fasilitas [delete: restrict]
+Ref: reports.id_kategori > report_categories.id_kategori [delete: restrict]
+Ref: reports.handled_by > users.id_user [delete: set null]
+
+Ref: report_photos.id_laporan > reports.id_laporan [delete: cascade]
+
+Ref: log_status_laporan.id_laporan > reports.id_laporan [delete: cascade]
+Ref: log_status_laporan.changed_by > users.id_user [delete: set null]
+
+// ===================== KELOMPOK TABEL =====================
+
+TableGroup pengguna_autentikasi {
+  users
+  password_reset_tokens
+  sessions
+}
+
+TableGroup fasilitas_group {
+  facilities
+  facility_photos
+}
+
+TableGroup reservasi_group {
+  reservations
+  log_status_reservasi
+}
+
+TableGroup laporan_group {
+  report_categories
+  reports
+  report_photos
+  log_status_laporan
+}
+
+TableGroup sistem_laravel {
+  cache
+  cache_locks
+  jobs
+  job_batches
+  failed_jobs
+}

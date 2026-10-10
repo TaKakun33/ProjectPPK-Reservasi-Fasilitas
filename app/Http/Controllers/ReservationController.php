@@ -216,6 +216,11 @@ class ReservationController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk melihat reservasi ini.');
         }
 
+        // Permintaan AJAX (pop-up detail): kembalikan potongan isi saja, tanpa layout halaman
+        if ($request->ajax()) {
+            return view('reservations.partials.detail', ['reservation' => $reservation, 'modal' => true]);
+        }
+
         return view('reservations.show', compact('reservation'));
     }
 
