@@ -1,7 +1,7 @@
 {{-- Isi detail laporan kerusakan. Dipakai halaman penuh (reports.show) dan pop-up (AJAX, $modal = true). --}}
 @php $modal = $modal ?? false; @endphp
 <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
-    <div class="p-6 space-y-5">
+    <div class="mp-pad p-6 space-y-5">
         <div class="flex justify-between items-start gap-4">
             <div>
                 <p class="text-sm text-gray-500">Fasilitas</p>
@@ -41,7 +41,7 @@
             </div>
         @endif
 
-        <div class="flex justify-end pt-2 border-t">
+        <div class="mp-detail-actions flex justify-end pt-2 border-t">
             @if($modal)
                 <button type="button" x-on:click="$dispatch('close-modal', 'detail-laporan')" class="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50">
                     Tutup

@@ -1,7 +1,7 @@
 {{-- Isi detail reservasi. Dipakai halaman penuh (reservations.show) dan pop-up (AJAX, $modal = true). --}}
 @php $modal = $modal ?? false; @endphp
 <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-slate-200/70 border-t-4 border-t-maroon-800">
-    <div class="p-6 space-y-5">
+    <div class="mp-pad p-6 space-y-5">
         <div class="flex justify-between items-start gap-4">
             <div>
                 <p class="text-sm text-gray-500">Fasilitas</p>
@@ -76,17 +76,26 @@
             </div>
         @endif
 
-        <div class="flex justify-between items-center pt-2 border-t">
-            @if($modal)
-                <button type="button" x-on:click="$dispatch('close-modal', 'detail-reservasi')" class="px-4 py-2 border border-maroon-700/30 rounded-md text-maroon-700 font-semibold hover:bg-maroon-800/5">
-                    Tutup
-                </button>
-            @else
-                <a href="{{ route('reservations.index') }}" class="px-4 py-2 border border-maroon-700/30 rounded-md text-maroon-700 font-semibold hover:bg-maroon-800/5">
-                    Kembali ke Riwayat
-                </a>
-            @endif
-
+        <style>
+            .rd-actions{display:flex;flex-direction:column;gap:.6rem;padding-top:1rem;border-top:1px solid #EAE0D3}
+            .rd-btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;width:100%;min-height:2.75rem;padding:0 1.1rem;border-radius:.75rem;font:inherit;font-size:.875rem;font-weight:700;text-decoration:none;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+            .rd-btn svg{width:1.05rem;height:1.05rem;flex-shrink:0}
+            .rd-btn-close{background:#fff;color:#5A121D;border:1px solid #D9CBB4}
+            .rd-btn-close:hover{background:#FAF6F0}
+            .rd-btn-cancel{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA}
+            .rd-btn-cancel:hover{background:#B91C1C;border-color:#B91C1C;color:#fff}
+            .rd-note{display:flex;gap:.5rem;align-items:flex-start;padding:.65rem .8rem;border-radius:.75rem;background:#F5F5F4;border:1px solid #E7E5E4;color:#57534E;font-size:.78rem;line-height:1.4}
+            .rd-note svg{width:1rem;height:1rem;flex-shrink:0;margin-top:.1rem}
+            /* Tombol batal di atas, tombol tutup di bawah (mobile); berdampingan di layar lebar */
+            .rd-actions form{display:contents}
+            @media (min-width:640px){
+                .rd-actions{flex-direction:row;justify-content:space-between;align-items:center}
+                .rd-btn-close{order:-1}
+                .rd-btn{width:auto}
+                .rd-note{flex:1}
+            }
+        </style>
+        <div class="rd-actions">
             @if(in_array($reservation->reservation_status, ['pending', 'approved']))
                 @php
                     $canCancel = \Carbon\Carbon::today()->lt(\Carbon\Carbon::parse($reservation->date)->startOfDay());
@@ -96,15 +105,23 @@
                           data-confirm-type="danger" data-confirm-title="Batalkan Reservasi?" data-confirm-ok="Ya, Batalkan" data-confirm="Apakah Anda yakin ingin membatalkan reservasi ini?">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-md hover:bg-red-50">
+                        <button type="submit" class="rd-btn rd-btn-cancel">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
                             Batalkan Reservasi
                         </button>
                     </form>
                 @else
-                    <span class="inline-block px-3 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-md">
-                        Batas pembatalan mandiri berakhir (Maks. H-1 23:59 WIB)
-                    </span>
+                    <p class="rd-note">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                        <span>Batas pembatalan mandiri sudah berakhir (maks. H-1 pukul 23:59 WIB).</span>
+                    </p>
                 @endif
+            @endif
+
+            @if($modal)
+                <button type="button" x-on:click="$dispatch('close-modal', 'detail-reservasi')" class="rd-btn rd-btn-close">Tutup</button>
+            @else
+                <a href="{{ route('reservations.index') }}" class="rd-btn rd-btn-close">Kembali ke Riwayat</a>
             @endif
         </div>
     </div>

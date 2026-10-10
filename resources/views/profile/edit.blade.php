@@ -62,16 +62,16 @@
                     </div>
                     <dl class="pf-meta">
                         <div>
-                            <dt>Bergabung sejak</dt>
-                            <dd>{{ $user->created_at?->locale('id')->translatedFormat('d F Y') ?? '-' }}</dd>
+                            <dt>Bergabung</dt>
+                            <dd>{{ $user->created_at?->locale('id')->translatedFormat('d M Y') ?? '-' }}</dd>
                         </div>
                         @if($statistik)
                             <div>
-                                <dt>Total reservasi</dt>
+                                <dt>Reservasi</dt>
                                 <dd>{{ $statistik['reservasi'] }}</dd>
                             </div>
                             <div>
-                                <dt>Total laporan</dt>
+                                <dt>Laporan</dt>
                                 <dd>{{ $statistik['laporan'] }}</dd>
                             </div>
                         @endif

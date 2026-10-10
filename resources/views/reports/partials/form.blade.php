@@ -56,7 +56,7 @@
         <x-input-error :messages="$errors->get('photos.*')" class="mt-2" />
     </div>
 
-    <div class="flex justify-end gap-3 pt-4 border-t border-dashed border-cream-border">
+    <div class="mp-actions flex justify-end gap-3 pt-4 border-t border-dashed border-cream-border">
         @if($modal)
             <x-button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'laporan')">Batal</x-button>
         @else

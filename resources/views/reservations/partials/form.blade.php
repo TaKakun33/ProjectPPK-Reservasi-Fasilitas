@@ -9,14 +9,20 @@
     @endif
 
     {{-- Aturan Reservasi --}}
-    <div class="rounded-xl p-3.5 sm:p-4" style="background:#FAF6F0; border:1px solid #EAE0D3;">
-        <p class="text-xs sm:text-sm font-extrabold text-[#380F17] flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#8F0B13]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Aturan Reservasi
-        </p>
-        <ul class="mt-2.5 space-y-1.5 text-[11px] sm:text-xs text-[#4C4F54] leading-relaxed">
+    {{-- Di mobile daftar aturan dilipat dulu supaya formulir tidak tertutup teks panjang; di layar lebar selalu terbuka --}}
+    <div class="rounded-xl p-3.5 sm:p-4" style="background:#FAF6F0; border:1px solid #EAE0D3;"
+         x-data="{ buka: window.matchMedia('(min-width: 640px)').matches }">
+        <button type="button" class="mp-rules-toggle w-full flex items-center justify-between gap-2 text-left"
+                x-on:click="if (window.innerWidth < 640) buka = !buka" :aria-expanded="buka">
+            <span class="text-xs sm:text-sm font-extrabold text-[#380F17] flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-[#8F0B13]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Aturan Reservasi
+            </span>
+            <svg class="mp-m w-4 h-4 text-[#8F0B13] shrink-0 transition-transform" :class="{ 'rotate-180': buka }" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <ul x-show="buka" x-cloak class="mt-2.5 space-y-1.5 text-[11px] sm:text-xs text-[#4C4F54] leading-relaxed">
             <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Reservasi dilayani <strong>Senin – Sabtu</strong>. <strong>Hari Minggu libur</strong> dan tidak dapat dipesan.</span></li>
             <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Jam operasional <strong>07:00 – 20:00 WIB</strong>, dengan pilihan jam dalam kelipatan 30 menit.</span></li>
             <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Durasi bebas, bisa <strong>seharian penuh</strong> selama masih dalam jam operasional.</span></li>
@@ -55,7 +61,7 @@
     </div>
 
     {{-- Jam Mulai & Selesai (Slot Kelipatan 30 Menit) --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="mp-timegrid grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <x-input-label for="start_time" value="Jam Mulai" />
             <x-select name="start_time" id="start_time" required class="mt-1 block w-full" aria-describedby="bantuan_jam_mulai">
@@ -95,7 +101,7 @@
         <x-input-error :messages="$errors->get('purpose')" class="mt-2" />
     </div>
 
-    <div class="flex justify-end gap-3 pt-4 border-t border-dashed border-cream-border">
+    <div class="mp-actions flex justify-end gap-3 pt-4 border-t border-dashed border-cream-border">
         @if($modal)
             <x-button type="button" variant="secondary" x-on:click="$dispatch('close-modal', 'reservasi')">Batal</x-button>
         @else

@@ -8,7 +8,7 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
         {{-- Breadcrumb navigasi --}}
-        <nav class="text-xs flex items-center gap-1.5 mb-3 text-[#4C4F54]" aria-label="Breadcrumb">
+        <nav class="mp-crumb text-xs flex items-center gap-1.5 mb-3 text-[#4C4F54]" aria-label="Breadcrumb">
             <a href="{{ route('facilities.index') }}" class="hover:text-[#8F0B13] font-semibold transition-colors">Beranda</a>
             <span class="text-gray-400">/</span>
             <a href="{{ route('facilities.index', ['type' => $facility->type]) }}" class="hover:text-[#8F0B13] font-semibold transition-colors">{{ $facility->type }}</a>
@@ -64,7 +64,7 @@
                 && auth()->user()->role === \App\Enums\UserRole::Pengguna
                 && $facility->facility_status === 'aktif';
         @endphp
-        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start {{ $bisaReservasi ? 'pb-20 lg:pb-0' : '' }}"
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start {{ ($bisaReservasi || ! auth()->check()) ? 'pb-20 lg:pb-0' : '' }}"
              x-data="{
                  selectedSlot: null,
                  urlReservasi: @js(route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate])),
@@ -83,11 +83,21 @@
                 {{-- Galeri foto fasilitas (dari database, maksimal 5): foto utama utuh (tidak dipotong), thumbnail di sisi kanan --}}
                 @if(count($gallery) > 0)
                     <section class="bg-white rounded-2xl p-3 sm:p-4 shadow-xs" style="border:1px solid #EAE0D3;"
-                             x-data="{ aktif: 0, foto: @js($gallery) }">
+                             x-data="{
+                                 aktif: 0, foto: @js($gallery), x0: null,
+                                 // Geser kiri/kanan di layar sentuh untuk ganti foto
+                                 geser(e) {
+                                     if (this.x0 === null || this.foto.length < 2) return;
+                                     const dx = e.changedTouches[0].clientX - this.x0;
+                                     this.x0 = null;
+                                     if (Math.abs(dx) > 40) this.aktif = (this.aktif + (dx < 0 ? 1 : -1) + this.foto.length) % this.foto.length;
+                                 }
+                             }">
                         <div class="flex flex-col sm:flex-row gap-3">
                             {{-- Foto utama: object-contain agar seluruh foto terlihat --}}
                             <div class="relative flex-1 min-w-0 h-56 sm:h-72 rounded-xl overflow-hidden bg-cream-50 flex items-center justify-center"
-                                 style="border:1px solid #EAE0D3;">
+                                 style="border:1px solid #EAE0D3; touch-action: pan-y;"
+                                 @touchstart.passive="x0 = $event.touches[0].clientX" @touchend.passive="geser($event)">
                                 <img :src="foto[aktif]" alt="{{ $facility->facility_name }}" class="max-w-full max-h-full object-contain">
                                 <span x-show="foto.length > 1" x-cloak x-text="(aktif + 1) + ' / ' + foto.length"
                                       class="absolute bottom-2 right-2 text-[11px] font-bold px-2 py-1 rounded-md shadow-xs"
@@ -115,7 +125,7 @@
                 @endif
 
                 {{-- Seksi Tentang Fasilitas --}}
-                <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;">
+                <section class="mp-section bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-1.5 h-5 rounded-full" style="background:#8F0B13;"></span>
                         <h2 class="font-extrabold text-base sm:text-lg text-[#252B2B]">Tentang Fasilitas Ini</h2>
@@ -140,7 +150,7 @@
                 </section>
 
                 {{-- Seksi Jadwal & Ketersediaan Slot (Model 3: Visual Timeline Bar) --}}
-                <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;">
+                <section class="mp-section bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
                         <div>
                             <div class="flex items-center gap-2">
@@ -154,7 +164,7 @@
 
                         {{-- Filter Pemilihan Tanggal --}}
                         <form method="GET" action="{{ route('facilities.show', $facility->id_fasilitas) }}"
-                              class="flex items-center gap-2 rounded-xl px-3 py-1.5 shadow-2xs"
+                              class="mp-dateform flex items-center gap-2 rounded-xl px-3 py-1.5 shadow-2xs"
                               style="background:#FAF6F0; border:1px solid #EAE0D3;">
                             <label for="date" class="text-xs font-bold text-[#252B2B] shrink-0">Tanggal:</label>
                             <input type="date" id="date" name="date" value="{{ $selectedDate }}" onchange="this.form.submit()"
@@ -181,7 +191,7 @@
 
                         {{-- Segmen Timeline Bar --}}
                         <div class="relative w-full">
-                            <div class="h-7 sm:h-8 flex gap-0.5 sm:gap-1 p-1 bg-white rounded-lg border shadow-inner" style="border-color:#EAE0D3;">
+                            <div class="mp-timeline h-7 sm:h-8 flex gap-0.5 sm:gap-1 p-1 bg-white rounded-lg border shadow-inner" style="border-color:#EAE0D3;">
                                 @foreach($slots as $slot)
                                     @php
                                         $statusKey = strtolower($slot['status'] ?? ($slot['is_available'] ? 'tersedia' : 'terisi'));
@@ -233,6 +243,18 @@
                                 <span>19:00</span>
                                 <span>20:00</span>
                             </div>
+
+                            {{-- Layar sentuh tidak punya hover/tooltip: tampilkan jam yang dipilih / petunjuk di sini (khusus yang bisa reservasi) --}}
+                            @if($bisaReservasi)
+                                <p class="mp-m mt-2 text-xs font-semibold text-[#4C4F54]">
+                                    <template x-if="selectedSlot">
+                                        <span>Jam mulai terpilih: <strong class="text-[#8F0B13]" x-text="selectedSlot"></strong></span>
+                                    </template>
+                                    <template x-if="!selectedSlot">
+                                        <span>Sentuh slot hijau untuk memilih jam mulai.</span>
+                                    </template>
+                                </p>
+                            @endif
                         </div>
                     </div>
 
@@ -245,7 +267,7 @@
                                 $isPast = $slot['is_past'] ?? ($statusKey === 'berlalu');
                             @endphp
                             <div @if($slot['is_available']) @click="selectedSlot = '{{ $slot['start'] }}'" @endif
-                                 class="px-3 py-2 rounded-xl border text-xs transition duration-150 flex items-center justify-between {{ $slot['is_available'] ? 'cursor-pointer' : 'cursor-default' }}
+                                 class="mp-slot px-3 py-2 rounded-xl border text-xs transition duration-150 flex items-center justify-between {{ $slot['is_available'] ? 'cursor-pointer' : 'cursor-default' }}
                                  @if($slot['is_available'])
                                      bg-emerald-50/60 border-emerald-200/80 text-emerald-950 hover:bg-emerald-100/70 hover:border-emerald-300
                                  @elseif($isPast)
@@ -290,7 +312,7 @@
                     </div>
 
                     {{-- Legend Keterangan Warna --}}
-                    <div class="mt-4 pt-3 text-xs text-[#4C4F54] flex flex-wrap gap-4 border-t border-dashed" style="border-color:#EAE0D3;">
+                    <div class="mp-legend mt-4 pt-3 text-xs text-[#4C4F54] flex flex-wrap gap-4 border-t border-dashed" style="border-color:#EAE0D3;">
                         <span class="flex items-center gap-1.5">
                             <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:#059669"></span>
                             <span class="font-medium">Slot Tersedia</span>
@@ -419,13 +441,22 @@
 
             {{-- Bar CTA menempel di bawah layar, hanya tampil di mobile --}}
             @if($bisaReservasi && ! $isSunday)
-                <div class="fixed inset-x-0 bottom-0 z-40 border-t border-cream-border bg-white p-3 shadow-lg lg:hidden">
+                <div class="mp-cta-bar fixed inset-x-0 bottom-0 z-40 border-t border-cream-border bg-white p-3 shadow-lg lg:hidden">
+                    <p x-show="selectedSlot" x-cloak class="mb-2 text-center text-xs font-semibold text-charcoal-medium">
+                        Jam mulai terpilih: <span class="font-extrabold text-[#8F0B13]" x-text="selectedSlot"></span>
+                    </p>
                     <x-button class="w-full"
                               :href="route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate])"
                               x-bind:href="selectedSlot ? urlReservasi + '&start_time=' + selectedSlot : urlReservasi"
                               @click.prevent="bukaReservasi()">
                         Ajukan Reservasi
                     </x-button>
+                </div>
+            @elseif(! auth()->check())
+                {{-- Tamu: tombol login tetap terlihat tanpa harus scroll ke ringkasan di bagian paling bawah --}}
+                <div class="mp-cta-bar fixed inset-x-0 bottom-0 z-40 border-t border-cream-border bg-white p-3 shadow-lg lg:hidden">
+                    <p class="mb-2 text-center text-xs font-semibold text-charcoal-medium">Masuk untuk mengajukan reservasi fasilitas ini</p>
+                    <x-button class="w-full" :href="route('login')">Login untuk Ajukan Reservasi</x-button>
                 </div>
             @endif
         </div>

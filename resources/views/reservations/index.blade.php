@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="mp-head-row flex justify-between items-center">
             <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Riwayat Reservasi Saya') }}
             </h2>
@@ -17,7 +17,8 @@
                     Anda belum memiliki riwayat reservasi fasilitas.
                 </div>
             @else
-                <div class="overflow-x-auto">
+                {{-- Desktop / tablet: tabel --}}
+                <div class="mp-d overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-maroon-800 text-white font-semibold border-b border-maroon-900">
@@ -51,6 +52,28 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Mobile: daftar kartu (tanpa geser horizontal) --}}
+                <div class="mp-m mp-cardlist">
+                    @foreach($reservations as $res)
+                        <article class="mp-rcard">
+                            <div class="mp-rcard-top">
+                                <h3>{{ $res->facility->facility_name ?? '-' }}</h3>
+                                <x-status-badge :status="$res->reservation_status" />
+                            </div>
+                            <p class="mp-rcard-meta">
+                                <span>{{ $res->date->format('d M Y') }}</span>
+                                <span>{{ substr($res->start_time, 0, 5) }} - {{ substr($res->end_time, 0, 5) }}</span>
+                            </p>
+                            <p class="mp-rcard-text">{{ $res->purpose }}</p>
+                            <a href="{{ route('reservations.show', $res->id_reservasi) }}"
+                               x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-reservasi', url: @js(route('reservations.show', $res->id_reservasi)) })"
+                               class="mp-rcard-btn">
+                                Lihat Detail
+                            </a>
+                        </article>
+                    @endforeach
                 </div>
 
                 <div class="p-4 border-t">

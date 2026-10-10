@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
+        <div class="mp-head-row flex justify-between items-center">
             <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Riwayat Laporan Kerusakan Saya') }}
             </h2>
@@ -17,7 +17,8 @@
                     Anda belum memiliki laporan kerusakan fasilitas.
                 </div>
             @else
-                <div class="overflow-x-auto">
+                {{-- Desktop / tablet: tabel --}}
+                <div class="mp-d overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-gray-50 text-gray-600 font-semibold border-b">
@@ -51,6 +52,28 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Mobile: daftar kartu (tanpa geser horizontal) --}}
+                <div class="mp-m mp-cardlist">
+                    @foreach($reports as $laporan)
+                        <article class="mp-rcard">
+                            <div class="mp-rcard-top">
+                                <h3>{{ $laporan->facility->facility_name ?? '-' }}</h3>
+                                <x-status-badge :status="$laporan->report_status" />
+                            </div>
+                            <p class="mp-rcard-meta">
+                                <span>{{ $laporan->category->category_name ?? '-' }}</span>
+                                <span>{{ $laporan->created_at->format('d M Y H:i') }}</span>
+                            </p>
+                            <p class="mp-rcard-text">{{ $laporan->description }}</p>
+                            <a href="{{ route('reports.show', $laporan) }}"
+                               x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-laporan', url: @js(route('reports.show', $laporan)) })"
+                               class="mp-rcard-btn">
+                                Lihat Detail
+                            </a>
+                        </article>
+                    @endforeach
                 </div>
 
                 <div class="p-4 border-t">
