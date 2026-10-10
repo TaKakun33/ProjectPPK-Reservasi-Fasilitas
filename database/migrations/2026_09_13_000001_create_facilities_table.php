@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('location', 150);
             $table->integer('capacity');
             $table->text('description')->nullable();
+            // Daftar "Fasilitas & Sarana Penunjang" (array teks), diisi admin lewat form
+            $table->json('amenities')->nullable();
             $table->string('facility_status', 50)->default('aktif');
             $table->softDeletes();
             $table->timestamp('created_at')->useCurrent();

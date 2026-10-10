@@ -31,6 +31,8 @@ return new class extends Migration
             $table->index('id_fasilitas', 'idx_reservations_id_fasilitas');
             $table->index('id_user', 'idx_reservations_id_user');
             $table->index('reservation_status', 'idx_reservations_reservation_status');
+            // Pendukung query rekap okupansi: reservasi approved dalam rentang tanggal lintas fasilitas
+            $table->index(['reservation_status', 'date'], 'idx_reservations_status_date');
         });
 
         DB::statement('ALTER TABLE reservations ADD CONSTRAINT chk_reservations_time_order CHECK (end_time > start_time)');
