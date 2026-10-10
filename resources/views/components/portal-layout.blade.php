@@ -30,7 +30,7 @@
                 <header class="mb-topbar bg-white shadow-xs sticky top-0 z-10" style="border-bottom: 4px solid #8F0B13;">
                     <div class="flex items-center gap-4 px-4 sm:px-6 py-4">
                         {{-- Hamburger (khusus mobile) --}}
-                        <button @click="sidebarOpen = true"
+                        <button type="button" @click="sidebarOpen = true"
                                 class="lg:hidden p-1.5 rounded-lg text-maroon-800 hover:bg-[#FAF6F0] transition"
                                 aria-label="Buka menu">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
