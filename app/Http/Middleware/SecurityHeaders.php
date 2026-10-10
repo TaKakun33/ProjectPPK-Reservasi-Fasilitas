@@ -20,10 +20,14 @@ class SecurityHeaders
 
         // CSP minimal yang aman bagi skrip inline Alpine/Blade: mencegah clickjacking modern,
         // injeksi <base>, plugin/objek, dan form yang diarahkan ke domain lain.
-        $response->headers->set(
-            'Content-Security-Policy',
-            "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'"
-        );
+        $csp = "base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'";
+
+        // Di production/Vercel, naikkan otomatis subresource http:// ke https:// (cegah mixed content).
+        if (app()->isProduction() || getenv('VERCEL')) {
+            $csp .= '; upgrade-insecure-requests';
+        }
+
+        $response->headers->set('Content-Security-Policy', $csp);
 
         // HSTS hanya dikirim lewat HTTPS agar tidak mengunci lingkungan lokal (http://localhost).
         if ($request->isSecure()) {
