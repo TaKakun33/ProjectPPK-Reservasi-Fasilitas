@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Http\Controllers\Admin\FacilityController as AdminFacilityController;
 use App\Models\Facility;
 use App\Models\ReportCategory;
+use App\Models\User;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\View;
@@ -43,6 +44,11 @@ class AppServiceProvider extends ServiceProvider
                 'facilities' => Facility::visible()->orderBy('facility_name')->get(),
                 'categories' => ReportCategory::where('is_active', true)->orderBy('category_name')->get(),
             ]);
+        });
+
+        // Badge jumlah akun menunggu verifikasi di sidebar admin (sebelumnya variabel ini tidak pernah di-set).
+        View::composer('components.admin-layout', function (ViewContract $view): void {
+            $view->with('adminPendingCount', User::where('account_status', 'pending')->count());
         });
 
         View::composer('components.modal-fasilitas', function (ViewContract $view): void {
