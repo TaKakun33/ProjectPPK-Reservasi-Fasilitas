@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Di Vercel, HTTPS di-terminasi oleh proxy; percayai header X-Forwarded-* agar URL aset (CSS/JS) bukan http://
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => CheckRole::class,
         ]);

@@ -8,6 +8,7 @@ use App\Models\ReportCategory;
 use App\Models\User;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Paksa HTTPS di Vercel/production supaya CSS & JS tidak diblokir browser (mixed content).
+        if ($this->app->isProduction() || getenv('VERCEL')) {
+            URL::forceScheme('https');
+        }
+
         // Deteksi N+1 query: lazy loading dicatat ke log (bukan dilempar sebagai error) di luar production,
         // sehingga pelanggaran terlihat saat pengembangan tanpa merusak halaman.
         Model::preventLazyLoading(! $this->app->isProduction());
