@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('layouts.partials.head')
+        @include('layouts.partials.mobile-pengguna')
     </head>
     <body class="antialiased" style="font-family: 'Plus Jakarta Sans', sans-serif;">
         <div class="min-h-screen flex flex-col sm:justify-center items-center py-8 sm:py-12 px-4 relative overflow-hidden"
@@ -23,7 +24,7 @@
             </div>
 
             {{-- Main Form Card --}}
-            <div class="relative z-10 w-full sm:max-w-md mt-6 px-6 py-7 sm:px-8 bg-white shadow-2xl overflow-hidden rounded-2xl border"
+            <div class="mp-auth-card relative z-10 w-full sm:max-w-md mt-6 px-6 py-7 sm:px-8 bg-white shadow-2xl overflow-hidden rounded-2xl border"
                  style="border-color: rgba(239, 223, 197, 0.4); box-shadow: 0 20px 45px -15px rgba(0,0,0,0.5);">
                 {{ $slot }}
             </div>

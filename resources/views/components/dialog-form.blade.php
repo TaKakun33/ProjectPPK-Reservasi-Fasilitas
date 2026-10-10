@@ -51,9 +51,9 @@
          x-show="show"
          x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
          x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
-         class="relative mx-auto my-4 sm:my-10 w-[calc(100%-2rem)] {{ $lebar }} bg-white rounded-2xl shadow-2xl border border-cream-border border-t-4 border-t-maroon-800">
+         class="mp-dialog-panel relative mx-auto my-4 sm:my-10 w-[calc(100%-2rem)] {{ $lebar }} bg-white rounded-2xl shadow-2xl border border-cream-border border-t-4 border-t-maroon-800">
 
-        <div class="flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 pb-2">
+        <div class="mp-dialog-head flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 pb-2">
             <div class="min-w-0">
                 <h2 id="judul-{{ $name }}" class="font-extrabold text-lg sm:text-xl text-maroon-800 leading-tight">{{ $title }}</h2>
                 @if($subtitle)
@@ -61,12 +61,12 @@
                 @endif
             </div>
             <button type="button" x-on:click="show = false" aria-label="Tutup"
-                    class="shrink-0 -mr-2 -mt-1 w-8 h-8 rounded-full flex items-center justify-center text-[#4C4F54] hover:bg-cream-50 hover:text-maroon-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-maroon-700">
+                    class="mp-dialog-close shrink-0 -mr-2 -mt-1 w-8 h-8 rounded-full flex items-center justify-center text-[#4C4F54] hover:bg-cream-50 hover:text-maroon-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-maroon-700">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
-        <div class="px-5 sm:px-7 pb-6 pt-0">
+        <div class="mp-dialog-body px-5 sm:px-7 pb-6 pt-0">
             {{ $slot }}
         </div>
     </div>

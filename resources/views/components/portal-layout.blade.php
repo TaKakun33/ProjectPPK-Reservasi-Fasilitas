@@ -14,6 +14,8 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('layouts.partials.head', ['judul' => $judul])
+        @include('layouts.partials.mobile-pengguna')
+        @include('layouts.partials.mobile-portal')
         @include('layouts.partials.session-guard')
     </head>
     <body class="antialiased" style="font-family:'Plus Jakarta Sans', sans-serif; background:#FAF6F0; color:#252B2B;">
@@ -25,7 +27,7 @@
             {{-- Konten utama --}}
             <div class="flex-1 flex flex-col min-w-0">
                 {{-- Top bar --}}
-                <header class="bg-white shadow-xs sticky top-0 z-10" style="border-bottom: 4px solid #8F0B13;">
+                <header class="mb-topbar bg-white shadow-xs sticky top-0 z-10" style="border-bottom: 4px solid #8F0B13;">
                     <div class="flex items-center gap-4 px-4 sm:px-6 py-4">
                         {{-- Hamburger (khusus mobile) --}}
                         <button @click="sidebarOpen = true"
@@ -37,7 +39,7 @@
                         </button>
 
                         {{-- Slot judul halaman --}}
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0">
                             @isset($header)
                                 {{ $header }}
                             @endisset
@@ -46,12 +48,28 @@
                 </header>
 
                 {{-- Isi halaman --}}
-                <main class="flex-1">
+                <main class="mb-main flex-1">
                     {{ $slot }}
                 </main>
             </div>
 
         </div>
+
+        {{-- Mobile: beri label kolom pada tiap sel tabel agar bisa tampil sebagai kartu --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('main table').forEach(function (tabel) {
+                    var judul = Array.from(tabel.querySelectorAll('thead th')).map(function (th) {
+                        return th.textContent.replace(/\s+/g, ' ').trim();
+                    });
+                    tabel.querySelectorAll('tbody tr').forEach(function (baris) {
+                        Array.from(baris.children).forEach(function (sel, i) {
+                            if (judul[i] && !sel.dataset.label) sel.dataset.label = judul[i];
+                        });
+                    });
+                });
+            });
+        </script>
 
         <x-popup :validasi="true" />
     </body>
