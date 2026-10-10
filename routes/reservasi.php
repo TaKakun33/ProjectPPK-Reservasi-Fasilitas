@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Route;
 // bedanya cuma boleh-tidaknya lanjut ke tombol "Ajukan Reservasi".
 Route::get('/fasilitas', [FacilityController::class, 'index'])->name('facilities.index');
 Route::redirect('/home', '/fasilitas');
-Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->name('facilities.show');
+Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->whereUuid('fasilitas')->name('facilities.show');
 // Foto fasilitas unggahan admin (publik, sama seperti daftar fasilitas)
-Route::get('/fasilitas/foto/{foto}', [FacilityController::class, 'photo'])->name('facilities.photo');
+Route::get('/fasilitas/foto/{foto}', [FacilityController::class, 'photo'])->whereUuid('foto')->name('facilities.photo');
 
 // Wajib login — khusus buat role pengguna, tapi pengecekan role + redirect
 // per-role-nya dilakukan di ReservationController@ensurePengguna(), BUKAN
@@ -35,6 +35,6 @@ Route::middleware(['auth'])->prefix('reservasi')->name('reservations.')->group(f
     Route::get('/', [ReservationController::class, 'index'])->name('index'); // riwayat + status
     Route::get('/create', [ReservationController::class, 'create'])->name('create'); // form ajukan
     Route::post('/', [ReservationController::class, 'store'])->middleware('throttle:10,1')->name('store'); // dibatasi 10 pengajuan/menit/user (anti-spam) // validasi server: jam operasional, slot 30 menit, bentrok
-    Route::get('/{reservasi}', [ReservationController::class, 'show'])->name('show'); // detail 1 reservasi milik sendiri
-    Route::delete('/{reservasi}', [ReservationController::class, 'destroy'])->name('destroy'); // batalkan punya sendiri
+    Route::get('/{reservasi}', [ReservationController::class, 'show'])->whereUuid('reservasi')->name('show'); // detail 1 reservasi milik sendiri
+    Route::delete('/{reservasi}', [ReservationController::class, 'destroy'])->whereUuid('reservasi')->name('destroy'); // batalkan punya sendiri
 });

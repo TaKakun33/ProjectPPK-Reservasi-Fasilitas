@@ -17,6 +17,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RekapController;
 use Illuminate\Support\Facades\Route;
 
+// Parameter {fasilitas} wajib UUID (resource() tidak punya whereUuid, jadi dipasang sebagai pola global).
+Route::pattern('fasilitas', '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}');
+
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -32,15 +35,16 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
     // Aktifkan kembali fasilitas yang sudah dinonaktifkan (kebalikan dari destroy).
     Route::patch('/fasilitas/{fasilitas}/activate', [FacilityController::class, 'activate'])
+        ->whereUuid('fasilitas')
         ->name('fasilitas.activate');
 
     // Kelola akun pengguna (petugas & pengguna): pendaftaran langsung, verifikasi, tolak, bekukan, dan aktifkan kembali
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::patch('/users/{user}/verify', [UserController::class, 'verify'])->name('users.verify');
-    Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
-    Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->name('users.suspend');
-    Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
+    Route::patch('/users/{user}/verify', [UserController::class, 'verify'])->whereUuid('user')->name('users.verify');
+    Route::patch('/users/{user}/reject', [UserController::class, 'reject'])->whereUuid('user')->name('users.reject');
+    Route::patch('/users/{user}/suspend', [UserController::class, 'suspend'])->whereUuid('user')->name('users.suspend');
+    Route::patch('/users/{user}/reactivate', [UserController::class, 'reactivate'])->whereUuid('user')->name('users.reactivate');
 
     // Rekap okupansi & frekuensi kerusakan fasilitas, serta export laporan (CSV/Excel/PDF)
     Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');

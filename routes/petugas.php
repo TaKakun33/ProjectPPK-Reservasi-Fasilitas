@@ -17,15 +17,15 @@ Route::prefix('petugas')->middleware(['auth', 'role:petugas'])->name('petugas.')
 
     Route::prefix('reservasi')->name('reservations.')->group(function () {
         Route::get('/', [ReservationController::class, 'index'])->name('index');
-        Route::get('/{reservasi}', [ReservationController::class, 'show'])->name('show'); // detail lengkap (pop-up AJAX / halaman penuh)
-        Route::patch('/{reservasi}/approve', [ReservationController::class, 'approve'])->name('approve'); // cek bentrok jadwal
-        Route::patch('/{reservasi}/reject', [ReservationController::class, 'reject'])->name('reject');
-        Route::patch('/{reservasi}/cancel', [ReservationController::class, 'cancel'])->name('cancel'); // wajib isi alasan
+        Route::get('/{reservasi}', [ReservationController::class, 'show'])->whereUuid('reservasi')->name('show'); // detail lengkap (pop-up AJAX / halaman penuh)
+        Route::patch('/{reservasi}/approve', [ReservationController::class, 'approve'])->whereUuid('reservasi')->name('approve'); // cek bentrok jadwal
+        Route::patch('/{reservasi}/reject', [ReservationController::class, 'reject'])->whereUuid('reservasi')->name('reject');
+        Route::patch('/{reservasi}/cancel', [ReservationController::class, 'cancel'])->whereUuid('reservasi')->name('cancel'); // wajib isi alasan
     });
 
     Route::prefix('laporan')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
-        Route::get('/{laporan}', [ReportController::class, 'show'])->name('show');
-        Route::patch('/{laporan}/status', [ReportController::class, 'updateStatus'])->name('update-status'); // + catatan resolusi, toggle facility_status
+        Route::get('/{laporan}', [ReportController::class, 'show'])->whereUuid('laporan')->name('show');
+        Route::patch('/{laporan}/status', [ReportController::class, 'updateStatus'])->whereUuid('laporan')->name('update-status'); // + catatan resolusi, toggle facility_status
     });
 });
