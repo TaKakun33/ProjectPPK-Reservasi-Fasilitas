@@ -13,8 +13,9 @@ use Illuminate\Validation\Validator;
 // Form Request untuk pengajuan reservasi (E3, E4, E9): seluruh validasi server dikumpulkan di sini.
 class SimpanReservasiRequest extends FormRequest
 {
-    // Batas durasi satu reservasi (menit) dan horizon tanggal pemesanan (hari) agar slot tidak di-hoard
-    public const MAKS_DURASI_MENIT = 240;
+    // Batas durasi satu reservasi (menit) dan horizon tanggal pemesanan (hari) agar slot tidak di-hoard.
+    // Durasi maksimal = seluruh jam operasional (07:00 - 20:00 = 13 jam), sehingga reservasi bisa seharian penuh.
+    public const MAKS_DURASI_MENIT = 780;
     public const MAKS_HARI_KEDEPAN = 60;
 
     // Hanya role pengguna yang boleh mengajukan reservasi. Dicek SEBELUM validasi dijalankan,
@@ -67,7 +68,7 @@ class SimpanReservasiRequest extends FormRequest
         ];
     }
 
-    // Validasi lintas-field: jam operasional, kelipatan 30 menit, durasi, buffer 1 jam
+    // Validasi lintas-field: hari Minggu libur, jam operasional, kelipatan 30 menit, durasi, buffer 1 jam
     public function after(): array
     {
         return [function (Validator $validator) {
@@ -76,6 +77,13 @@ class SimpanReservasiRequest extends FormRequest
             }
 
             $zona    = config('app.timezone', 'Asia/Jakarta');
+
+            // Hari Minggu libur: reservasi tidak dilayani
+            if (ReservationAvailability::isSunday($this->input('date'))) {
+                $validator->errors()->add('date', 'Reservasi tidak dapat dilakukan pada hari Minggu. Silakan pilih hari Senin sampai Sabtu.');
+                return;
+            }
+
             $mulaiStr   = $this->input('start_time') . ':00';
             $selesaiStr = $this->input('end_time') . ':00';
 

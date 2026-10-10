@@ -8,6 +8,26 @@
         <input type="hidden" name="_modal" value="reservasi">
     @endif
 
+    {{-- Aturan Reservasi --}}
+    <div class="rounded-xl p-3.5 sm:p-4" style="background:#FAF6F0; border:1px solid #EAE0D3;">
+        <p class="text-xs sm:text-sm font-extrabold text-[#380F17] flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-[#8F0B13]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Aturan Reservasi
+        </p>
+        <ul class="mt-2.5 space-y-1.5 text-[11px] sm:text-xs text-[#4C4F54] leading-relaxed">
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Reservasi dilayani <strong>Senin – Sabtu</strong>. <strong>Hari Minggu libur</strong> dan tidak dapat dipesan.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Jam operasional <strong>07:00 – 20:00 WIB</strong>, dengan pilihan jam dalam kelipatan 30 menit.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Durasi bebas, bisa <strong>seharian penuh</strong> selama masih dalam jam operasional.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Pengajuan minimal <strong>1 jam sebelum</strong> kegiatan dimulai dan maksimal <strong>60 hari</strong> ke depan.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Setiap pengajuan berstatus <strong>menunggu</strong> hingga disetujui petugas. Pengajuan yang tidak diproses sampai jam mulai ditolak otomatis.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Jadwal tidak boleh bentrok dengan reservasi lain, dan Anda tidak dapat memesan dua fasilitas pada jam yang beririsan.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Maksimal <strong>3</strong> reservasi menunggu persetujuan dan <strong>5</strong> reservasi aktif per pengguna.</span></li>
+            <li class="flex gap-2"><span class="w-1.5 h-1.5 mt-1.5 rounded-full bg-[#8F0B13] shrink-0"></span><span>Reservasi yang sudah disetujui hanya dapat dibatalkan paling lambat <strong>H-1</strong> (sampai pukul 23:59 WIB).</span></li>
+        </ul>
+    </div>
+
     {{-- Pilihan Fasilitas --}}
     <div>
         <x-input-label for="id_fasilitas" value="Pilih Fasilitas" />
@@ -30,6 +50,7 @@
                       min="{{ date('Y-m-d') }}"
                       max="{{ now()->addDays(\App\Http\Requests\SimpanReservasiRequest::MAKS_HARI_KEDEPAN)->toDateString() }}"
                       required />
+        <p id="peringatan_minggu" class="mt-1 text-xs font-semibold text-rose-700" hidden>Hari Minggu libur, reservasi tidak dapat diajukan. Pilih hari Senin – Sabtu.</p>
         <x-input-error :messages="$errors->get('date')" class="mt-2" />
     </div>
 
@@ -144,7 +165,17 @@
             }
         }
 
+        // Hari Minggu libur: tampilkan peringatan dan cegah pengiriman form (server tetap memvalidasi ulang)
+        function cekHariMinggu() {
+            const peringatan = document.getElementById('peringatan_minggu');
+            const [y, m, d] = (dateInput.value || '').split('-').map(Number);
+            const minggu = !!y && new Date(y, m - 1, d).getDay() === 0;
+            dateInput.setCustomValidity(minggu ? 'Hari Minggu libur, reservasi tidak dapat diajukan.' : '');
+            if (peringatan) peringatan.hidden = !minggu;
+        }
+
         function filterTodayStartTimes() {
+            cekHariMinggu();
             const selected = dateInput.value;
             const nowJKT = jakartaNow(60 * 60 * 1000); // sekarang + 1 jam buffer
             const todayStr = jakartaNow(0).date;

@@ -3,6 +3,7 @@
         $gallery = $facility->gallery; // daftar URL foto dari database (0-5 foto)
         $available = collect($slots)->where('is_available', true)->count();
         $total = count($slots);
+        $isSunday = \Carbon\Carbon::parse($selectedDate)->isSunday(); // Minggu libur: tidak ada layanan reservasi
     @endphp
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
@@ -161,6 +162,12 @@
                         </form>
                     </div>
 
+                    @if($isSunday)
+                        <div class="mb-4 p-3 rounded-xl text-xs sm:text-sm font-semibold" style="background:#F1F5F9; color:#334155; border:1px solid #CBD5E1;">
+                            Hari Minggu libur. Reservasi fasilitas tidak dilayani pada tanggal ini, silakan pilih hari Senin – Sabtu.
+                        </div>
+                    @endif
+
                     {{-- VISUAL TIMELINE BAR (Ala Bioskop & Studio Booking) --}}
                     <div class="p-3.5 sm:p-4 rounded-xl mb-5" style="background:#FAF6F0; border:1px solid #EAE0D3;">
                         <div class="mb-2">
@@ -189,6 +196,9 @@
                                         } elseif ($isPast) {
                                             $segmentColor = 'bg-gray-300 hover:bg-gray-400';
                                             $statusLabel = 'Waktu Berlalu';
+                                        } elseif ($statusKey === 'libur') {
+                                            $segmentColor = 'bg-slate-400 hover:bg-slate-500';
+                                            $statusLabel = 'Libur (Minggu)';
                                         } elseif ($isPending) {
                                             $segmentColor = 'bg-amber-400 hover:bg-amber-500';
                                             $statusLabel = 'Menunggu Persetujuan';
@@ -240,6 +250,8 @@
                                      bg-emerald-50/60 border-emerald-200/80 text-emerald-950 hover:bg-emerald-100/70 hover:border-emerald-300
                                  @elseif($isPast)
                                      bg-gray-100/80 border-gray-200 text-gray-500
+                                 @elseif($statusKey === 'libur')
+                                     bg-slate-100/80 border-slate-300 text-slate-600
                                  @elseif($isPending)
                                      bg-amber-50/70 border-amber-200 text-amber-950
                                  @else
@@ -258,6 +270,9 @@
                                     @elseif($isPast)
                                         <span class="w-2 h-2 rounded-full bg-gray-400 shrink-0"></span>
                                         <span class="text-[11px] font-bold text-gray-500">Berlalu</span>
+                                    @elseif($statusKey === 'libur')
+                                        <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
+                                        <span class="text-[11px] font-bold text-slate-600">Libur</span>
                                     @elseif($isPending)
                                         <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
                                         <span class="text-[11px] font-bold text-amber-700">Menunggu</span>
@@ -291,6 +306,10 @@
                         <span class="flex items-center gap-1.5">
                             <span class="w-2.5 h-2.5 rounded-full inline-block bg-gray-400"></span>
                             <span class="font-medium">Waktu Berlalu</span>
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full inline-block bg-slate-400"></span>
+                            <span class="font-medium">Libur (Minggu)</span>
                         </span>
                     </div>
                 </section>
@@ -342,7 +361,11 @@
 
                         <div class="mt-5 space-y-2.5">
                             @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna)
-                                @if($facility->facility_status === 'aktif')
+                                @if($isSunday)
+                                    <span class="block text-center text-xs sm:text-sm font-bold px-3 py-2.5 bg-slate-100 text-slate-600 border border-slate-300 rounded-xl">
+                                        Hari Minggu Libur, Pilih Hari Lain
+                                    </span>
+                                @elseif($facility->facility_status === 'aktif')
                                     <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate]) }}"
                                        x-bind:href="selectedSlot ? urlReservasi + '&start_time=' + selectedSlot : urlReservasi"
                                        @click.prevent="bukaReservasi()"
@@ -394,7 +417,7 @@
             </aside>
 
             {{-- Bar CTA menempel di bawah layar, hanya tampil di mobile --}}
-            @if($bisaReservasi)
+            @if($bisaReservasi && ! $isSunday)
                 <div class="fixed inset-x-0 bottom-0 z-40 border-t border-cream-border bg-white p-3 shadow-lg lg:hidden">
                     <x-button class="w-full"
                               :href="route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate])"
