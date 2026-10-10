@@ -4,6 +4,9 @@
 
 Aplikasi web berbasis **Laravel** yang dirancang untuk mengelola peminjaman/reservasi fasilitas kampus dan pelaporan kerusakan sarana-prasarana secara terpusat, transparan, dan terstruktur. Sistem ini menyediakan mekanisme validasi bentrok jadwal otomatis, penyimpanan foto bukti kerusakan privat, audit log perubahan status, dan rekapitulasi okupansi yang dapat diekspor ke berbagai format (CSV, Excel, dan PDF).
 
+**🌐 Live Demo**
+**[Klik di sini untuk membuka SyncSpace](https://project-ppk-reservasi-fasilitas.vercel.app)**
+
 ---
 
 ## 📋 Daftar Isi
@@ -213,11 +216,11 @@ Untuk mencegah konflik merge file kode (*merge conflict*), arsitektur rute dan c
 
 | No | Anggota Tim (NIM) | Modul Tanggung Jawab | File Rute | Controller & View Utama |
 | :---: | :--- | :--- | :--- | :--- |
-| 1 | **Akmal** (NIM: ........) | **Auth & Struktur Dasar** | `routes/auth.php`<br>`routes/web.php` | • `app/Http/Controllers/Auth/*`<br>• Setup skema migrasi awal & layout dasar |
-| 2 | **Zhafran** (NIM: ........) | **Reservasi (Pengguna)** | `routes/reservasi.php` | • `FacilityController.php`<br>• `ReservationController.php`<br>• `ReservationAvailability.php`<br>• `resources/views/facilities/*`<br>• `resources/views/reservations/*` |
-| 3 | **Akbar** (NIM: ........) | **Laporan Kerusakan (Pengguna)** | `routes/laporan.php` | • `ReportController.php`<br>• Upload foto storage privat & serve handler<br>• `resources/views/reports/*` |
-| 4 | **Ilham** (NIM: ........) | **Modul Petugas** | `routes/petugas.php` | • `Petugas\DashboardController.php`<br>• `Petugas\ReservationController.php`<br>• `Petugas\ReportController.php`<br>• Audit Log (`LogStatusReservasi`, `LogStatusLaporan`)<br>• `resources/views/petugas/*` |
-| 5 | **Abhista** (NIM: ........) | **Modul Admin** | `routes/admin.php` | • `Admin\DashboardController.php`<br>• `Admin\FacilityController.php`<br>• `Admin\UserController.php`<br>• `Admin\RekapController.php`<br>• `app/Exports/RekapFasilitasExport.php`<br>• `resources/views/admin/*` |
+| 1 | **Akmal** | **Auth & Struktur Dasar** | `routes/auth.php`<br>`routes/web.php` | • `app/Http/Controllers/Auth/*`<br>• Setup skema migrasi awal & layout dasar |
+| 2 | **Zhafran** | **Reservasi (Pengguna)** | `routes/reservasi.php` | • `FacilityController.php`<br>• `ReservationController.php`<br>• `ReservationAvailability.php`<br>• `resources/views/facilities/*`<br>• `resources/views/reservations/*` |
+| 3 | **Akbar** | **Laporan Kerusakan (Pengguna)** | `routes/laporan.php` | • `ReportController.php`<br>• Upload foto storage privat & serve handler<br>• `resources/views/reports/*` |
+| 4 | **Ilham** | **Modul Petugas** | `routes/petugas.php` | • `Petugas\DashboardController.php`<br>• `Petugas\ReservationController.php`<br>• `Petugas\ReportController.php`<br>• Audit Log (`LogStatusReservasi`, `LogStatusLaporan`)<br>• `resources/views/petugas/*` |
+| 5 | **Abhista** | **Modul Admin** | `routes/admin.php` | • `Admin\DashboardController.php`<br>• `Admin\FacilityController.php`<br>• `Admin\UserController.php`<br>• `Admin\RekapController.php`<br>• `app/Exports/RekapFasilitasExport.php`<br>• `resources/views/admin/*` |
 
 ---
 ## ⚙️ Setup & Informasi Setting Menjalankan Program
