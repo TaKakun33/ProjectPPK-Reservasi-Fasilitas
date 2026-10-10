@@ -315,8 +315,9 @@
                 </section>
             </div>
 
-            {{-- Kolom Kanan: Sticky Booking Card Ala Tiket.com --}}
-            <aside class="lg:sticky lg:top-6 space-y-4">
+            {{-- Kolom Kanan: diam (sticky) saat halaman di-scroll; hanya kolom kiri yang bergerak.
+                 top-20 = tinggi navbar (h-16) + jarak 1rem. Di layar pendek, kolom ini bisa digulir sendiri. --}}
+            <aside class="space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1 lg:[scrollbar-width:thin]">
                 <div class="bg-white rounded-2xl shadow-md overflow-hidden" style="border:1px solid #EAE0D3;">
                     {{-- Header Ringkasan --}}
                     <div class="p-4 sm:p-5 border-b border-dashed" style="border-color:#EAE0D3; background:#FAF6F0;">

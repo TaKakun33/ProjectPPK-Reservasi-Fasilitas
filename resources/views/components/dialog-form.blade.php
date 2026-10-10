@@ -53,7 +53,7 @@
          x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
          class="relative mx-auto my-4 sm:my-10 w-[calc(100%-2rem)] {{ $lebar }} bg-white rounded-2xl shadow-2xl border border-cream-border border-t-4 border-t-maroon-800">
 
-        <div class="flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 pb-3">
+        <div class="flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 pb-2">
             <div class="min-w-0">
                 <h2 id="judul-{{ $name }}" class="font-extrabold text-lg sm:text-xl text-maroon-800 leading-tight">{{ $title }}</h2>
                 @if($subtitle)
@@ -66,7 +66,7 @@
             </button>
         </div>
 
-        <div class="px-5 sm:px-7 pb-6 pt-2">
+        <div class="px-5 sm:px-7 pb-6 pt-0">
             {{ $slot }}
         </div>
     </div>
