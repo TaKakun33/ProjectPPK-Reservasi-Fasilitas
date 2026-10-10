@@ -1,12 +1,13 @@
 <nav x-data="{ open: false }" class="sticky top-0 z-50 shadow-md" style="background: linear-gradient(135deg, #380F17 0%, #4D0E17 30%, #6B101C 65%, #8F0B13 100%); border-bottom: 1px solid rgba(239, 223, 197, 0.15);">
     {{-- Primary Navigation Menu --}}
     <div class="w-full px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="mp-nav-bar flex justify-between h-16">
             <div class="flex">
                 {{-- Logo --}}
                 <div class="shrink-0 flex items-center gap-3">
                     <a href="{{ route('facilities.index') }}" class="flex items-center gap-3 group">
                         <x-application-logo class="block h-9 w-auto drop-shadow-sm transition-transform duration-150 group-hover:scale-105" />
+                        <span class="mp-m-inline text-base font-extrabold tracking-tight text-[#EFDFC5]" style="font-size:1.05rem;">SyncSpace</span>
                         <span class="hidden md:block leading-tight">
                             <span class="block text-sm font-extrabold tracking-tight text-[#EFDFC5] group-hover:text-white transition-colors">SyncSpace</span>
                             <span class="block text-[11px] font-semibold tracking-widest uppercase text-[#EFDFC5]/70">Reservasi Fasilitas Kampus</span>
@@ -107,20 +108,28 @@
                 @endauth
             </div>
 
-            {{-- Hamburger Responsive --}}
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-cream-200 hover:text-white hover:bg-white/10 focus:outline-none focus:bg-white/10 focus:text-white transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+            {{-- Hamburger Responsive (mobile): tamu langsung melihat tombol Masuk / Daftar, pengguna login memakai menu --}}
+            <div class="-me-2 flex items-center gap-2 sm:hidden">
+                @guest
+                    <div class="mp-nav-auth flex items-center gap-2 me-2">
+                        <a href="{{ route('login') }}" class="mp-nav-login">Masuk</a>
+                        <a href="{{ route('register') }}" class="mp-nav-daftar">Daftar</a>
+                    </div>
+                @endguest
+                @auth
+                    <button @click="open = ! open" :aria-expanded="open" aria-label="Menu navigasi" class="mp-hamburger inline-flex items-center justify-center p-2 rounded-md text-cream-200 hover:text-white hover:bg-white/10 focus:outline-none focus:bg-white/10 focus:text-white transition duration-150 ease-in-out">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                @endauth
             </div>
         </div>
     </div>
 
     {{-- Responsive Navigation Menu --}}
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-maroon-900 border-t border-cream-300/10">
+    <div :class="{'block': open, 'hidden': ! open}" class="mp-drawer hidden sm:hidden bg-maroon-900 border-t border-cream-300/10">
         <div class="pt-2 pb-3 space-y-1">
             @auth
                 @if(auth()->user()->role === \App\Enums\UserRole::Petugas)
