@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 // Model fasilitas kampus dengan dukungan UUID dan soft deletes
-#[Fillable(['facility_name', 'type', 'location', 'capacity', 'description', 'facility_status'])]
+#[Fillable(['facility_name', 'type', 'location', 'capacity', 'description', 'amenities', 'facility_status'])]
 class Facility extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
@@ -28,6 +28,7 @@ class Facility extends Model
     {
         return [
             'capacity' => 'integer',
+            'amenities' => 'array',
         ];
     }
 
@@ -43,10 +44,8 @@ class Facility extends Model
         return $this->facility_status === 'aktif';
     }
 
-    protected $appends = ['photo_url', 'gallery', 'amenities'];
-
     /**
-     * Foto utama fasilitas
+     * Foto utama fasilitas (foto pertama dari galeri).
      */
     public function getPhotoUrlAttribute(): string
     {
@@ -54,9 +53,21 @@ class Facility extends Model
     }
 
     /**
-     * Koleksi galeri foto fasilitas (3 foto resolusi tinggi sesuai jenis fasilitas)
+     * Galeri foto fasilitas: foto unggahan admin dari database (maksimal 5, urut sesuai urutan,
+     * indeks 0 = foto utama). Selama admin belum mengunggah foto, dipakai 3 foto bawaan sesuai
+     * nama/jenis fasilitas. Pakai with('photos') saat memuat banyak fasilitas agar tidak N+1.
      */
     public function getGalleryAttribute(): array
+    {
+        $unggahan = $this->photos->map(fn (FacilityPhoto $foto) => $foto->url)->all();
+
+        return $unggahan ?: $this->galeriBawaan();
+    }
+
+    /**
+     * Foto bawaan (3 foto sesuai nama/jenis fasilitas), dipakai sebelum admin mengunggah foto sendiri.
+     */
+    private function galeriBawaan(): array
     {
         $name = strtolower($this->facility_name ?? '');
         $type = strtolower($this->type ?? '');
@@ -264,40 +275,9 @@ class Facility extends Model
         };
     }
 
-    /**
-     * Amenitas fasilitas yang relevan
-     */
-    public function getAmenitiesAttribute(): array
+    public function photos(): HasMany
     {
-        $name = strtolower($this->facility_name ?? '');
-        $type = strtolower($this->type ?? '');
-
-        if (str_contains($name, 'perpustakaan') || str_contains($name, 'coworking')) {
-            return ['Wi-Fi Cepat', 'AC Dingin', 'Stopkontak', 'Area Baca Senyap'];
-        }
-        if (str_contains($name, 'komputer') || str_contains($name, 'jaringan') || str_contains($name, 'iot') || str_contains($type, 'laboratorium')) {
-            return ['PC High-End', 'LAN Gigabit', 'AC Sentral', 'Proyektor'];
-        }
-        if (str_contains($type, 'olahraga') || str_contains($name, 'futsal') || str_contains($name, 'basket') || str_contains($name, 'badminton') || str_contains($name, 'arena')) {
-            return ['Tribun Penonton', 'Lampu Lapangan', 'Kamar Ganti', 'Toilet Bersih'];
-        }
-        if (str_contains($type, 'aula') || str_contains($type, 'gedung') || str_contains($name, 'auditorium') || str_contains($name, 'gsg')) {
-            return ['Sound System Pro', 'Panggung Utama', 'Mic Wireless', 'Kapasitas Besar'];
-        }
-        if (str_contains($name, 'podcast') || str_contains($name, 'studio')) {
-            return ['Kedap Suara', 'Mic Condenser', 'Kamera 4K', 'Lighting Studio'];
-        }
-        if (str_contains($name, 'masjid')) {
-            return ['Tempat Wudhu Luas', 'AC Masjid', 'Sound System', 'Sajadah Bersih'];
-        }
-        if (str_contains($name, 'rusunawa') || str_contains($name, 'rumah susun') || str_contains($name, 'asrama')) {
-            return ['Kamar Mandi Dalam', 'Dapur Bersama', 'Wi-Fi Kampus', 'Keamanan 24 Jam'];
-        }
-        if (str_contains($name, 'taman')) {
-            return ['Gazebo Teduh', 'Pedestrian', 'Pencahayaan Taman', 'Area Santai'];
-        }
-
-        return ['AC', 'Wi-Fi', 'Proyektor', 'Papan Tulis'];
+        return $this->hasMany(FacilityPhoto::class, 'id_fasilitas')->orderBy('urutan');
     }
 
     public function reservations(): HasMany

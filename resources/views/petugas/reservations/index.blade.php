@@ -20,26 +20,6 @@
 
     <div class="px-4 sm:px-6 py-5 space-y-4" style="background:#FAF6F0;">
 
-        @if(session('success'))
-            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
-                 style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
-                 style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
-
         @error('alasan_ditolak')
             <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
                  style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
@@ -60,6 +40,11 @@
             </div>
         @enderror
 
+        {{-- Pencarian --}}
+        <x-search-bar :action="route('petugas.reservations.index')"
+                      :hidden="['status' => $selectedStatus !== 'all' ? $selectedStatus : null]"
+                      placeholder="Cari nama/surel pemohon, fasilitas, atau tujuan..." />
+
         {{-- Filter Tab Status --}}
         <div class="flex items-center gap-2 pb-1 overflow-x-auto">
             @php
@@ -73,7 +58,7 @@
             @endphp
             @foreach($statusTabs as $key => $label)
                 @php $isActive = $selectedStatus === $key; @endphp
-                <a href="{{ $key === 'all' ? route('petugas.reservations.index') : route('petugas.reservations.index', ['status' => $key]) }}"
+                <a href="{{ route('petugas.reservations.index', array_filter(['status' => $key === 'all' ? null : $key, 'search' => request('search')], fn ($v) => filled($v))) }}"
                    class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition whitespace-nowrap shadow-xs"
                    style="{{ $isActive
                             ? 'background:#8F0B13; color:#EFDFC5; border:1px solid #8F0B13;'
@@ -139,18 +124,7 @@
 
                                     {{-- Status Badge --}}
                                     <td class="py-3 px-4">
-                                        @php
-                                            $badges = [
-                                                'pending'   => 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;',
-                                                'approved'  => 'background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;',
-                                                'rejected'  => 'background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;',
-                                                'cancelled' => 'background:#F3F4F6; color:#374151; border:1px solid #E5E7EB;',
-                                            ];
-                                        @endphp
-                                        <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full inline-block"
-                                              style="{{ $badges[$res->reservation_status] ?? 'background:#F3F4F6; color:#374151;' }}">
-                                            {{ ucfirst($res->reservation_status) }}
-                                        </span>
+                                        <x-status-badge :status="$res->reservation_status" />
                                     </td>
 
                                     {{-- Keterangan / Alasan --}}
@@ -166,36 +140,13 @@
 
                                     {{-- Aksi --}}
                                     <td class="py-3 px-4">
-                                        <div class="flex justify-center items-center gap-1.5">
-                                            @if($res->reservation_status === 'pending')
-                                                <form method="POST"
-                                                      action="{{ route('petugas.reservations.approve', $res->id_reservasi) }}"
-                                                      onsubmit="return confirm('Setujui reservasi ini?')">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                            class="px-2.5 py-1 text-xs font-bold text-white rounded-lg transition shadow-xs hover:brightness-110"
-                                                            style="background:#059669;">
-                                                        Setujui
-                                                    </button>
-                                                </form>
-
-                                                <button type="button"
-                                                        onclick="openRejectModal('{{ route('petugas.reservations.reject', $res->id_reservasi) }}')"
-                                                        class="px-2.5 py-1 text-xs font-bold text-white rounded-lg transition shadow-xs hover:brightness-110"
-                                                        style="background:#8F0B13;">
-                                                    Tolak
-                                                </button>
-                                            @elseif($res->reservation_status === 'approved' && ! $res->sudahSelesai())
-                                                <button type="button"
-                                                        onclick="openCancelModal('{{ route('petugas.reservations.cancel', $res->id_reservasi) }}')"
-                                                        class="px-2.5 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:bg-gray-100"
-                                                        style="background:white; color:#374151; border:1px solid #D1D5DB;">
-                                                    Batalkan
-                                                </button>
-                                            @else
-                                                <span class="text-xs font-medium" style="color:#9CA3AF;">Selesai</span>
-                                            @endif
+                                        <div class="flex flex-wrap justify-center items-center gap-1.5">
+                                            <a href="{{ route('petugas.reservations.show', $res->id_reservasi) }}"
+                                               x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-reservasi-petugas', url: @js(route('petugas.reservations.show', $res->id_reservasi)) })"
+                                               class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                               style="background:#8F0B13; color:#EFDFC5;">
+                                                Detail
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -211,121 +162,8 @@
         </div>
     </div>
 
-    {{-- Modal Alasan Penolakan --}}
-    <div id="reject-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs px-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" style="border:1px solid #EAE0D3;">
-            <div class="flex items-start justify-between mb-3">
-                <div>
-                    <h3 class="text-base font-bold" style="color:#252B2B;">Tolak Reservasi</h3>
-                    <p class="text-xs mt-0.5" style="color:#4C4F54;">
-                        Berikan alasan penolakan agar pemohon memahami alasan keputusan ini.
-                    </p>
-                </div>
-                <button type="button" onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
+    <x-modal-detail name="detail-reservasi-petugas" title="Detail Reservasi"
+                    subtitle="Periksa data pemohon dan jadwal sebelum menyetujui atau menolak" max-width="3xl" />
 
-            <form id="reject-form" method="POST" class="mt-4">
-                @csrf
-                @method('PATCH')
-
-                <label for="alasan_ditolak" class="block text-xs font-bold mb-1" style="color:#252B2B;">
-                    Alasan Penolakan <span class="text-red-600">*</span>
-                </label>
-                <textarea id="alasan_ditolak" name="alasan_ditolak" rows="4" required maxlength="500"
-                          class="w-full rounded-xl text-xs sm:text-sm p-3 transition focus:outline-none"
-                          style="border:1px solid #EAE0D3; background:#FAF6F0;"
-                          placeholder="Contoh: Fasilitas sedang dalam pemeliharaan berkala pada jadwal yang diajukan."></textarea>
-
-                <div class="mt-5 flex justify-end gap-2">
-                    <button type="button" onclick="closeRejectModal()"
-                            class="px-4 py-2 text-xs font-bold rounded-xl transition"
-                            style="background:#FAF6F0; color:#4C4F54; border:1px solid #EAE0D3;">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-xs font-bold text-white rounded-xl transition shadow-xs hover:brightness-110"
-                            style="background:#8F0B13;">
-                        Tolak Reservasi
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- Modal Alasan Pembatalan --}}
-    <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs px-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" style="border:1px solid #EAE0D3;">
-            <div class="flex items-start justify-between mb-3">
-                <div>
-                    <h3 class="text-base font-bold" style="color:#252B2B;">Batalkan Reservasi</h3>
-                    <p class="text-xs mt-0.5" style="color:#4C4F54;">
-                        Jelaskan alasan pembatalan reservasi yang sebelumnya telah disetujui.
-                    </p>
-                </div>
-                <button type="button" onclick="closeCancelModal()" class="text-gray-400 hover:text-gray-600 p-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <form id="cancel-form" method="POST" class="mt-4">
-                @csrf
-                @method('PATCH')
-
-                <label for="cancellation_reason" class="block text-xs font-bold mb-1" style="color:#252B2B;">
-                    Alasan Pembatalan <span class="text-red-600">*</span>
-                </label>
-                <textarea id="cancellation_reason" name="cancellation_reason" rows="4" required maxlength="500"
-                          class="w-full rounded-xl text-xs sm:text-sm p-3 transition focus:outline-none"
-                          style="border:1px solid #EAE0D3; background:#FAF6F0;"
-                          placeholder="Contoh: Terjadi kendala teknis kelistrikan mendadak pada ruangan."></textarea>
-
-                <div class="mt-5 flex justify-end gap-2">
-                    <button type="button" onclick="closeCancelModal()"
-                            class="px-4 py-2 text-xs font-bold rounded-xl transition"
-                            style="background:#FAF6F0; color:#4C4F54; border:1px solid #EAE0D3;">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-xs font-bold text-white rounded-xl transition shadow-xs hover:brightness-110"
-                            style="background:#8F0B13;">
-                        Proses Pembatalan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openRejectModal(actionUrl) {
-            const modal = document.getElementById('reject-modal');
-            const form = document.getElementById('reject-form');
-            form.setAttribute('action', actionUrl);
-            document.getElementById('alasan_ditolak').value = '';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeRejectModal() {
-            const modal = document.getElementById('reject-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function openCancelModal(actionUrl) {
-            const modal = document.getElementById('cancel-modal');
-            const form = document.getElementById('cancel-form');
-            form.setAttribute('action', actionUrl);
-            document.getElementById('cancellation_reason').value = '';
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeCancelModal() {
-            const modal = document.getElementById('cancel-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-    </script>
+    @include('petugas.reservations.partials.modal-aksi')
 </x-petugas-layout>

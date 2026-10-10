@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $gallery = $facility->gallery ?? [$facility->photo_url];
+        $gallery = $facility->gallery; // daftar URL foto dari database (0-5 foto)
         $available = collect($slots)->where('is_available', true)->count();
         $total = count($slots);
     @endphp
@@ -56,38 +56,63 @@
             </div>
         </div>
 
-        {{-- Galeri Foto Ala Tiket.com (1 Besar + 2 Pendukung) --}}
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-2.5 h-auto md:h-80">
-            <div class="md:col-span-2 md:row-span-2 h-64 md:h-full overflow-hidden rounded-2xl md:rounded-r-none bg-slate-100 shadow-xs border"
-                 style="border-color:#EAE0D3;">
-                <img src="{{ $gallery[0] }}" alt="{{ $facility->facility_name }}" class="w-full h-full object-cover hover:scale-105 transition duration-500"
-                     onerror="this.src='https://picsum.photos/seed/{{ $facility->id_fasilitas }}a/1000/600'">
-            </div>
-            <div class="hidden md:block h-full overflow-hidden bg-slate-100 shadow-xs border"
-                 style="border-color:#EAE0D3;">
-                <img src="{{ $gallery[1] ?? $gallery[0] }}" alt="Foto Fasilitas 2" class="w-full h-full object-cover hover:scale-105 transition duration-500"
-                     onerror="this.src='https://picsum.photos/seed/{{ $facility->id_fasilitas }}b/800/500'">
-            </div>
-            <div class="hidden md:block h-full overflow-hidden rounded-r-2xl bg-slate-100 relative shadow-xs border"
-                 style="border-color:#EAE0D3;">
-                <img src="{{ $gallery[2] ?? $gallery[0] }}" alt="Foto Fasilitas 3" class="w-full h-full object-cover hover:scale-105 transition duration-500"
-                     onerror="this.src='https://picsum.photos/seed/{{ $facility->id_fasilitas }}c/800/500'">
-                <span class="absolute bottom-3 right-3 text-xs font-bold px-3 py-1.5 rounded-lg shadow-md backdrop-blur-md"
-                      style="background:rgba(255, 255, 255, 0.95); color:#380F17; border:1px solid #EAE0D3;">
-                    📸 Koleksi Foto Sarana
-                </span>
-            </div>
-            {{-- Tampilan Mobile --}}
-            <div class="grid grid-cols-2 gap-2 md:hidden">
-                <img src="{{ $gallery[1] ?? $gallery[0] }}" alt="Foto 2" class="w-full h-32 object-cover rounded-xl bg-slate-100 border" style="border-color:#EAE0D3;">
-                <img src="{{ $gallery[2] ?? $gallery[0] }}" alt="Foto 3" class="w-full h-32 object-cover rounded-xl bg-slate-100 border" style="border-color:#EAE0D3;">
-            </div>
-        </div>
-
         {{-- Konten Utama: 2 Kolom (Kiri Konten, Kanan Sticky Card) --}}
-        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        @php
+            // Tombol reservasi hanya relevan untuk pengguna biasa pada fasilitas yang aktif
+            $bisaReservasi = auth()->check()
+                && auth()->user()->role === \App\Enums\UserRole::Pengguna
+                && $facility->facility_status === 'aktif';
+        @endphp
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 items-start {{ $bisaReservasi ? 'pb-20 lg:pb-0' : '' }}"
+             x-data="{
+                 selectedSlot: null,
+                 urlReservasi: @js(route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate])),
+                 // Buka pop-up reservasi dengan fasilitas, tanggal, dan jam mulai terpilih sudah terisi
+                 bukaReservasi() {
+                     window.dispatchEvent(new CustomEvent('isi-reservasi', { detail: {
+                         facility_id: @js($facility->id_fasilitas),
+                         date: @js($selectedDate),
+                         start_time: this.selectedSlot
+                     } }));
+                     window.dispatchEvent(new CustomEvent('open-modal', { detail: 'reservasi' }));
+                 }
+             }">
             {{-- Kolom Kiri --}}
             <div class="lg:col-span-2 space-y-6">
+                {{-- Galeri foto fasilitas (dari database, maksimal 5): foto utama utuh (tidak dipotong), thumbnail di sisi kanan --}}
+                @if(count($gallery) > 0)
+                    <section class="bg-white rounded-2xl p-3 sm:p-4 shadow-xs" style="border:1px solid #EAE0D3;"
+                             x-data="{ aktif: 0, foto: @js($gallery) }">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            {{-- Foto utama: object-contain agar seluruh foto terlihat --}}
+                            <div class="relative flex-1 min-w-0 h-56 sm:h-72 rounded-xl overflow-hidden bg-cream-50 flex items-center justify-center"
+                                 style="border:1px solid #EAE0D3;">
+                                <img :src="foto[aktif]" alt="{{ $facility->facility_name }}" class="max-w-full max-h-full object-contain">
+                                <span x-show="foto.length > 1" x-cloak x-text="(aktif + 1) + ' / ' + foto.length"
+                                      class="absolute bottom-2 right-2 text-[11px] font-bold px-2 py-1 rounded-md shadow-xs"
+                                      style="background:rgba(255, 255, 255, 0.95); color:#380F17; border:1px solid #EAE0D3;"></span>
+                            </div>
+
+                            {{-- Foto lainnya: kolom di kanan (desktop) / baris di bawah (mobile) --}}
+                            <div x-show="foto.length > 1" x-cloak
+                                 class="flex sm:flex-col gap-2 shrink-0 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto sm:w-24 sm:max-h-72">
+                                <template x-for="(f, i) in foto" :key="i">
+                                    <button type="button" @click="aktif = i" :aria-label="'Lihat foto ' + (i + 1)"
+                                            :class="aktif === i ? 'ring-2 ring-[#8F0B13] ring-offset-1' : 'opacity-70 hover:opacity-100'"
+                                            class="shrink-0 w-20 h-14 sm:w-24 sm:h-[3.2rem] rounded-lg overflow-hidden bg-cream-50 flex items-center justify-center transition"
+                                            style="border:1px solid #EAE0D3;">
+                                        <img :src="f" alt="" class="max-w-full max-h-full object-contain">
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </section>
+                @else
+                    <x-facility-placeholder class="h-48 rounded-2xl border" style="border-color:#EAE0D3;">
+                        <x-slot name="label">Foto fasilitas belum tersedia</x-slot>
+                    </x-facility-placeholder>
+                @endif
+
                 {{-- Seksi Tentang Fasilitas --}}
                 <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;">
                     <div class="flex items-center gap-2 mb-2">
@@ -105,7 +130,7 @@
                                 @foreach($facility->amenities as $am)
                                     <div class="rounded-xl px-3 py-3 transition shadow-2xs hover:border-[#8F0B13] flex items-center justify-center text-center"
                                          style="background:#FAF6F0; border:1px solid #EAE0D3;">
-                                        <p class="text-xs font-bold text-[#252B2B] truncate" title="{{ $am }}">{{ $am }}</p>
+                                        <p class="text-xs font-bold text-[#252B2B] leading-snug break-words">{{ $am }}</p>
                                     </div>
                                 @endforeach
                             </div>
@@ -114,7 +139,7 @@
                 </section>
 
                 {{-- Seksi Jadwal & Ketersediaan Slot (Model 3: Visual Timeline Bar) --}}
-                <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;" x-data="{ selectedSlot: null }">
+                <section class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs" style="border:1px solid #EAE0D3;">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
                         <div>
                             <div class="flex items-center gap-2">
@@ -172,14 +197,14 @@
                                             $statusLabel = $statusKey === 'perbaikan' ? 'Perbaikan' : 'Sudah Dibooking';
                                         }
                                     @endphp
-                                    <div class="flex-1 {{ $segmentColor }} rounded-[3px] transition-all cursor-pointer relative group"
-                                         @click="selectedSlot = '{{ $slot['start'] }}'"
+                                    <div class="flex-1 {{ $segmentColor }} rounded-[3px] transition-all {{ $slot['is_available'] ? 'cursor-pointer' : 'cursor-default' }} relative group"
+                                         @if($slot['is_available']) @click="selectedSlot = '{{ $slot['start'] }}'" @endif
                                          :class="{ 'ring-2 ring-[#8F0B13] scale-y-110 z-10': selectedSlot === '{{ $slot['start'] }}' }">
                                         {{-- Tooltip Popover --}}
                                         <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-30 pointer-events-none whitespace-nowrap">
-                                            <div class="bg-[#380F17] text-[#EFDFC5] text-[10px] font-bold px-2.5 py-1 rounded-md shadow-xl border border-[#EFDFC5]/20">
+                                            <div class="bg-[#380F17] text-[#EFDFC5] text-[11px] font-bold px-2.5 py-1 rounded-md shadow-xl border border-[#EFDFC5]/20">
                                                 <span>{{ $slot['start'] }} - {{ $slot['end'] }}</span>
-                                                <span class="block text-[9px] font-normal text-white/80">{{ $statusLabel }}</span>
+                                                <span class="block text-[11px] font-normal text-white/80">{{ $statusLabel }}</span>
                                             </div>
                                             <div class="w-1.5 h-1.5 bg-[#380F17] rotate-45 -mt-0.5"></div>
                                         </div>
@@ -188,7 +213,7 @@
                             </div>
 
                             {{-- Sumbu Waktu (Time Markers Axis) --}}
-                            <div class="flex justify-between text-[10px] font-semibold text-[#4C4F54] mt-1.5 px-0.5">
+                            <div class="flex justify-between text-[11px] font-semibold text-[#4C4F54] mt-1.5 px-0.5">
                                 <span>07:00</span>
                                 <span class="hidden sm:inline">09:00</span>
                                 <span>11:00</span>
@@ -209,8 +234,8 @@
                                 $isPending = in_array($statusKey, ['pending', 'menunggu', 'diproses', 'menunggu persetujuan']);
                                 $isPast = $slot['is_past'] ?? ($statusKey === 'berlalu');
                             @endphp
-                            <div @click="selectedSlot = '{{ $slot['start'] }}'"
-                                 class="px-3 py-2 rounded-xl border text-xs transition duration-150 flex items-center justify-between cursor-pointer
+                            <div @if($slot['is_available']) @click="selectedSlot = '{{ $slot['start'] }}'" @endif
+                                 class="px-3 py-2 rounded-xl border text-xs transition duration-150 flex items-center justify-between {{ $slot['is_available'] ? 'cursor-pointer' : 'cursor-default' }}
                                  @if($slot['is_available'])
                                      bg-emerald-50/60 border-emerald-200/80 text-emerald-950 hover:bg-emerald-100/70 hover:border-emerald-300
                                  @elseif($isPast)
@@ -242,7 +267,7 @@
                                     @endif
 
                                     @if(!empty($slot['is_mine']))
-                                        <span class="text-[9px] font-bold text-rose-800 bg-rose-100 px-1 py-0.5 rounded ml-1">Saya</span>
+                                        <span class="text-[11px] font-bold text-rose-800 bg-rose-100 px-1 py-0.5 rounded ml-1">Saya</span>
                                     @endif
                                 </div>
                             </div>
@@ -277,8 +302,12 @@
                     {{-- Header Ringkasan --}}
                     <div class="p-4 sm:p-5 border-b border-dashed" style="border-color:#EAE0D3; background:#FAF6F0;">
                         <div class="flex gap-3">
-                            <img src="{{ $gallery[0] }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 shadow-2xs border"
-                                 style="border-color:#EAE0D3;" alt="{{ $facility->facility_name }}">
+                            @if(count($gallery) > 0)
+                                <img src="{{ $gallery[0] }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0 shadow-2xs border"
+                                     style="border-color:#EAE0D3;" alt="{{ $facility->facility_name }}">
+                            @else
+                                <x-facility-placeholder class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl shrink-0 border" style="border-color:#EAE0D3;" />
+                            @endif
                             <div class="min-w-0 flex flex-col justify-center">
                                 <p class="text-xs sm:text-sm font-extrabold text-[#252B2B] line-clamp-2 leading-snug">
                                     {{ $facility->facility_name }}
@@ -296,18 +325,7 @@
 
                     {{-- Body Ringkasan & Form Action --}}
                     <div class="p-4 sm:p-5">
-                        <div class="flex items-end justify-between pb-3.5 border-b border-dashed" style="border-color:#EAE0D3;">
-                            <div>
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-[#4C4F54]">Izin Akademik Kampus</p>
-                                <p class="text-xl font-extrabold text-[#252B2B] leading-none mt-1">Gratis</p>
-                            </div>
-                            <span class="text-[11px] font-bold px-2 py-0.5 rounded-md shadow-2xs"
-                                  style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
-                                Bebas Biaya
-                            </span>
-                        </div>
-
-                        <dl class="mt-3.5 space-y-2 text-xs">
+                        <dl class="space-y-2 text-xs">
                             <div class="flex justify-between">
                                 <dt class="text-[#4C4F54]">Tanggal Reservasi</dt>
                                 <dd class="font-bold text-[#252B2B]">{{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('d F Y') }}</dd>
@@ -326,12 +344,14 @@
                             @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna)
                                 @if($facility->facility_status === 'aktif')
                                     <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate]) }}"
-                                       class="block text-center px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-sm transition duration-150"
-                                       style="background:#8F0B13; color:#EFDFC5; border:1px solid #70090F;"
-                                       onmouseover="this.style.background='#380F17';"
-                                       onmouseout="this.style.background='#8F0B13';">
+                                       x-bind:href="selectedSlot ? urlReservasi + '&start_time=' + selectedSlot : urlReservasi"
+                                       @click.prevent="bukaReservasi()"
+                                       class="block text-center px-4 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm shadow-sm transition duration-150 bg-maroon-700 text-cream border border-maroon-800 hover:bg-maroon-900">
                                         Ajukan Reservasi Sekarang
                                     </a>
+                                    <p x-show="selectedSlot" x-cloak class="text-center text-xs text-charcoal-medium">
+                                        Jam mulai terpilih: <span class="font-bold" x-text="selectedSlot"></span>
+                                    </p>
                                 @else
                                     <span class="block text-center text-xs sm:text-sm font-bold px-3 py-2.5 bg-rose-100 text-rose-800 border border-rose-200 rounded-xl">
                                         Fasilitas Dalam Perbaikan
@@ -339,10 +359,7 @@
                                 @endif
                             @elseif(!auth()->check())
                                 <a href="{{ route('login') }}"
-                                   class="block text-center px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition duration-150"
-                                   style="background:#380F17; color:#EFDFC5;"
-                                   onmouseover="this.style.background='#8F0B13';"
-                                   onmouseout="this.style.background='#380F17';">
+                                   class="block text-center px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition duration-150 bg-maroon-900 text-cream hover:bg-maroon-700">
                                     Login untuk Ajukan Reservasi
                                 </a>
                             @endif
@@ -375,6 +392,23 @@
                     </div>
                 </div>
             </aside>
+
+            {{-- Bar CTA menempel di bawah layar, hanya tampil di mobile --}}
+            @if($bisaReservasi)
+                <div class="fixed inset-x-0 bottom-0 z-40 border-t border-cream-border bg-white p-3 shadow-lg lg:hidden">
+                    <x-button class="w-full"
+                              :href="route('reservations.create', ['facility_id' => $facility->id_fasilitas, 'date' => $selectedDate])"
+                              x-bind:href="selectedSlot ? urlReservasi + '&start_time=' + selectedSlot : urlReservasi"
+                              @click.prevent="bukaReservasi()">
+                        Ajukan Reservasi
+                    </x-button>
+                </div>
+            @endif
         </div>
     </div>
+
+    {{-- Pop-up form ajukan reservasi (tautan biasa tetap jadi cadangan bila JavaScript mati) --}}
+    @if($bisaReservasi)
+        <x-modal-reservasi :facility-id="$facility->id_fasilitas" :date="$selectedDate" />
+    @endif
 </x-app-layout>

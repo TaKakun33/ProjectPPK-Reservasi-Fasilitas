@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Admin\FacilityController as AdminFacilityController;
+use App\Models\Facility;
+use App\Models\ReportCategory;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +30,23 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! $this->app->isProduction());
         Model::handleLazyLoadingViolationUsing(function (Model $model, string $relation): void {
             logger()->warning(sprintf('N+1 terdeteksi: lazy loading [%s] pada model [%s].', $relation, $model::class));
+        });
+
+        // Data untuk pop-up formulir: dimuat hanya saat komponen pop-up dirender,
+        // memakai aturan yang sama dengan halaman penuh di controller masing-masing.
+        View::composer('components.modal-reservasi', function (ViewContract $view): void {
+            $view->with('facilities', Facility::where('facility_status', 'aktif')->orderBy('facility_name')->get());
+        });
+
+        View::composer('components.modal-laporan', function (ViewContract $view): void {
+            $view->with([
+                'facilities' => Facility::visible()->orderBy('facility_name')->get(),
+                'categories' => ReportCategory::where('is_active', true)->orderBy('category_name')->get(),
+            ]);
+        });
+
+        View::composer('components.modal-fasilitas', function (ViewContract $view): void {
+            $view->with(app(AdminFacilityController::class)->opsiIsian());
         });
     }
 }

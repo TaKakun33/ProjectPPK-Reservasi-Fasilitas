@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/fasilitas', [FacilityController::class, 'index'])->name('facilities.index');
 Route::redirect('/home', '/fasilitas');
 Route::get('/fasilitas/{fasilitas}', [FacilityController::class, 'show'])->name('facilities.show');
+// Foto fasilitas unggahan admin (publik, sama seperti daftar fasilitas)
+Route::get('/fasilitas/foto/{foto}', [FacilityController::class, 'photo'])->name('facilities.photo');
 
 // Wajib login — khusus buat role pengguna, tapi pengecekan role + redirect
 // per-role-nya dilakukan di ReservationController@ensurePengguna(), BUKAN

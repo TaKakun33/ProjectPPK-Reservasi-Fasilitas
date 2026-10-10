@@ -4,25 +4,13 @@
             <h2 class="font-extrabold text-xl text-maroon-800 leading-tight">
                 {{ __('Riwayat Laporan Kerusakan Saya') }}
             </h2>
-            <a href="{{ route('reports.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-maroon-800 rounded-xl font-extrabold text-cream-100 hover:bg-maroon-900 transition text-sm shadow-sm">
+            <a href="{{ route('reports.create') }}" x-data @click.prevent="$dispatch('open-modal', 'laporan')" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-maroon-800 rounded-xl font-extrabold text-cream-100 hover:bg-maroon-900 transition text-sm shadow-sm">
                 + Laporkan Kerusakan
             </a>
         </div>
     </x-slot>
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded text-sm font-medium">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded text-sm font-medium">
-                {{ session('error') }}
-            </div>
-        @endif
-
         <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
             @if($reports->isEmpty())
                 <div class="p-12 text-center text-gray-500">
@@ -48,22 +36,15 @@
                                     <td class="p-4 text-gray-600">{{ $laporan->category->category_name ?? '-' }}</td>
                                     <td class="p-4 text-gray-600">{{ Str::limit($laporan->description, 60) }}</td>
                                     <td class="p-4">
-                                        @php
-                                            $badges = [
-                                                'baru'     => 'bg-maroon-100 text-maroon-800',
-                                                'diproses' => 'bg-yellow-100 text-yellow-800',
-                                                'selesai'  => 'bg-green-100 text-green-800',
-                                                'ditolak'  => 'bg-red-100 text-red-800',
-                                            ];
-                                        @endphp
-                                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full {{ $badges[$laporan->report_status] ?? 'bg-gray-100 text-gray-800' }}">
-                                            {{ ucfirst($laporan->report_status) }}
-                                        </span>
+                                        <x-status-badge :status="$laporan->report_status" />
                                     </td>
                                     <td class="p-4">{{ $laporan->created_at->format('d M Y H:i') }}</td>
                                     <td class="p-4 text-center">
-                                        <a href="{{ route('reports.show', $laporan) }}" class="text-xs font-bold text-maroon-700 hover:text-maroon-900 hover:underline">
-                                            Lihat Detail
+                                        <a href="{{ route('reports.show', $laporan) }}"
+                                           x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-laporan', url: @js(route('reports.show', $laporan)) })"
+                                           class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                           style="background:#8F0B13; color:#EFDFC5;">
+                                            Detail
                                         </a>
                                     </td>
                                 </tr>
@@ -78,4 +59,8 @@
             @endif
         </div>
     </div>
+
+    <x-modal-laporan />
+
+    <x-modal-detail name="detail-laporan" title="Detail Laporan Kerusakan" max-width="2xl" />
 </x-app-layout>

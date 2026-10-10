@@ -5,8 +5,6 @@
     </div>
 
     {{-- Session Status --}}
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
     <form method="POST" action="{{ route('login') }}" onsubmit="sessionStorage.setItem('tab_session_active', '1');">
         @csrf
 
@@ -39,10 +37,7 @@
 
         <div class="mt-6">
             <button type="submit"
-                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl font-extrabold text-sm shadow-md transition duration-150"
-                    style="background: #8F0B13; color: #EFDFC5; border: 1px solid #70090F;"
-                    onmouseover="this.style.background='#380F17';"
-                    onmouseout="this.style.background='#8F0B13';">
+                    class="w-full inline-flex items-center justify-center py-2.5 px-4 rounded-xl font-extrabold text-sm shadow-md transition duration-150 bg-maroon-700 text-cream border border-maroon-800 hover:bg-maroon-900">
                 {{ __('Masuk Sekarang') }}
             </button>
         </div>

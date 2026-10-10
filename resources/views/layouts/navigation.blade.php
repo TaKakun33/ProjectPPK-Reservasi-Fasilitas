@@ -6,10 +6,10 @@
                 {{-- Logo --}}
                 <div class="shrink-0 flex items-center gap-3">
                     <a href="{{ route('facilities.index') }}" class="flex items-center gap-3 group">
-                        <x-application-logo class="block h-9 w-auto drop-shadow-xs transition-transform duration-150 group-hover:scale-105" />
+                        <x-application-logo class="block h-9 w-auto drop-shadow-sm transition-transform duration-150 group-hover:scale-105" />
                         <span class="hidden md:block leading-tight">
                             <span class="block text-sm font-extrabold tracking-tight text-[#EFDFC5] group-hover:text-white transition-colors">SyncSpace</span>
-                            <span class="block text-[10px] font-semibold tracking-widest uppercase text-[#EFDFC5]/70">Reservasi Fasilitas Kampus</span>
+                            <span class="block text-[11px] font-semibold tracking-widest uppercase text-[#EFDFC5]/70">Reservasi Fasilitas Kampus</span>
                         </span>
                     </a>
                 </div>
@@ -69,10 +69,7 @@
                 @auth
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button class="inline-flex items-center gap-2 px-3 py-1.5 border text-xs leading-4 font-bold rounded-lg transition ease-in-out duration-150 shadow-xs"
-                                    style="background:rgba(239, 223, 197, 0.12); border-color:rgba(239, 223, 197, 0.22); color:#EFDFC5;"
-                                    onmouseover="this.style.background='#8F0B13'; this.style.borderColor='#8F0B13';"
-                                    onmouseout="this.style.background='rgba(239, 223, 197, 0.12)'; this.style.borderColor='rgba(239, 223, 197, 0.22)';">
+                            <button class="inline-flex items-center gap-2 px-3 py-1.5 border text-xs leading-4 font-bold rounded-lg transition ease-in-out duration-150 shadow-xs bg-cream/10 border border-cream/20 text-cream hover:bg-maroon-700 hover:border-maroon-700">
                                 <div class="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs shrink-0 shadow-xs"
                                      style="background:#EFDFC5; color:#380F17;">
                                     {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
@@ -104,8 +101,8 @@
                     </x-dropdown>
                 @else
                     <div class="flex items-center space-x-3">
-                        <a href="{{ route('login') }}" class="text-sm font-semibold transition" style="color:#EFDFC5;" onmouseover="this.style.color='#FFFFFF';" onmouseout="this.style.color='#EFDFC5';">Log in</a>
-                        <a href="{{ route('register') }}" class="text-sm font-bold px-4 py-2 rounded-lg transition shadow-xs" style="background:#8F0B13; color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);" onmouseover="this.style.background='#380F17';" onmouseout="this.style.background='#8F0B13';">Register</a>
+                        <a href="{{ route('login') }}" class="text-sm font-semibold transition text-cream hover:text-white">Masuk</a>
+                        <a href="{{ route('register') }}" class="text-sm font-bold px-4 py-2 rounded-lg transition shadow-xs bg-maroon-700 text-cream border border-cream/25 hover:bg-maroon-900">Daftar</a>
                     </div>
                 @endauth
             </div>
@@ -148,7 +145,7 @@
                         {{ __('Data Pengguna') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.rekap.index')" :active="request()->routeIs('admin.rekap.*')">
-                        {{ __('Rekap') }}
+                        {{ __('Rekapitulasi Data') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth
@@ -177,21 +174,21 @@
 
                 <div class="mt-3 space-y-1">
                     <x-responsive-nav-link :href="route('profile.edit')">
-                        {{ __('Profile') }}
+                        {{ __('Profil Akun') }}
                     </x-responsive-nav-link>
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <x-responsive-nav-link :href="route('logout')"
                                 onclick="event.preventDefault(); this.closest('form').submit();">
-                            {{ __('Log Out') }}
+                            {{ __('Keluar') }}
                         </x-responsive-nav-link>
                     </form>
                 </div>
             @else
                 <div class="px-4 py-2 space-y-2">
-                    <a href="{{ route('login') }}" class="block text-sm font-medium text-cream-200">Log in</a>
-                    <a href="{{ route('register') }}" class="inline-block text-sm font-bold text-cream-100 bg-maroon-700 px-4 py-2 rounded-md">Register</a>
+                    <a href="{{ route('login') }}" class="block text-sm font-medium text-cream-200">Masuk</a>
+                    <a href="{{ route('register') }}" class="inline-block text-sm font-bold text-cream-100 bg-maroon-700 px-4 py-2 rounded-md">Daftar</a>
                 </div>
             @endauth
         </div>

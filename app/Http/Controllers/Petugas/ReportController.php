@@ -25,6 +25,20 @@ class ReportController extends Controller
             $query->where('report_status', $request->status);
         }
 
+        // Pencarian: fasilitas, pelapor, kategori, atau isi deskripsi laporan
+        if ($request->filled('search')) {
+            $search = addcslashes(mb_substr(trim((string) $request->search), 0, 100), '%_\\');
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhereHas('facility', fn ($f) => $f->where('facility_name', 'like', "%{$search}%"))
+                  ->orWhereHas('category', fn ($c) => $c->where('category_name', 'like', "%{$search}%"))
+                  ->orWhereHas('user', function ($u) use ($search) {
+                      $u->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
         $reports = $query->orderBy('created_at', 'desc')
             ->paginate(15)
             ->withQueryString();
@@ -59,11 +73,18 @@ class ReportController extends Controller
             ->whereIn('report_status', ['baru', 'diproses'])
             ->count();
 
-        return view('petugas.reports.show', [
+        $data = [
             'laporan'            => $report,
             'reservasiTerdampak' => $reservasiTerdampak,
             'laporanSerupa'      => $laporanSerupa,
-        ]);
+        ];
+
+        // Permintaan AJAX (pop-up detail): kembalikan potongan isi saja, tanpa layout halaman
+        if ($request->ajax()) {
+            return view('petugas.reports.partials.detail', $data + ['modal' => true]);
+        }
+
+        return view('petugas.reports.show', $data);
     }
 
     // Transisi status yang diizinkan (E7): laporan tidak boleh "mundur" atau lompat sembarangan
@@ -134,8 +155,13 @@ class ReportController extends Controller
             ]);
         });
 
+        // Aksi dari pop-up: kembali ke daftar laporan; dari halaman detail penuh: tetap di halaman detail
+        $tujuan = $request->boolean('_modal')
+            ? route('petugas.reports.index')
+            : route('petugas.reports.show', $laporan);
+
         $redirect = redirect()
-            ->route('petugas.reports.show', $laporan)
+            ->to($tujuan)
             ->with('success', 'Status laporan berhasil diperbarui.');
 
         if ($jumlahDibatalkan > 0 || $jumlahDitolak > 0) {

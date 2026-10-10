@@ -11,7 +11,7 @@
         <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(56, 15, 23, 0.35) 0%, rgba(56, 15, 23, 0.85) 100%);"></div>
 
         <div class="relative w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-            <span class="inline-block text-[10px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded mb-1"
+            <span class="inline-block text-[11px] font-bold tracking-widest uppercase px-2.5 py-0.5 rounded mb-1"
                   style="background:rgba(239, 223, 197, 0.15); color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);">
                 Katalog Fasilitas Kampus
             </span>
@@ -31,51 +31,60 @@
         {{-- Search card di latar belakang di bawah banner maroon --}}
         <div class="relative mt-2 mb-1.5 bg-white rounded-xl shadow-xs p-2 sm:p-2.5"
              style="border:1px solid #EAE0D3; box-shadow: 0 2px 8px rgba(56, 15, 23, 0.04);">
-            <form method="GET" action="{{ route('facilities.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-2 sm:gap-2.5">
-                <div class="rounded-lg px-2.5 py-1 transition"
-                     style="border:1px solid #EAE0D3; background:#FAF6F0;">
-                    <label class="block text-[9px] font-bold uppercase tracking-wider mb-0.5" style="color:#4C4F54;">Tipe Fasilitas</label>
-                    <select name="type" class="w-full border-0 p-0 text-xs font-semibold focus:ring-0 bg-transparent cursor-pointer" style="color:#252B2B;">
-                        <option value="">Semua Tipe</option>
-                        @foreach($types as $type)
-                            <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>{{ $type }}</option>
-                        @endforeach
-                    </select>
+            <form method="GET" action="{{ route('facilities.index') }}" class="space-y-2">
+                {{-- Baris 1: pencarian kata kunci (lebar penuh) --}}
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-2 sm:gap-2.5">
+                    <div class="flex-1 min-w-0">
+                        <label for="search" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#4C4F54;">Cari Fasilitas</label>
+                        <div style="position:relative;">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="#8F0B13" stroke-width="2.5"
+                                 style="position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none;"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/></svg>
+                            <input id="search" type="text" name="search" value="{{ request('search') }}" maxlength="100"
+                                   placeholder="Ketik nama fasilitas, tipe, lokasi gedung, atau deskripsi..."
+                                   class="block w-full bg-white border-cream-border focus:border-maroon-700 focus:ring-maroon-700 rounded-xl shadow-sm text-sm text-charcoal-dark"
+                                   style="padding-left:36px;">
+                        </div>
+                    </div>
+                    <div class="flex items-stretch gap-2">
+                        <button type="submit"
+                                class="inline-flex justify-center items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm shadow-xs transition duration-150 bg-maroon-700 text-cream border border-maroon-800 hover:bg-maroon-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/></svg>
+                            <span>Cari</span>
+                        </button>
+                        <a href="{{ route('facilities.index') }}" title="Atur Ulang Filter" aria-label="Atur Ulang Filter"
+                           class="px-3 py-2 rounded-xl transition duration-150 font-bold flex items-center justify-center shadow-xs bg-white border border-cream-border text-charcoal-medium hover:border-maroon-700 hover:text-maroon-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
-                <div class="rounded-lg px-2.5 py-1 transition"
-                     style="border:1px solid #EAE0D3; background:#FAF6F0;">
-                    <label class="block text-[9px] font-bold uppercase tracking-wider mb-0.5" style="color:#4C4F54;">Lokasi Gedung</label>
-                    <select name="location" class="w-full border-0 p-0 text-xs font-semibold focus:ring-0 bg-transparent cursor-pointer" style="color:#252B2B;">
-                        <option value="">Semua Lokasi</option>
-                        @foreach($locations as $loc)
-                            <option value="{{ $loc }}" {{ request('location') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="rounded-lg px-2.5 py-1 transition"
-                     style="border:1px solid #EAE0D3; background:#FAF6F0;">
-                    <label class="block text-[9px] font-bold uppercase tracking-wider mb-0.5" style="color:#4C4F54;">Kapasitas Minimum</label>
-                    <input type="number" name="capacity" value="{{ request('capacity') }}" placeholder="Contoh: 30"
-                           class="w-full border-0 p-0 text-xs font-semibold placeholder:text-[#4C4F54]/50 focus:ring-0 bg-transparent" style="color:#252B2B;">
-                </div>
-                <div class="flex items-stretch gap-2">
-                    <button type="submit"
-                            class="flex-1 inline-flex justify-center items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-xs shadow-xs transition duration-150"
-                            style="background:#8F0B13; color:#EFDFC5; border:1px solid #70090F;"
-                            onmouseover="this.style.background='#380F17';"
-                            onmouseout="this.style.background='#8F0B13';">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35"/></svg>
-                        <span>Cari Fasilitas</span>
-                    </button>
-                    <a href="{{ route('facilities.index') }}" title="Atur Ulang Filter" aria-label="Atur Ulang Filter"
-                       class="px-2.5 py-1 rounded-lg transition duration-150 font-bold flex items-center justify-center shadow-xs"
-                       style="background:#FAF6F0; border:1px solid #EAE0D3; color:#4C4F54;"
-                       onmouseover="this.style.borderColor='#8F0B13'; this.style.color='#8F0B13'; this.style.background='#FFFFFF';"
-                       onmouseout="this.style.borderColor='#EAE0D3'; this.style.color='#4C4F54'; this.style.background='#FAF6F0';">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                    </a>
+
+                {{-- Baris 2: filter tipe, lokasi, kapasitas (gaya isian sama seperti form ajukan reservasi) --}}
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+                    <div>
+                        <label for="type" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#4C4F54;">Tipe Fasilitas</label>
+                        <x-select id="type" name="type" onchange="this.form.submit()" class="block w-full bg-white">
+                            <option value="">Semua Tipe</option>
+                            @foreach($types as $type)
+                                <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                            @endforeach
+                        </x-select>
+                    </div>
+                    <div>
+                        <label for="location" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#4C4F54;">Lokasi Gedung</label>
+                        <x-select id="location" name="location" onchange="this.form.submit()" class="block w-full bg-white">
+                            <option value="">Semua Lokasi</option>
+                            @foreach($locations as $loc)
+                                <option value="{{ $loc }}" {{ request('location') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                            @endforeach
+                        </x-select>
+                    </div>
+                    <div>
+                        <label for="capacity" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#4C4F54;">Kapasitas Minimum</label>
+                        <input id="capacity" type="number" name="capacity" min="0" value="{{ request('capacity') }}" placeholder="Contoh: 30"
+                               class="block w-full bg-white border-cream-border focus:border-maroon-700 focus:ring-maroon-700 rounded-xl shadow-sm text-sm text-charcoal-dark">
+                    </div>
                 </div>
             </form>
         </div>
@@ -88,20 +97,6 @@
                     <span class="text-[11px] font-medium text-[#4C4F54] ml-1.5">({{ $facilities->total() }} sarana terdaftar)</span>
                 </h2>
             </div>
-            <div class="flex items-center gap-1.5 text-[10px] font-semibold">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full shadow-2xs"
-                      style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
-                    <span class="w-1.5 h-1.5 rounded-full inline-block bg-emerald-500"></span> Tersedia
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full shadow-2xs"
-                      style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">
-                    <span class="w-1.5 h-1.5 rounded-full inline-block bg-amber-500"></span> Pemeliharaan
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full shadow-2xs"
-                      style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
-                    <span class="w-1.5 h-1.5 rounded-full inline-block bg-rose-500"></span> Nonaktif
-                </span>
-            </div>
         </div>
 
         {{-- Listing Cards --}}
@@ -112,34 +107,39 @@
         @else
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
                 @foreach($facilities as $facility)
-                    <article class="group bg-white rounded-xl overflow-hidden hover:-translate-y-0.5 transition duration-150 flex flex-col shadow-xs"
-                             style="border:1px solid #EAE0D3;">
+                    @php $nonaktif = $facility->facility_status === 'nonaktif'; @endphp
+                    <article class="group rounded-xl overflow-hidden transition duration-150 flex flex-col shadow-xs {{ $nonaktif ? '' : 'bg-white hover:-translate-y-0.5' }}"
+                             @if($nonaktif) aria-disabled="true" title="Fasilitas sedang nonaktif" @endif
+                             style="border:1px solid {{ $nonaktif ? '#D1D5DB' : '#EAE0D3' }}; {{ $nonaktif ? 'background:#F3F4F6; filter:grayscale(1); opacity:.7;' : '' }}">
                         {{-- Foto cover proporsional (h-28 sm:h-30) + badge --}}
                         <div class="relative h-28 sm:h-30 overflow-hidden bg-slate-100 shrink-0">
-                            <img src="{{ $facility->photo_url }}" alt="{{ $facility->facility_name }}" loading="lazy"
-                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                                 onerror="this.src='https://picsum.photos/seed/{{ $facility->id_fasilitas }}/800/500'">
-                            <span class="absolute top-1.5 left-1.5 text-[9.5px] font-bold px-2 py-0.5 rounded-full shadow-xs backdrop-blur-sm"
+                            @if($facility->photo_url)
+                                <img src="{{ $facility->photo_url }}" alt="{{ $facility->facility_name }}" loading="lazy"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            @else
+                                <x-facility-placeholder class="w-full h-full" />
+                            @endif
+                            <span class="absolute top-1.5 left-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full shadow-xs backdrop-blur-sm"
                                   style="background: linear-gradient(135deg, #380F17 0%, #8F0B13 100%); color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);">
                                 {{ $facility->type }}
                             </span>
                             @if($facility->facility_status === 'aktif')
-                                <span class="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full shadow-xs"
+                                <span class="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full shadow-xs"
                                       style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Tersedia
                                 </span>
                             @elseif($facility->facility_status === 'dalam perbaikan')
-                                <span class="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full shadow-xs"
+                                <span class="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full shadow-xs"
                                       style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">
                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Perbaikan
                                 </span>
                             @else
-                                <span class="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[9.5px] font-bold px-2 py-0.5 rounded-full shadow-xs"
+                                <span class="absolute top-1.5 right-1.5 inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full shadow-xs"
                                       style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
                                     <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Nonaktif
                                 </span>
                             @endif
-                            <span class="absolute bottom-1.5 left-1.5 text-[9.5px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-md shadow-xs"
+                            <span class="absolute bottom-1.5 left-1.5 text-[11px] font-bold px-1.5 py-0.5 rounded-md backdrop-blur-md shadow-xs"
                                   style="background: rgba(37, 43, 43, 0.85); color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.2);">
                                 {{ $facility->capacity }} Orang
                             </span>
@@ -150,7 +150,7 @@
                                 style="color:#252B2B;" title="{{ $facility->facility_name }}">
                                 {{ $facility->facility_name }}
                             </h3>
-                            <p class="mt-0.5 text-[10.5px] flex items-center gap-1 text-[#4C4F54] line-clamp-1" title="{{ $facility->location }}">
+                            <p class="mt-0.5 text-[11px] flex items-center gap-1 text-[#4C4F54] line-clamp-1" title="{{ $facility->location }}">
                                 <svg class="h-3 w-3 shrink-0 text-[#8F0B13]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -162,7 +162,7 @@
                             @if(!empty($facility->amenities) && is_array($facility->amenities))
                                 <div class="mt-1 flex flex-wrap gap-1">
                                     @foreach(array_slice($facility->amenities, 0, 2) as $am)
-                                        <span class="text-[9.5px] font-medium px-1.5 py-0.5 rounded shadow-2xs truncate max-w-[120px]"
+                                        <span class="text-[11px] font-medium px-1.5 py-0.5 rounded shadow-2xs truncate max-w-[120px]"
                                               style="background:#FAF6F0; border:1px solid #EAE0D3; color:#4C4F54;" title="{{ $am }}">
                                             {{ $am }}
                                         </span>
@@ -170,39 +170,32 @@
                                 </div>
                             @endif
 
-                            <p class="mt-0.5 text-[10.5px] leading-tight line-clamp-1 text-[#4C4F54]">
+                            <p class="mt-0.5 text-[11px] leading-tight line-clamp-1 text-[#4C4F54]">
                                 {{ $facility->description ?? 'Sarana kampus.' }}
                             </p>
 
                             <div class="mt-1.5 pt-1.5 flex items-center justify-between gap-1.5 mt-auto"
                                  style="border-top:1px dashed #EAE0D3;">
-                                <a href="{{ route('facilities.show', $facility->id_fasilitas) }}"
-                                   class="text-[11px] font-bold transition inline-flex items-center gap-0.5"
-                                   style="color:#8F0B13;"
-                                   onmouseover="this.style.color='#380F17';"
-                                   onmouseout="this.style.color='#8F0B13';">
-                                    Detail &rarr;
-                                </a>
+                                @if($nonaktif)
+                                    <span class="text-[11px] font-bold" style="color:#6B7280;">Tidak tersedia</span>
+                                @else
+                                    <a href="{{ route('facilities.show', $facility->id_fasilitas) }}"
+                                       class="text-[11px] font-bold transition inline-flex items-center gap-0.5 text-maroon-700 hover:text-maroon-900">
+                                        Detail
+                                    </a>
 
-                                <div class="flex items-center gap-1">
+                                    {{-- Tombol Booking hanya untuk pengguna dan fasilitas yang aktif (tidak tampil saat perbaikan) --}}
                                     @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna && $facility->facility_status === 'aktif')
-                                        <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas]) }}"
-                                           class="inline-flex items-center px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition shadow-2xs"
-                                           style="background:#8F0B13; color:#EFDFC5; border:1px solid #70090F;"
-                                           onmouseover="this.style.background='#380F17';"
-                                           onmouseout="this.style.background='#8F0B13';">
-                                            Booking
-                                        </a>
-                                    @else
-                                        <a href="{{ route('facilities.show', $facility->id_fasilitas) }}"
-                                           class="inline-flex items-center px-2.5 py-1 text-[11px] font-bold rounded-lg transition shadow-2xs"
-                                           style="background:#FAF6F0; color:#380F17; border:1px solid #EAE0D3;"
-                                           onmouseover="this.style.background='#8F0B13'; this.style.color='#EFDFC5'; this.style.borderColor='#8F0B13';"
-                                           onmouseout="this.style.background='#FAF6F0'; this.style.color='#380F17'; this.style.borderColor='#EAE0D3';">
-                                            Detail
-                                        </a>
+                                        <div class="flex items-center gap-1">
+                                            <a href="{{ route('reservations.create', ['facility_id' => $facility->id_fasilitas]) }}"
+                                               x-data
+                                               @click.prevent="$dispatch('isi-reservasi', { facility_id: @js($facility->id_fasilitas) }); $dispatch('open-modal', 'reservasi')"
+                                               class="inline-flex items-center px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition shadow-2xs bg-maroon-700 text-cream border border-maroon-800 hover:bg-maroon-900">
+                                                Booking
+                                            </a>
+                                        </div>
                                     @endif
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </article>
@@ -215,4 +208,9 @@
             </div>
         @endif
     </div>
+
+    {{-- Pop-up form ajukan reservasi (dibuka dari tombol Booking pada kartu fasilitas) --}}
+    @if(auth()->check() && auth()->user()->role === \App\Enums\UserRole::Pengguna)
+        <x-modal-reservasi />
+    @endif
 </x-app-layout>

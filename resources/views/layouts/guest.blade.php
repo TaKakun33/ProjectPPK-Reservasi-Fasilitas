@@ -1,19 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        {{-- Fonts: Plus Jakarta Sans --}}
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-        {{-- Scripts --}}
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @include('layouts.partials.head')
     </head>
     <body class="antialiased" style="font-family: 'Plus Jakarta Sans', sans-serif;">
         <div class="min-h-screen flex flex-col sm:justify-center items-center py-8 sm:py-12 px-4 relative overflow-hidden"
@@ -44,6 +32,8 @@
                 Ruang kelas &bull; Auditorium &bull; Laboratorium &bull; Lapangan
             </p>
         </div>
+
+        <x-popup />
     </body>
 </html>
 

@@ -17,6 +17,7 @@ Route::prefix('petugas')->middleware(['auth', 'role:petugas'])->name('petugas.')
 
     Route::prefix('reservasi')->name('reservations.')->group(function () {
         Route::get('/', [ReservationController::class, 'index'])->name('index');
+        Route::get('/{reservasi}', [ReservationController::class, 'show'])->name('show'); // detail lengkap (pop-up AJAX / halaman penuh)
         Route::patch('/{reservasi}/approve', [ReservationController::class, 'approve'])->name('approve'); // cek bentrok jadwal
         Route::patch('/{reservasi}/reject', [ReservationController::class, 'reject'])->name('reject');
         Route::patch('/{reservasi}/cancel', [ReservationController::class, 'cancel'])->name('cancel'); // wajib isi alasan

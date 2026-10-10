@@ -154,5 +154,7 @@
                 </main>
             </div>
         </div>
+
+        <x-popup :validasi="true" />
     </body>
 </html>

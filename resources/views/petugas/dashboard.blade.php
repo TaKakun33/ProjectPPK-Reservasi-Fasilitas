@@ -26,7 +26,7 @@
             <div class="absolute right-24 -top-10 w-28 h-28 rounded-full blur-lg pointer-events-none" style="background:rgba(143, 11, 19, 0.4);"></div>
 
             <div class="relative z-10">
-                <span class="inline-block text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-md mb-2"
+                <span class="inline-block text-[11px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-md mb-2"
                       style="background:rgba(239, 223, 197, 0.15); color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);">
                     Portal Petugas Fasilitas
                 </span>
@@ -181,10 +181,11 @@
                                           style="background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;">
                                         Pending
                                     </span>
-                                    <a href="{{ route('petugas.reservations.index') }}"
-                                       class="px-2.5 py-1 text-xs font-bold rounded-lg text-white transition shadow-xs hover:brightness-110"
-                                       style="background:#8F0B13;">
-                                        Proses &rarr;
+                                    <a href="{{ route('petugas.reservations.show', $res->id_reservasi) }}"
+                                       x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-reservasi-petugas', url: @js(route('petugas.reservations.show', $res->id_reservasi)) })"
+                                       class="px-2.5 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                       style="background:#8F0B13; color:#EFDFC5;">
+                                        Detail
                                     </a>
                                 </div>
                             </div>
@@ -235,9 +236,10 @@
                                         Baru
                                     </span>
                                     <a href="{{ route('petugas.reports.show', $report->id_laporan) }}"
-                                       class="px-2.5 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-95"
-                                       style="background:#FAF6F0; color:#380F17; border:1px solid #EAE0D3;">
-                                        Detail &rarr;
+                                       x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-laporan-petugas', url: @js(route('petugas.reports.show', $report->id_laporan)) })"
+                                       class="px-2.5 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
+                                       style="background:#8F0B13; color:#EFDFC5;">
+                                        Detail
                                     </a>
                                 </div>
                             </div>
@@ -249,4 +251,12 @@
         </div>
 
     </div>
+
+    <x-modal-detail name="detail-reservasi-petugas" title="Detail Reservasi"
+                    subtitle="Periksa data pemohon dan jadwal sebelum menyetujui atau menolak" max-width="3xl" />
+
+    @include('petugas.reservations.partials.modal-aksi')
+
+    <x-modal-detail name="detail-laporan-petugas" title="Detail Laporan Kerusakan"
+                    subtitle="Investigasi bukti fisik, tentukan status penanganan, dan perbarui fasilitas" max-width="3xl" />
 </x-petugas-layout>

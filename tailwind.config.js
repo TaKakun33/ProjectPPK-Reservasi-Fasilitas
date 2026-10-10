@@ -11,6 +11,12 @@ export default {
 
     theme: {
         extend: {
+            // Alias bayangan gaya Tailwind v4 supaya class shadow-xs dan shadow-2xs
+            // yang sudah dipakai di view tetap menghasilkan bayangan di Tailwind v3
+            boxShadow: {
+                '2xs': '0 1px 0 0 rgb(0 0 0 / 0.05)',
+                'xs':  '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+            },
             fontFamily: {
                 sans: ['Plus Jakarta Sans', 'Figtree', ...defaultTheme.fontFamily.sans],
             },

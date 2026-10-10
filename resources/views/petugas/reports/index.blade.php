@@ -20,25 +20,10 @@
 
     <div class="px-4 sm:px-6 py-5 space-y-4" style="background:#FAF6F0;">
 
-        @if(session('success'))
-            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
-                 style="background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="p-3.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-xs"
-                 style="background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-                <span>{{ session('error') }}</span>
-            </div>
-        @endif
+        {{-- Pencarian --}}
+        <x-search-bar :action="route('petugas.reports.index')"
+                      :hidden="['status' => ($selectedStatus ?? 'all') !== 'all' ? $selectedStatus : null]"
+                      placeholder="Cari fasilitas, pelapor, kategori, atau deskripsi kerusakan..." />
 
         {{-- Filter Tab Status --}}
         <div class="flex items-center gap-2 pb-1 overflow-x-auto">
@@ -53,7 +38,7 @@
             @endphp
             @foreach($reportTabs as $key => $label)
                 @php $isActive = ($selectedStatus ?? 'all') === $key; @endphp
-                <a href="{{ $key === 'all' ? route('petugas.reports.index') : route('petugas.reports.index', ['status' => $key]) }}"
+                <a href="{{ route('petugas.reports.index', array_filter(['status' => $key === 'all' ? null : $key, 'search' => request('search')], fn ($v) => filled($v))) }}"
                    class="px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl transition whitespace-nowrap shadow-xs"
                    style="{{ $isActive
                             ? 'background:#8F0B13; color:#EFDFC5; border:1px solid #8F0B13;'
@@ -118,18 +103,7 @@
 
                                     {{-- Status --}}
                                     <td class="py-3 px-4">
-                                        @php
-                                            $badges = [
-                                                'baru'     => 'background:#FEE2E2; color:#991B1B; border:1px solid #FECACA;',
-                                                'diproses' => 'background:#FEF3C7; color:#92400E; border:1px solid #FDE68A;',
-                                                'selesai'  => 'background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;',
-                                                'ditolak'  => 'background:#F3F4F6; color:#374151; border:1px solid #E5E7EB;',
-                                            ];
-                                        @endphp
-                                        <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full inline-block"
-                                              style="{{ $badges[$report->report_status] ?? 'background:#F3F4F6; color:#374151;' }}">
-                                            {{ ucfirst($report->report_status) }}
-                                        </span>
+                                        <x-status-badge :status="$report->report_status" />
                                     </td>
 
                                     {{-- Tanggal --}}
@@ -140,9 +114,10 @@
                                     {{-- Aksi --}}
                                     <td class="py-3 px-4 text-center">
                                         <a href="{{ route('petugas.reports.show', $report->id_laporan) }}"
+                                           x-data x-on:click.prevent="$dispatch('buka-ajax', { name: 'detail-laporan-petugas', url: @js(route('petugas.reports.show', $report->id_laporan)) })"
                                            class="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg transition shadow-xs hover:brightness-110"
                                            style="background:#8F0B13; color:#EFDFC5;">
-                                            Detail &rarr;
+                                            Detail
                                         </a>
                                     </td>
                                 </tr>
@@ -157,4 +132,7 @@
             @endif
         </div>
     </div>
+
+    <x-modal-detail name="detail-laporan-petugas" title="Detail Laporan Kerusakan"
+                    subtitle="Investigasi bukti fisik, tentukan status penanganan, dan perbarui fasilitas" max-width="3xl" />
 </x-petugas-layout>

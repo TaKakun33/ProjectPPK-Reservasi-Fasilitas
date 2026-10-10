@@ -42,6 +42,19 @@ class ReservationController extends Controller
             $query->where('reservation_status', $request->status);
         }
 
+        // Pencarian: nama/email pemohon, nama fasilitas, atau tujuan peminjaman
+        if ($request->filled('search')) {
+            $search = addcslashes(mb_substr(trim((string) $request->search), 0, 100), '%_\\');
+            $query->where(function ($q) use ($search) {
+                $q->where('purpose', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($u) use ($search) {
+                      $u->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('facility', fn ($f) => $f->where('facility_name', 'like', "%{$search}%"));
+            });
+        }
+
         // Riwayat lengkap diurutkan berdasarkan waktu terbaru
         $reservations = $query->orderBy('created_at', 'desc')
             ->orderBy('date', 'desc')
@@ -52,6 +65,50 @@ class ReservationController extends Controller
         $selectedStatus = $request->input('status', 'all');
 
         return view('petugas.reservations.index', compact('reservations', 'selectedStatus'));
+    }
+
+    // Detail lengkap satu reservasi (pemohon, fasilitas, jadwal, riwayat status, indikasi bentrok)
+    public function show(Request $request, string $reservasi)
+    {
+        $reservation = Reservation::with([
+                'user',
+                'facility',
+                'processedBy',
+                'logs' => fn ($query) => $query->orderBy('created_at')->with('changedBy'),
+            ])
+            ->findOrFail($reservasi);
+
+        // Untuk reservasi pending: apakah jadwalnya sudah bentrok dengan reservasi lain yang disetujui?
+        $bentrok = false;
+        if ($reservation->reservation_status === 'pending') {
+            $bentrok = ReservationAvailability::hasConflict(
+                $reservation->id_fasilitas,
+                $reservation->date->format('Y-m-d'),
+                $reservation->start_time,
+                $reservation->end_time,
+                $reservation->id_reservasi
+            );
+        }
+
+        // Riwayat reservasi pemohon yang sama (konteks keputusan)
+        $riwayatPemohon = Reservation::where('id_user', $reservation->id_user)
+            ->where('id_reservasi', '!=', $reservation->id_reservasi)
+            ->selectRaw("reservation_status, COUNT(*) as total")
+            ->groupBy('reservation_status')
+            ->pluck('total', 'reservation_status');
+
+        $data = [
+            'reservation'    => $reservation,
+            'bentrok'        => $bentrok,
+            'riwayatPemohon' => $riwayatPemohon,
+        ];
+
+        // Permintaan AJAX (pop-up detail): kembalikan potongan isi saja, tanpa layout halaman
+        if ($request->ajax()) {
+            return view('petugas.reservations.partials.detail', $data + ['modal' => true]);
+        }
+
+        return view('petugas.reservations.show', $data);
     }
 
     // Menyetujui permohonan reservasi (cek bentrok, status fasilitas, dan waktu — dalam satu transaksi + lock)
