@@ -10,7 +10,7 @@
                 </h2>
                 <p class="text-xs mt-0.5" style="color:#4C4F54;">Verifikasi akun, atur hak akses, dan kelola data pengguna sistem</p>
             </div>
-            <a href="{{ route('admin.users.index') }}?create=1" x-data x-on:click.prevent="$dispatch('open-modal', 'akun')" class="px-4 py-2 bg-maroon-700 text-cream-100 text-sm font-semibold rounded-xl hover:brightness-110 shadow-sm">
+            <a href="{{ route('admin.users.index') }}?create=1" x-data x-on:click.prevent="$dispatch('open-modal', 'akun')" class="mb-fab px-4 py-2 bg-maroon-700 text-cream-100 text-sm font-semibold rounded-xl hover:brightness-110 shadow-sm">
                 + Pendaftaran Pengguna Baru
             </a>
         </div>

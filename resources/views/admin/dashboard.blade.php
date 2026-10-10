@@ -28,10 +28,10 @@
             <div class="relative z-10">
                 <span class="inline-block text-[11px] font-bold tracking-widest uppercase px-2.5 py-1 rounded-md mb-2"
                       style="background:rgba(239, 223, 197, 0.15); color:#EFDFC5; border:1px solid rgba(239, 223, 197, 0.25);">
-                    Selamat Datang di Portal Administrasi
+                    Portal Admin Fasilitas
                 </span>
                 <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-tight leading-snug">
-                    {{ Auth::user()->name }}
+                    Selamat Bertugas, {{ Auth::user()->name }}
                 </h1>
                 <p class="text-xs flex items-center gap-1.5 mt-1.5" style="color:#EFDFC5; opacity:0.9;">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

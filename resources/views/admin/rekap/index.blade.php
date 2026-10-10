@@ -7,7 +7,7 @@
                 </h2>
                 <p class="text-xs mt-0.5" style="color:#4C4F54;">Laporan analitik tingkat okupansi sarana dan rekapitulasi riwayat penanganan kerusakan fasilitas.</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="mb-hide flex items-center gap-2">
                 {{-- CSV (Soft Approved Emerald) --}}
                 <a href="{{ route('admin.rekap.export', ['format' => 'csv', 'dari' => $periode['dari'], 'sampai' => $periode['sampai']]) }}"
                    class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg shadow-xs transition duration-150 bg-emerald-100 text-emerald-800 border border-emerald-200 hover:bg-emerald-200">
@@ -34,6 +34,24 @@
 
 
     <div class="px-4 sm:px-6 py-5" style="background:#FAF6F0;">
+        {{-- Tombol ekspor untuk mobile (di desktop ada di judul halaman) --}}
+        <div class="mb-show-flex gap-2 mb-4">
+            <a href="{{ route('admin.rekap.export', ['format' => 'csv', 'dari' => $periode['dari'], 'sampai' => $periode['sampai']]) }}"
+               class="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl shadow-xs bg-emerald-100 text-emerald-800 border border-emerald-200" style="min-height:44px;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                CSV
+            </a>
+            <a href="{{ route('admin.rekap.export', ['format' => 'excel', 'dari' => $periode['dari'], 'sampai' => $periode['sampai']]) }}"
+               class="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl shadow-xs bg-emerald-800 text-cream border border-emerald-900" style="min-height:44px;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                Excel
+            </a>
+            <a href="{{ route('admin.rekap.export', ['format' => 'pdf', 'dari' => $periode['dari'], 'sampai' => $periode['sampai']]) }}"
+               class="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-semibold rounded-xl shadow-xs text-white bg-maroon-700 border border-maroon-800" style="min-height:44px;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                PDF
+            </a>
+        </div>
         {{-- Filter periode --}}
         <div class="bg-white p-4 rounded-xl shadow-xs border mb-6" style="border-color:#EAE0D3;">
             <form method="GET" action="{{ route('admin.rekap.index') }}" class="flex flex-wrap gap-3 items-end">
@@ -66,7 +84,7 @@
                 <div class="p-12 text-center text-charcoal-medium">Belum ada data rekapitulasi fasilitas untuk periode yang dipilih.</div>
             @else
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="mb-noaction w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-cream-50 text-charcoal-dark font-bold border-b border-cream-border">
                                 <th class="p-4">Nama Fasilitas</th>
@@ -125,7 +143,7 @@
                     <h3 class="font-semibold text-charcoal-dark">Rekapitulasi Penggunaan Berdasarkan Lokasi Gedung</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="mb-noaction w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-cream-50 text-charcoal-dark font-bold border-b border-cream-border">
                                 <th class="p-4">Lokasi Gedung</th>

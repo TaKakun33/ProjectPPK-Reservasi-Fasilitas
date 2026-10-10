@@ -7,7 +7,7 @@
                 </h2>
                 <p class="text-xs mt-0.5" style="color:#4C4F54;">Kelola data, status operasional, dan ketersediaan fasilitas kampus</p>
             </div>
-            <a href="{{ route('admin.fasilitas.create') }}" x-data @click.prevent="$dispatch('open-modal', 'fasilitas')" class="px-4 py-2 bg-maroon-700 text-cream-100 text-sm font-bold rounded-xl hover:brightness-110 shadow-sm">
+            <a href="{{ route('admin.fasilitas.create') }}" x-data @click.prevent="$dispatch('open-modal', 'fasilitas')" class="mb-fab px-4 py-2 bg-maroon-700 text-cream-100 text-sm font-bold rounded-xl hover:brightness-110 shadow-sm">
                 + Daftarkan Fasilitas Baru
             </a>
         </div>
